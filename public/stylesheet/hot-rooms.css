@@ -1,0 +1,41 @@
+body{
+  background-color: rgb(255, 249, 249);
+}
+
+.nav-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 20px 0 0 0;
+}
+
+.nav-area * {
+  margin: 0 10px;
+}
+
+#member {
+  width: 50px;
+  height: 50px;
+}
+
+.chat-rooms {
+  margin: 50px auto;
+  width: 80%;
+}
+
+.chat-room {
+  background-color: white;
+  border-radius: 20px;
+  box-shadow: 0 1px 2px 0 rgb(60, 64, 67);
+  height: 200px;
+  margin-top: 20px;
+  padding: 25px 25px;
+  cursor: pointer;
+
+  display: flex;
+}
+
+.chat-room h3 {
+  margin: 0 10px;
+}
