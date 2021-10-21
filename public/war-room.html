@@ -4,17 +4,81 @@
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <link rel="stylesheet" href="/stylesheet/war-room.css">
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
+    <link rel="stylesheet" href="/stylesheet/normalize.css" />
+    <link rel="stylesheet" href="/stylesheet/war-room.css" />
+    <link rel="stylesheet" href="/stylesheet/canvas.css" />
+
+    <title>StoComm</title>
   </head>
   <body>
-    <div class="container">
-      <canvas id="myChart" width="400" height="400"></canvas>
+    <div class="navbar">
+      <a href="/home.html"><h3>StoComm</h3></a>
+      <div>
+        <a href="/member.html">
+          <img src="/img/member.svg" alt="" id="member-link" />
+        </a>
+      </div>
     </div>
-    
+
+    <div class="canvas-container">
+      <div id="stock-real-price-wrapper">
+        <canvas id="stock-real-price" width="400" height="400"></canvas>
+      </div>
+
+      <div id="canvas-wrapper">
+        <canvas id="canvas"></canvas>
+        <select name="tool" id="tool">
+          <option value="brush">筆刷</option>
+          <option value="eraser">橡皮擦</option>
+        </select>
+      </div>
+
+      <div class="char-room">
+        <div class="chat-history">
+          <ul id="messages" class="list-group messages-group"></ul>
+        </div>
+
+        <form id="form" action="" class="msg-input-area">
+          <div class="input-group js-msg-input-area msg-input-area">
+            <input
+              type="text"
+              class="form-control"
+              placeholder="請輸入訊息..."
+              aria-label="Recipient's username"
+              aria-describedby="button-addon2"
+              id="js-input"
+            />
+            <button
+              class="btn btn-outline-secondary"
+              type="button"
+              id="button-addon2"
+            >
+              送出
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
     <!-- JS -->
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
-    <script src="/javascript/stock-chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+
+    <script src="/socket"></script>
+    <script type="module" src="/javascript/stock-chart.js"></script>
+    <script src="/javascript/canvas.js"></script>
+    <script src="/javascript/chat.js"></script>
   </body>
 </html>
