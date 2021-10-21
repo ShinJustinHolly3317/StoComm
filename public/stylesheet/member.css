@@ -1,0 +1,123 @@
+/* navbar */
+.navbar {
+  background-color: rgb(121, 209, 201);
+  height: 80px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar h3 {
+  font-size: 35px;
+  letter-spacing: 4px;
+  margin: 0 20px;
+  color: rgb(243, 83, 80);
+}
+
+#member-link {
+  width: 50px;
+  height: 50px;
+  margin: 0 60px 0 0;
+  background-color: white;
+  border-radius: 50%;
+}
+
+/* main area */
+.container {
+  width: 90%;
+  margin: 0 auto;
+}
+
+.self-info {
+  margin: 50px 0 0 0;
+}
+
+#profile-img {
+  margin: 20px 100px;
+
+  display: flex;
+  align-items: center;
+}
+
+#member-name {
+  margin: 0 20px;
+}
+
+#profile-icon {
+  width: 150px;
+  height: 150px;
+}
+
+.following-info {
+  margin: 20px 0 0 0;
+
+  display: flex;
+}
+
+.following-info h3 {
+  margin: 0 20px;
+}
+
+/* function area */
+
+.function-select {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.article-tabs {
+  margin: 50px 0 0 100px;
+
+  display: flex;
+}
+
+.article-tabs div {
+  border-bottom: solid 2px rgb(243, 83, 80);
+  margin: 0 10px;
+}
+
+#start-war-btn {
+  padding: 5px 10px;
+  margin: 50px 100px 0 0;
+  border-radius: 10px;
+  background-color: rgb(20, 201, 186);
+  color: white;
+
+  font-size: 20px;
+  letter-spacing: 2px;
+}
+
+.chat-room {
+  background-color: white;
+  border-radius: 20px;
+  width: 80%;
+  height: 200px;
+  margin: 20px auto;
+  padding: 25px 25px;
+  cursor: pointer;
+
+  display: flex;
+}
+
+.chat-room h3 {
+  margin: 0 10px;
+}
+
+.stock-situation {
+  background-color: white;
+  border-radius: 20px;
+  width: 80%;
+  height: 100px;
+  margin: 20px auto;
+  padding: 25px 25px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+}
+
+.stock-situation h3 {
+  margin: 0 10px;
+}

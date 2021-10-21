@@ -1,3 +1,174 @@
-.container {
-  width: 50%;
+/* default img for canvas */
+#default-img{
+  width: 300px;
+  height: 300px;
+  display: none;
+}
+
+/* navbar */
+.navbar {
+  position: fixed;
+  top: 0;
+  background-color: rgb(121, 209, 201);
+  height: 80px;
+  width: 100%;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar h3 {
+  font-size: 35px;
+  letter-spacing: 4px;
+  margin: 0 20px;
+  color: rgb(243, 83, 80);
+}
+
+#member-link {
+  width: 50px;
+  height: 50px;
+  margin: 0 60px 0 0;
+  background-color: white;
+  border-radius: 50%;
+}
+
+.war-room-container {
+  width: 100%;
+}
+
+/* chat room */
+.chat-room {
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  right: 100px;
+  display: none;
+  flex-direction: column;
+
+  width: 320px;
+  height: 400px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  background-color: white;
+}
+
+.min-chat-room{
+  display: flex;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  right: 100px;
+
+  width: 320px;
+  height: 40px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  padding: 0 0 0 20px;
+  background-color: white
+}
+
+.chat-room-navbar{
+  display: flex;
+  align-items: center;
+
+  padding: 10px 0 0 0;
+}
+
+.shrink-icon, .enlarge-icon{
+  width: 20px;
+  height: 20px;
+  margin: 0 10px 0 auto;
+}
+
+.shrink-icon:hover, .enlarge-icon:hover{
+  cursor: pointer;
+}
+
+.chat-history {
+  width: 320;
+  height: 400px;
+}
+
+.msg-input-area {
+  margin: auto 10px 5px auto;
+  width: 300px;
+}
+
+.messages-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-group li {
+  margin: 15px auto 0 10px;
+}
+
+.msg-input-block {
+  margin: 0 20px;
+}
+
+.messages-group li.my-msg {
+  margin-left: auto ;
+  margin-right: 10px ;
+  background-color: rgb(255, 244, 244);
+}
+
+/* video grid */
+#video-grid {
+  display: flex;
+  align-items: center;
+
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  height: 100px;
+}
+
+video {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 10px;
+}
+
+/* stock-info */
+#stock-real-price-wrapper {
+  display: none;
+  flex-direction: column;
+  width: 300px;
+ 
+  position: absolute;
+  top: 100px;
+  left: 100px;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.min-stock-real-price{
+  display: flex;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  left: 100px;
+
+  width: 320px;
+  height: 40px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  padding: 0 0 0 20px;
+  background-color: white;
+}
+
+.stock-real-price-navbar{
+  display: flex;
+  padding: 10px 0;
+}
+
+/* news card */
+.news-card{
+  width: 300px;
+  height: 300px;
 }
