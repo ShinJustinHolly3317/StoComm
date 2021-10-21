@@ -1,0 +1,127 @@
+/* navbar */
+.navbar {
+  background-color: rgb(121, 209, 201);
+  height: 80px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.navbar h3 {
+  font-size: 35px;
+  letter-spacing: 4px;
+  margin: 0 20px;
+  color: rgb(243, 83, 80);
+}
+
+#member-link {
+  width: 50px;
+  height: 50px;
+  margin: 0 60px 0 0;
+  background-color: white;
+  border-radius: 50%;
+}
+
+body {
+  background-color: rgb(255, 249, 249);
+}
+
+.nav-area {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 20px 0 0 0;
+}
+
+.nav-area * {
+  margin: 0 10px;
+}
+
+.container {
+  width: 80%;
+  margin: 0 auto;
+}
+
+/* kol info */
+#stream-notification {
+  margin: 50px 0 10px 30px;
+}
+
+.kol-area {
+  background-color: rgb(255, 238, 238);
+  width: 100%;
+  margin: 0 auto;
+  padding: 30px 0;
+
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+}
+
+#profile-img {
+  margin: 20px 100px;
+
+  display: flex;
+  align-items: center;
+}
+
+#member-name {
+  margin: 0 20px;
+}
+
+#profile-icon {
+  width: 150px;
+  height: 150px;
+}
+
+.following-info {
+  margin: 20px 0 0 0;
+
+  display: flex;
+}
+
+.following-info h3 {
+  margin: 0 20px;
+}
+
+/* industry area */
+#industry-filter {
+  margin: 50px 0 10px 30px;
+}
+
+.industry-area {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+
+  background-color: blanchedalmond;
+  margin: 10px 0;
+  padding: 20px 30px;
+}
+
+.indudtry-card {
+  display: flex;
+  align-items: center;
+
+  border-radius: 50px;
+  background-color: white;
+  box-shadow: 0 1px 2px 0 rgb(60, 64, 67);
+  padding: 10px 30px;
+}
+
+#industry-icon {
+  width: 150px;
+  height: 150px;
+}
+
+.stock-peek{
+  margin: 20px 0 0 0;
+
+  display: flex;
+}
+
+.stock-peek h3 {
+  margin: 0 20px;
+}
