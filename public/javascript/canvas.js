@@ -92,7 +92,7 @@ window.addEventListener('load', () => {
 
     drawHistory.push([e.clientX, e.clientY])
     // console.log('length', drawHistory.length)
-    // sendDrawHistory()
+    sendDrawHistory()
   }
 
   // function offsetDraw() {

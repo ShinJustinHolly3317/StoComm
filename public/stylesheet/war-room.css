@@ -35,20 +35,57 @@
   display: flex;
   flex-direction: column;
 
-  border: solid 2px grey;
   width: 500px;
-  height: 500px;
+  height: 600px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
 }
 
 .chat-history {
-  width: 450px;
+  width: 500px;
   height: 400px;
 }
 
 .msg-input-area {
-  margin: auto 0 0 0;
+  margin: auto 10px 5px auto;
+  width: 300px;
 }
 
-.messages-group li{
-  margin: 5px;
+.messages-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.messages-group li {
+  width: 70%;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  margin-top: 15px;
+}
+
+.msg-input-block {
+  margin: 0 20px;
+}
+
+.my-msg {
+  margin-left: auto;
+  margin-right: 10px;
+  background-color: rgb(255, 244, 244);
+}
+
+/* video grid */
+#video-grid {
+  display: flex;
+  align-items: center;
+
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  height: 100px;
+}
+
+video {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 10px;
 }

@@ -48,14 +48,14 @@
           <div class="input-group js-msg-input-area msg-input-area">
             <input
               type="text"
-              class="form-control"
+              class="form-control rounded-pill msg-input-block"
               placeholder="請輸入訊息..."
               aria-label="Recipient's username"
               aria-describedby="button-addon2"
               id="js-input"
             />
             <button
-              class="btn btn-outline-secondary"
+              class="btn btn-outline-secondary rounded-pill"
               type="button"
               id="button-addon2"
             >
@@ -63,7 +63,12 @@
             </button>
           </div>
         </form>
+
+        <div id="video-grid">
+        </div>
       </div>
+
+      
     </div>
 
     <!-- JS -->
@@ -75,10 +80,14 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script
+      src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"
+    ></script>
 
     <script src="/socket"></script>
     <script type="module" src="/javascript/stock-chart.js"></script>
     <script src="/javascript/canvas.js"></script>
     <script src="/javascript/chat.js"></script>
+    <script src="/javascript/voice.js"></script>
   </body>
 </html>
