@@ -9,6 +9,7 @@ const http = require('http')
 const server = http.createServer(app)
 const { Server } = require('socket.io')
 const io = new Server(server)
+const { ExpressPeerServer } = require('peer')
 let drawHistory = []
 
 app.use(express.static('public'))
@@ -57,6 +58,11 @@ io.on('connection', (socket) => {
     })
   })
 })
+
+const peerServer = ExpressPeerServer(server, {
+  debug: true
+})
+app.use('/', peerServer)
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
