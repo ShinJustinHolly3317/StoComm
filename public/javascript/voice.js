@@ -34,7 +34,7 @@ navigator.mediaDevices
         addVideoStream(video, userVideoStream)
       })
     })
-    socket.emit('ready')
+    // socket.emit('ready')
   })
 
 myPeer.on('open', (id) => {

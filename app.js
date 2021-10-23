@@ -45,10 +45,12 @@ io.on('connection', (socket) => {
   socket.on('join-room', (roomId, userId) => {
     socket.join(roomId)
     console.log('user: ', userId)
+    socket.broadcast.to(roomId).emit('user-connected', userId)
 
-    socket.on('ready', () => {
-      socket.broadcast.to(roomId).emit('user-connected', userId)
-    })
+    // for local test
+    // socket.on('ready', () => {
+    //   socket.broadcast.to(roomId).emit('user-connected', userId)
+    // })
 
     socket.on('disconnect', () => {
       socket.broadcast.to(roomId).emit('user-disconnected', userId)
