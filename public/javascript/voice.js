@@ -3,11 +3,16 @@ const videoGrid = document.querySelector('#video-grid')
 
 const myVideo = document.createElement('video')
 myVideo.muted = true
-console.log(window.location.hostname)
+
 const myPeer = new Peer(Math.floor(Math.random() * 10), {
   host: '/' + window.location.hostname,
   port: window.location.hostname === 'localhost' ? '3001' : '443',
   debug: 3
+})
+
+myPeer.on('open', (id) => {
+  console.log('my id: ', id)
+  socket.emit('join-room', ROOM_ID, id)
 })
 
 const peers = {}
@@ -37,11 +42,6 @@ navigator.mediaDevices
     })
     // socket.emit('ready')
   })
-
-myPeer.on('open', (id) => {
-  console.log('my id: ', id)
-  socket.emit('join-room', ROOM_ID, id)
-})
 
 socket.on('user-disconnected', (userId) => {
   if (peers[userId]) peers[userId].close()
