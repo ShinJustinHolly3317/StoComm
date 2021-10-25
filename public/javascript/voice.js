@@ -1,13 +1,13 @@
-const ROOM_ID='appworksggg'
+const ROOM_ID = 'appworksggg'
 const videoGrid = document.querySelector('#video-grid')
 
 const myVideo = document.createElement('video')
 myVideo.muted = true
-
+console.log(window.location.hostname)
 const myPeer = new Peer(Math.floor(Math.random() * 10), {
-  host: '/',
-  port: '3001',
-  debug:3
+  host: '/' + window.location.hostname,
+  port: window.location.hostname === 'localhost' ? '3001' : '443',
+  debug: 3
 })
 
 const peers = {}
