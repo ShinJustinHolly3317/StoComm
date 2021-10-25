@@ -2,18 +2,40 @@ let drawHistory = []
 const socket = io()
 const toolSelection = document.querySelector('#tool')
 let toolType = 'brush'
+let drawId = 0
+let recievedDrawId = 0
 
 // function
 function sendDrawHistory() {
   socket.emit('send_draw_history', drawHistory)
 }
 
-function resumeHistory(ctx, x, y) {
+function resumeHistory(ctx, drawHistoryItem) {
   ctx.strokeStyle = 'rgb(240,80,80)'
   ctx.lineWidth = 10
   ctx.lineCap = 'round'
 
+  // change tool
+  if (drawHistoryItem.toolType === 'brush') {
+    ctx.globalCompositeOperation = 'source-over'
+    ctx.strokeStyle = 'rgb(240,80,80)'
+    ctx.lineWidth = 10
+  } else if (drawHistoryItem.toolType === 'eraser') {
+    ctx.globalCompositeOperation = 'destination-out'
+    ctx.strokeStyle = 'rgba(0,0,0,1)'
+    ctx.lineWidth = 30
+  }
+
+  // location
+  const x = drawHistoryItem.location[0]
+  const y = drawHistoryItem.location[1]
+
   // resuming prevx, prevy
+  if (drawHistoryItem.drawId !== recievedDrawId) {
+    ctx.beginPath()
+    recievedDrawId = drawHistoryItem.drawId
+  }
+
   ctx.lineTo(x, y)
   ctx.stroke()
   ctx.beginPath()
@@ -26,10 +48,10 @@ window.addEventListener('load', () => {
   const ctx = canvas.getContext('2d')
 
   // loading drawing history
-  socket.on('take_draw_history', (msg) => {
+  socket.on('take_draw_history', (drawHistoryFromServer) => {
     ctx.beginPath()
-    for (let item of msg) {
-      resumeHistory(ctx, item[0], item[1])
+    for (let item of drawHistoryFromServer) {
+      resumeHistory(ctx, item)
     }
   })
 
@@ -50,6 +72,11 @@ window.addEventListener('load', () => {
   // ctx.lineTo(450, 100)
   // ctx.lineTo(450, 150)
   // ctx.stroke()
+  // ctx.beginPath()
+  // ctx.moveTo(500, 100)
+  // ctx.lineTo(550, 100)
+  // ctx.lineTo(550, 150)
+  // ctx.stroke()
 
   // paiting with mouse
   // control params
@@ -65,6 +92,7 @@ window.addEventListener('load', () => {
 
   function finishPosition() {
     isPainting = false
+    drawId++
   }
 
   function draw(e) {
@@ -90,8 +118,7 @@ window.addEventListener('load', () => {
     ctx.beginPath()
     ctx.moveTo(e.clientX, e.clientY)
 
-    drawHistory.push([e.clientX, e.clientY])
-    // console.log('length', drawHistory.length)
+    drawHistory.push({ location: [e.clientX, e.clientY], toolType, drawId })
     sendDrawHistory()
   }
 
