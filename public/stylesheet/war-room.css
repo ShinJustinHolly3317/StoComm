@@ -1,3 +1,10 @@
+/* default img for canvas */
+#default-img{
+  width: 300px;
+  height: 300px;
+  display: none;
+}
+
 /* navbar */
 .navbar {
   position: fixed;
@@ -31,21 +38,55 @@
 }
 
 /* chat room */
-.char-room {
+.chat-room {
   position: absolute;
+  z-index: 2;
   top: 100px;
   right: 100px;
   display: flex;
   flex-direction: column;
 
-  width: 500px;
-  height: 600px;
+  width: 320px;
+  height: 400px;
   box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
   border-radius: 20px;
+  background-color: white;
+}
+
+.min-chat-room{
+  display: none;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  right: 100px;
+
+  width: 320px;
+  height: 40px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  padding: 0 0 0 20px;
+}
+
+.chat-room-navbar{
+  display: flex;
+  align-items: center;
+
+  padding: 10px 0 0 0;
+}
+
+.shrink-icon, .enlarge-icon{
+  width: 20px;
+  height: 20px;
+  margin: 0 10px 0 auto;
+}
+
+.shrink-icon:hover, .enlarge-icon:hover{
+  cursor: pointer;
 }
 
 .chat-history {
-  width: 500px;
+  width: 320;
   height: 400px;
 }
 
@@ -60,18 +101,16 @@
 }
 
 .messages-group li {
-  width: 70%;
-  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
-  margin-top: 15px;
+  margin: 15px auto 0 10px;
 }
 
 .msg-input-block {
   margin: 0 20px;
 }
 
-.my-msg {
-  margin-left: auto;
-  margin-right: 10px;
+.messages-group li.my-msg {
+  margin-left: auto ;
+  margin-right: 10px ;
   background-color: rgb(255, 244, 244);
 }
 
@@ -95,15 +134,39 @@ video {
 
 /* stock-info */
 #stock-real-price-wrapper {
-  width: 500px;
-  height: 500px;
+  display: flex;
+  flex-direction: column;
+  width: 300px;
+ 
   position: absolute;
   top: 100px;
   left: 100px;
+  background-color: white;
+  border-radius: 20px;
+}
+
+.min-stock-real-price{
+  display: none;
+  align-items: center;
+  position: absolute;
+  z-index: 2;
+  top: 100px;
+  left: 100px;
+
+  width: 320px;
+  height: 40px;
+  box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
+  border-radius: 20px;
+  padding: 0 0 0 20px;
+}
+
+.stock-real-price-navbar{
+  display: flex;
+  padding: 10px 0;
 }
 
 /* news card */
 .news-card{
-  width: 500px;
-  height: 500px;
+  width: 300px;
+  height: 300px;
 }

@@ -78,6 +78,14 @@ window.addEventListener('load', () => {
   // ctx.lineTo(550, 150)
   // ctx.stroke()
 
+  // default image
+  const defaultImg = document.querySelector('#default-img')
+  ctx.drawImage(
+    defaultImg,
+    window.innerWidth / 2 - defaultImg.width / 2,
+    window.innerHeight / 2 - defaultImg.height / 2
+  )
+
   // paiting with mouse
   // control params
   let isPainting = false

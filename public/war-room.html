@@ -17,7 +17,7 @@
     <title>StoComm</title>
   </head>
   <body>
-    <div class="navbar">
+    <div class="navbar shadow-sm">
       <a href="/home.html"><h3>StoComm</h3></a>
       <div>
         <a href="/member.html">
@@ -26,8 +26,13 @@
       </div>
     </div>
 
+    <!-- default img -->
+    <img src="./img/revsample.PNG" alt="" id='default-img'>
+    
+    <!-- stock-real-price -->
     <div class="war-room-container">
-      <div id="stock-real-price-wrapper">
+      <div id="stock-real-price-wrapper" class="shadow-lg">
+        <div class="stock-real-price-navbar"><img src="./img/shrink.png" alt="shrink" class="shrink-icon" id="js-stock-shrink-btn"></div>
         <!--  -->
         <div
           id="carouselExampleDark"
@@ -56,7 +61,8 @@
               aria-label="Slide 3"
             ></button>
           </div>
-          <div class="carousel-inner shadow-lg">
+          <div class="carousel-inner ">
+            
             <div class="carousel-item active">
               <canvas id="stock-real-price" width="400" height="400"></canvas>
             </div>
@@ -93,6 +99,9 @@
         <!--  -->
       </div>
 
+      <!-- minimize stock-real-price -->
+      <div class="min-stock-real-price">個股訊息<img src="./img/enlarge.png" alt="shrink" class="enlarge-icon" id="js-stock-enlarge-btn"></div>
+
       <div id="canvas-wrapper">
         <canvas id="canvas"></canvas>
         <div class="tool-area">
@@ -103,8 +112,10 @@
         </div>
       </div>
 
-      <div class="char-room">
-        <div class="chat-history">
+      <!-- normal size chat-room  -->
+      <div class="chat-room">
+        <div class="chat-history overflow-auto">
+          <div class="chat-room-navbar"><img src="./img/shrink.png" alt="shrink" class="shrink-icon" id="js-chat-shrink-btn"></div>
           <ul id="messages" class="list-group messages-group"></ul>
         </div>
 
@@ -130,6 +141,9 @@
 
         <div id="video-grid"></div>
       </div>
+
+      <!-- minimize chat-room -->
+      <div class="min-chat-room">聊天室<img src="./img/enlarge.png" alt="shrink" class="enlarge-icon" id="js-chat-enlarge-btn"></div>
     </div>
 
     <!-- JS -->
