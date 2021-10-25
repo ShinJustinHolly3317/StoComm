@@ -6,11 +6,14 @@ const router = express.Router()
 const {
   stockNews,
   stockRevenue,
-  stockGross
+  stockGross,
+  getDayPrices,
+  getStockNews
 } = require('../controller/stock-info-controller')
 
 router.use('/stockNews/:id', stockNews)
 router.use('/stockRevenue/:id', stockRevenue)
 router.use('/stockGross/:id', stockGross)
+router.use('/dayPrices/:id', getDayPrices)
 
 module.exports = router

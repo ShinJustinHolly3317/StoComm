@@ -22,12 +22,15 @@ async function stockStats(id, req, res) {
 
   const result = await axios.get(url, {
     headers: {
-      'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-      'content-type': 'text/html; charset=UTF-8',
+      'user-agent':
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+      'content-type': 'text/html; charset=UTF-8'
     }
   })
-  
-  const timeStamps = result.data.data[0].chart.timestamp.map(item=>moment(item+28800))
+
+  const timeStamps = result.data.data[0].chart.timestamp.map((item) =>
+    moment(item + 28800)
+  )
 
   console.log(result.data.data[0].chart.indicators.quote[0].close)
   // console.log(timeStamps)
@@ -37,3 +40,5 @@ async function stockStats(id, req, res) {
 stockStats(2330)
 stockStats(2303)
 stockStats(3037)
+  
+

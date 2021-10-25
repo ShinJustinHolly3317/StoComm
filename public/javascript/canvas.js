@@ -1,4 +1,4 @@
-let drawHistory = [0, 0]
+let drawHistory = []
 const socket = io()
 const toolSelection = document.querySelector('#tool')
 let toolType = 'brush'
@@ -9,14 +9,15 @@ function sendDrawHistory() {
 }
 
 function resumeHistory(ctx, x, y) {
+  ctx.strokeStyle = 'rgb(240,80,80)'
   ctx.lineWidth = 10
   ctx.lineCap = 'round'
 
-  // storing prevx, prevy
-  ctx.beginPath()
+  // resuming prevx, prevy
   ctx.lineTo(x, y)
-  // console.log(e.clientX, e.clientY, prevX, prevY)
   ctx.stroke()
+  ctx.beginPath()
+  ctx.moveTo(x, y)
 }
 
 // lisener
@@ -26,14 +27,14 @@ window.addEventListener('load', () => {
 
   // loading drawing history
   socket.on('take_draw_history', (msg) => {
-    console.log('okokok')
+    ctx.beginPath()
     for (let item of msg) {
       resumeHistory(ctx, item[0], item[1])
     }
   })
 
   // resizing the canvas
-  canvas.height = window.innerHeight
+  canvas.height = window.innerHeight * 0.9
   canvas.width = window.innerWidth
 
   // draw rect
@@ -85,7 +86,6 @@ window.addEventListener('load', () => {
     prevY = e.clientY
 
     ctx.lineTo(e.clientX, e.clientY)
-    // console.log(e.clientX, e.clientY, prevX, prevY)
     ctx.stroke()
     ctx.beginPath()
     ctx.moveTo(e.clientX, e.clientY)

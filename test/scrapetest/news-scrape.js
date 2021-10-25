@@ -7,15 +7,9 @@ const cheerio = require('cheerio')
 const moment = require('moment')
 const puppeteer = require('puppeteer')
 
-// app.use(express.static('public'))
-
-// app.get('/', async (req, res) => {
-//   stockNews(3037, req, res)
-// })
-
-// app.listen(port, () => {
-//   console.log('server on port 3000')
-// })
+// Require mysql connection
+require('dotenv').config()
+const db = require('../../server/model/config/mysqlConnection')
 
 // functions
 async function stockNews(id, req, res) {
@@ -55,6 +49,8 @@ async function stockNews(id, req, res) {
 async function newsApi() {
   const url = `https://tw.stock.yahoo.com/_td-stock/api/resource?bkt=tw-qsp-exp-no4&crumb=nfoRUgESdl.&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=4f8drbpgmsljh&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1173`
 
+  const newsReq = {}
+
   try {
     const result = await axios({
       url: url,
@@ -74,24 +70,22 @@ async function newsApi() {
 }
 
 // test puppeteer
-let getListData = async function () {
-  const url = `https://tw.stock.yahoo.com/quote/${3037}/news`
+let getListData = async function (id) {
+  const url = `https://tw.stock.yahoo.com/quote/${id}/news`
 
   const browser = await puppeteer.launch({
     headless: false
   })
   const page = await browser.newPage()
-
   await page.goto(url)
-
-  let dataLength = await scrollDown(page)
-
-  while (dataLength < 100) {
-    dataLength = await scrollDown(page)
-
-    console.log(dataLength < 100)
+  let contentInfo = await scrollDown(page)
+  while (contentInfo.dataLength < 100) {
+    contentInfo = await scrollDown(page)
+    console.log(contentInfo.dataLength < 100)
   }
 
+  console.log(contentInfo.contentList, contentInfo.titleList)
+  insertNews(id, contentInfo.contentList, contentInfo.titleList)
   // await browser.close()
 }
 
@@ -120,8 +114,23 @@ async function scrollDown(page) {
   }
 
   console.log(contentList.length, titleList.length)
-  return contentList.length
+  return { dataLength: contentList.length, contentList, titleList }
+}
+
+async function insertNews(id, contentList, titleList) {
+  const qryString = `INSERT INTO news (stock_id, title, preview) VALUES ?`
+
+  const newsDataList = []
+  for (let i in contentList){
+    if (titleList[i]){
+      newsDataList.push([Number(id), titleList[i], contentList[i]])
+    }
+  }
+
+  const [result] = await db.query(qryString, [newsDataList])
+  return result.insertId
 }
 
 // Main
-getListData()
+// getListData(2303)
+newsApi(2303)

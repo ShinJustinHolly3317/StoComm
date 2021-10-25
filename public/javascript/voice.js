@@ -6,7 +6,8 @@ myVideo.muted = true
 
 const myPeer = new Peer(Math.floor(Math.random() * 10), {
   host: '/',
-  port: '3001'
+  port: '3001',
+  debug:3
 })
 
 const peers = {}

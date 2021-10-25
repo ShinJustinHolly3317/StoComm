@@ -2,7 +2,17 @@ const cheerio = require('cheerio')
 const axios = require('axios')
 // MongoDB
 const StoComm = require('../../utils/stock-schema')
+const StoComm_revenue = require('../../utils/revenue-schema')
 const db = require('../../utils/mongoose')
+
+// user agent list
+const USER_AGNET = [
+  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+  'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36 ',
+  'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_2) AppleWebKit/601.3.9 (KHTML, like Gecko) Version/9.0.2 Safari/601.3.9 ',
+  'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:15.0) Gecko/20100101 Firefox/15.0.1',
+  'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36 '
+]
 
 async function stockRevenue(id) {
   const url = `https://goodinfo.tw/StockInfo/ShowSaleMonChart.asp?STOCK_ID=${id}`
@@ -10,9 +20,12 @@ async function stockRevenue(id) {
 
   const result = await axios.get(url, {
     headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-      'content-type': 'text/html; charset=UTF-8'
+      'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
+      'content-type': 'text/html; charset=UTF-8',
+      'x-requested-with': 'XMLHttpRequest',
+      'Accept-Encoding': 'br, gzip, deflate',
+      'Accept-Language': 'en-gb',
+      Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
     }
   })
 
@@ -34,6 +47,15 @@ async function stockRevenue(id) {
     counter++
   }
 
+  // insert into mongo
+  StoComm_revenue.create({ id, revenue_on_month: allRevenueList })
+    .then(() => {
+      console.log('mongo ok')
+    })
+    .catch((err) => {
+      console.log(err)
+    })
+
   console.log(allRevenueList)
 }
 
@@ -45,14 +67,12 @@ async function stockGross(id) {
 
   const result = await axios.get(url, {
     headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+      'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
       'content-type': 'text/html; charset=UTF-8',
-      'sec-ch-ua-platform': 'Windows',
-      'sec-fetch-dest': 'empty',
-      'sec-fetch-mode': 'cors',
-      'sec-fetch-site': 'same-origin',
-      'x-requested-with': 'XMLHttpRequest'
+      'x-requested-with': 'XMLHttpRequest',
+      'Accept-Encoding': 'br, gzip, deflate',
+      'Accept-Language': 'en-gb',
+      "Accept": `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
     }
   })
 
@@ -65,10 +85,10 @@ async function stockGross(id) {
   const grossDataByQuarter = {}
 
   // extract title name
-  if (!titleRawData[0]){
+  if (!grossRawData[0]) {
     console.log(result.data)
     return 'no result'
-  } 
+  }
   for (let item of titleRawData[0].children) {
     titleList.push(item.children[0].children[0].data)
   }
@@ -109,13 +129,14 @@ async function getAllStockId() {
   const result = await axios.get(url, {
     headers: {
       'user-agent':
-        'asfadfhsfghs',
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
       'content-type': 'text/html; charset=UTF-8',
       'sec-ch-ua-platform': 'Windows',
       'sec-fetch-dest': 'empty',
       'sec-fetch-mode': 'cors',
       'sec-fetch-site': 'same-origin',
-      'x-requested-with': 'XMLHttpRequest'
+      'x-requested-with': 'XMLHttpRequest',
+      'Referer': 'https://www.google.com/' + Math.random()
     }
   })
 
@@ -133,26 +154,59 @@ async function getAllStockId() {
   return stockIdList
 }
 
-async function main() {
+async function multiScrapeGross() {
   const stockIdList = await getAllStockId()
 
   let counter = 0
   for (let item of stockIdList) {
     counter++
     console.log(item)
-    if (counter < 300) continue
+    if (counter < 600) continue
     console.log(counter)
 
     let result = await stockGross(item)
-    while (result === 'no result'){
+    while (result === 'no result') {
       result = await stockGross(item)
       let now = new Date()
-      while (new Date() - now < 10000) continue
+      while (new Date() - now < Math.floor(Math.random() * 10000) + 15000)
+        continue
     }
+    // if(result === 'no result') return
 
     let now = new Date()
-    while (new Date() - now < 10000) continue
+    while (new Date() - now < Math.floor(Math.random()*10000) + 15000) continue
   }
 }
-main()
+
+async function multiScrapeRevenue() {
+  const stockIdList = await getAllStockId()
+
+  let counter = 0
+  for (let item of stockIdList) {
+    counter++
+    console.log(item)
+    if (counter < 15) continue
+    console.log(counter)
+
+    let result = await stockRevenue(item)
+    while (result === 'no result') {
+      result = await stockRevenue(item)
+      let now = new Date()
+      while (new Date() - now < Math.floor(Math.random() * 10000) + 15000){
+        continue
+      }
+        
+    }
+    // if(result === 'no result') return
+
+    let now = new Date()
+    while (new Date() - now < Math.floor(Math.random() * 10000) + 15000){
+      continue
+    }
+      
+  }
+}
+
+// multiScrapeGross()
+multiScrapeRevenue()
 // getAllStockId()
