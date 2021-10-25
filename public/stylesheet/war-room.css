@@ -1,7 +1,10 @@
 /* navbar */
 .navbar {
+  position: fixed;
+  top: 0;
   background-color: rgb(121, 209, 201);
   height: 80px;
+  width: 100%;
 
   display: flex;
   align-items: center;
@@ -23,8 +26,8 @@
   border-radius: 50%;
 }
 
-.canvas-container {
-  width: 50%;
+.war-room-container {
+  width: 100%;
 }
 
 /* chat room */
@@ -88,4 +91,19 @@ video {
   border-radius: 50%;
   object-fit: cover;
   margin: 0 10px;
+}
+
+/* stock-info */
+#stock-real-price-wrapper {
+  width: 500px;
+  height: 500px;
+  position: absolute;
+  top: 100px;
+  left: 100px;
+}
+
+/* news card */
+.news-card{
+  width: 500px;
+  height: 500px;
 }
