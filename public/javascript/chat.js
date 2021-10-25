@@ -1,6 +1,10 @@
 const form = document.getElementById('form')
 const input = document.getElementById('js-input')
 const messages = document.querySelector('#messages')
+const chatRoomEle = document.querySelector('.chat-room')
+const minChatRoomEle = document.querySelector('.min-chat-room')
+const chatShrinkBtn = document.querySelector('#js-chat-shrink-btn')
+const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
 
 form.addEventListener('submit', function (e) {
   e.preventDefault()
@@ -8,6 +12,16 @@ form.addEventListener('submit', function (e) {
     socket.emit('chat message', input.value)
     input.value = ''
   }
+})
+
+chatShrinkBtn.addEventListener('click', ()=>{
+  chatRoomEle.style.display = 'none'
+  minChatRoomEle.style.display = 'flex'
+})
+
+chatEnlargeBtn.addEventListener('click', () => {
+  chatRoomEle.style.display = 'flex'
+  minChatRoomEle.style.display = 'none'
 })
 
 socket.on('sendback', (msg) => {

@@ -5,6 +5,10 @@ const WWS_URL =
 
 const realTimePriceCtx = document.querySelector('#stock-real-price')
 const dayPriceCtx = document.querySelector('#stock-day-history')
+const stockWrapper = document.querySelector('#stock-real-price-wrapper')
+const minStockWrapper = document.querySelector('.min-stock-real-price')
+const stockShrinkBtn = document.querySelector('#js-stock-shrink-btn')
+const stockEnlargeBtn = document.querySelector('#js-stock-enlarge-btn')
 
 // real time price temp
 const timeStamps = []
@@ -22,7 +26,7 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 
 // first load
 renderRealPriceChart(realTimePriceCtx)
-renderDayPriceChart(dayPriceCtx, 2303)
+renderRevenueChart(dayPriceCtx, 2303)
 renderNews(2303)
 
 // keep updating stock price
@@ -147,7 +151,7 @@ function tradingDuration() {
       ? moment().format('YYYY-MM-DD') + 'T13:30:00'
       : friday.format('YYYY-MM-DD') + 'T13:30:00'
 
-      console.log(openTime, closeTime)
+  console.log(openTime, closeTime)
   return { openTime, closeTime }
 }
 
@@ -180,17 +184,17 @@ async function fetchDayPrices(id) {
   return { prevClosePrice, limitUp, limitDown, dayPrices, timestamps }
 }
 
-async function renderDayPriceChart(ctx, id) {
+async function renderRevenueChart(ctx, id) {
   const response = await fetch(`/stockRevenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
-  
+
   // arrange revenue data
   const monthList = []
   const revenueByMonth = []
   for (let item of revenueData) {
     if (item.month === '2018/01') break
-    monthList.push(item.month)
+    monthList.push(moment(item.month).format('YYYY-MM'))
     revenueByMonth.push(item.revenue)
   }
 
@@ -198,7 +202,7 @@ async function renderDayPriceChart(ctx, id) {
     labels: monthList,
     datasets: [
       {
-        label: '聯電(2303) 月營收',
+        label: '聯電(2303) 月營收 (億)',
         data: revenueByMonth,
         backgroundColor: ['rgba(54, 162, 235)'],
         borderColor: ['rgb(54, 162, 235)'],
@@ -223,19 +227,33 @@ async function renderDayPriceChart(ctx, id) {
   })
 }
 
-async function renderNews(id){
+async function renderNews(id) {
   const response = await fetch(`/stockNews/${id}`)
   const result = await response.json()
   const newsData = result.data
-  console.log(newsData)
-
   const newsCard = document.querySelector('.news-card')
-  
 
-  for (let item of newsData){
-    const titleEle = document.createElement('li')
-    titleEle.classList.add('list-group')
-    titleEle.innerText = item.title
-    newsCard.appendChild(titleEle)
-  } 
+  let titleHtml = ``
+  for (let item of newsData) {
+    let searchUrl = new URLSearchParams(item.link.split('LINK=')[1])
+    let url
+    for (let serachItem of searchUrl) {
+      url = serachItem
+    }
+    titleHtml += `
+    <li class="list-group"><a href="${url}">${item.title}</a></li>
+    `
+  }
+  newsCard.innerHTML += titleHtml
 }
+
+// Listener
+stockShrinkBtn.addEventListener('click', () => {
+  stockWrapper.style.display = 'none'
+  minStockWrapper.style.display = 'flex'
+})
+
+stockEnlargeBtn.addEventListener('click', () => {
+  stockWrapper.style.display = 'flex'
+  minStockWrapper.style.display = 'none'
+})
