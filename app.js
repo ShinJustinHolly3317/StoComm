@@ -4,6 +4,10 @@ const port = process.env.MODE === 'dev' ? 3000 : process.env.PORT
 const express = require('express')
 const app = express()
 
+// body parser
+app.use(express.urlencoded({ extended: false }))
+app.use(express.json({ extended: false }))
+
 // socket
 const http = require('http')
 const server = http.createServer(app)
@@ -28,9 +32,7 @@ app.get('/', (req, res) => {
 // handle draw history
 io.on('connection', (socket) => {
   console.log(`user: ${socket.id} connected`)
-  socket.on('send_draw_history', (msg) => {
-    console.log(msg.length)
-    drawHistory = msg
+  socket.on('send_draw_history', (drawHistory) => {
     socket.broadcast.emit('take_draw_history', drawHistory)
   })
 
