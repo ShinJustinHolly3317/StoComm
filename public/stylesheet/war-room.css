@@ -43,7 +43,7 @@
   z-index: 2;
   top: 100px;
   right: 100px;
-  display: flex;
+  display: none;
   flex-direction: column;
 
   width: 320px;
@@ -54,7 +54,7 @@
 }
 
 .min-chat-room{
-  display: none;
+  display: flex;
   align-items: center;
   position: absolute;
   z-index: 2;
@@ -66,6 +66,7 @@
   box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
   border-radius: 20px;
   padding: 0 0 0 20px;
+  background-color: white
 }
 
 .chat-room-navbar{
@@ -134,7 +135,7 @@ video {
 
 /* stock-info */
 #stock-real-price-wrapper {
-  display: flex;
+  display: none;
   flex-direction: column;
   width: 300px;
  
@@ -146,7 +147,7 @@ video {
 }
 
 .min-stock-real-price{
-  display: none;
+  display: flex;
   align-items: center;
   position: absolute;
   z-index: 2;
@@ -158,6 +159,7 @@ video {
   box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
   border-radius: 20px;
   padding: 0 0 0 20px;
+  background-color: white;
 }
 
 .stock-real-price-navbar{
