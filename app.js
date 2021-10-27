@@ -34,9 +34,13 @@ app.get('/', (req, res) => {
   res.redirect('/home.html')
 })
 
-app.get('/test', (req, res) => {
-  res.render('article-details', { style: 'article-details.css' })
+const routes = require('./server/routes')
+app.use(routes)
+
+app.get('/', (req, res) => {
+  res.redirect('/home.html')
 })
+app.use('/', peerServer)
 
 // handle draw history
 io.on('connection', (socket) => {
