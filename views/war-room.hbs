@@ -1,0 +1,157 @@
+<!-- default img -->
+<img src='./img/revsample.PNG' alt='' id='default-img' />
+
+<!-- stock-real-price -->
+<div class='war-room-container'>
+  <div id='stock-real-price-wrapper' class='shadow-lg'>
+    <div class='stock-real-price-navbar'><img
+        src='./img/shrink.png'
+        alt='shrink'
+        class='shrink-icon'
+        id='js-stock-shrink-btn'
+      /></div>
+    <!--  -->
+    <div
+      id='carouselExampleDark'
+      class='carousel carousel-dark slide'
+      data-bs-ride='carousel'
+    >
+      <div class='carousel-indicators'>
+        <button
+          type='button'
+          data-bs-target='#carouselExampleDark'
+          data-bs-slide-to='0'
+          class='active'
+          aria-current='true'
+          aria-label='Slide 1'
+        ></button>
+        <button
+          type='button'
+          data-bs-target='#carouselExampleDark'
+          data-bs-slide-to='1'
+          aria-label='Slide 2'
+        ></button>
+        <button
+          type='button'
+          data-bs-target='#carouselExampleDark'
+          data-bs-slide-to='2'
+          aria-label='Slide 3'
+        ></button>
+      </div>
+      <div class='carousel-inner'>
+
+        <div class='carousel-item active'>
+          <canvas id='stock-real-price' width='400' height='400'></canvas>
+        </div>
+        <div class='carousel-item'>
+          <canvas id='stock-day-history' width='400' height='400'></canvas>
+        </div>
+        <div class='carousel-item'>
+          <div class='card news-card overflow-auto'>
+            <ul class='list-group list-group-flush'>
+              <li class='list-group-item'><h4>個股新聞</h4></li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <button
+        class='carousel-control-prev'
+        type='button'
+        data-bs-target='#carouselExampleDark'
+        data-bs-slide='prev'
+      >
+        <span class='carousel-control-prev-icon' aria-hidden='true'></span>
+        <span class='visually-hidden'>Previous</span>
+      </button>
+      <button
+        class='carousel-control-next'
+        type='button'
+        data-bs-target='#carouselExampleDark'
+        data-bs-slide='next'
+      >
+        <span class='carousel-control-next-icon' aria-hidden='true'></span>
+        <span class='visually-hidden'>Next</span>
+      </button>
+    </div>
+    <!--  -->
+  </div>
+
+  <!-- minimize stock-real-price -->
+  <div class='min-stock-real-price'>個股訊息<img
+      src='./img/enlarge.png'
+      alt='shrink'
+      class='enlarge-icon'
+      id='js-stock-enlarge-btn'
+    /></div>
+
+  <div id='canvas-wrapper'>
+    <canvas id='canvas'></canvas>
+    <div class='tool-area'>
+      <select name='tool' id='tool'>
+        <option value='brush'>筆刷</option>
+        <option value='eraser'>橡皮擦</option>
+      </select>
+    </div>
+  </div>
+
+  <!-- normal size chat-room  -->
+  <div class='chat-room'>
+    <div class='chat-history overflow-auto'>
+      <div class='chat-room-navbar'><img
+          src='./img/shrink.png'
+          alt='shrink'
+          class='shrink-icon'
+          id='js-chat-shrink-btn'
+        /></div>
+      <ul id='messages' class='list-group messages-group'></ul>
+    </div>
+
+    <form id='form' action='' class='msg-input-area'>
+      <div class='input-group js-msg-input-area msg-input-area'>
+        <input
+          type='text'
+          class='form-control rounded-pill msg-input-block'
+          placeholder='請輸入訊息...'
+          aria-label="Recipient's username"
+          aria-describedby='button-addon2'
+          id='js-input'
+        />
+        <button
+          class='btn btn-outline-secondary rounded-pill'
+          type='button'
+          id='button-addon2'
+        >
+          送出
+        </button>
+      </div>
+    </form>
+
+    <div id='video-grid'></div>
+  </div>
+
+  <!-- minimize chat-room -->
+  <div class='min-chat-room'>聊天室<img
+      src='./img/enlarge.png'
+      alt='shrink'
+      class='enlarge-icon'
+      id='js-chat-enlarge-btn'
+    /></div>
+</div>
+
+<!-- JS -->
+<script
+  src='https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js'
+></script>
+<script
+  src='https://cdn.jsdelivr.net/npm/chart.js@3.5.1/dist/chart.min.js'
+></script>
+<script
+  src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js'
+></script>
+<script src='https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js'></script>
+
+<script src='/socket'></script>
+<script type='module' src='/javascript/stock-chart.js'></script>
+<script src='/javascript/canvas.js'></script>
+<script src='/javascript/chat.js'></script>
+<script src='/javascript/voice.js'></script>

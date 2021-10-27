@@ -4,7 +4,7 @@ const videoGrid = document.querySelector('#video-grid')
 const myVideo = document.createElement('video')
 myVideo.muted = true
 
-const myPeer = new Peer(Math.floor(Math.random() * 10), {
+const myPeer = new Peer({
   host: '/' + window.location.hostname,
   port: window.location.hostname === 'localhost' ? '3001' : '443',
   debug: 3

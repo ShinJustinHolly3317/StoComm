@@ -1,10 +1,12 @@
-let drawHistory = []
+// socket init
 const socket = io()
-const toolSelection = document.querySelector('#tool')
-let toolType = 'brush'
+
+let drawHistory = []
+let toolType = 'brush' // default
 let drawId = 0
 let recievedDrawId = 0
 
+const toolSelection = document.querySelector('#tool')
 const canvasEle = {
   canvas: document.querySelector('#canvas'),
   ctx: canvas.getContext('2d')
@@ -55,7 +57,7 @@ window.addEventListener('load', () => {
 
   // loading drawing history
   socket.on('take_draw_history', (drawHistoryFromServer) => {
-    ctx.beginPath()
+    canvasEle.ctx.beginPath()
     for (let item of drawHistoryFromServer) {
       resumeHistory(ctx, item)
     }

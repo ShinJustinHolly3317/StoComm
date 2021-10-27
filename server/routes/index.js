@@ -10,7 +10,9 @@ const {
   getDayPrices,
   getStockNews
 } = require('../controller/stock-info-controller')
+const render = require('./modules/render')
 
+router.use('/', render)
 router.use('/stockNews/:id', stockNews)
 router.use('/stockRevenue/:id', stockRevenue)
 router.use('/stockGross/:id', stockGross)
