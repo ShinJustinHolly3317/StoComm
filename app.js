@@ -8,6 +8,11 @@ const app = express()
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json({ extended: false }))
 
+// view engine
+const exphdb = require('express-handlebars')
+app.engine('hbs', exphdb({ defaultLayout: 'main', extname: '.hbs' }))
+app.set('view engine', 'hbs')
+
 // socket
 const http = require('http')
 const server = http.createServer(app)
@@ -27,6 +32,10 @@ app.use(routes)
 
 app.get('/', (req, res) => {
   res.redirect('/home.html')
+})
+
+app.get('/test', (req, res) => {
+  res.render('article-details', { style: 'article-details.css' })
 })
 
 // handle draw history
