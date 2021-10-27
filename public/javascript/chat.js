@@ -14,7 +14,7 @@ form.addEventListener('submit', function (e) {
   }
 })
 
-chatShrinkBtn.addEventListener('click', ()=>{
+chatShrinkBtn.addEventListener('click', () => {
   chatRoomEle.style.display = 'none'
   minChatRoomEle.style.display = 'flex'
 })

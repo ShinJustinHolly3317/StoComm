@@ -84,11 +84,13 @@
       id='js-stock-enlarge-btn'
     /></div>
 
+  <!-- paiting canvas -->
   <div id='canvas-wrapper'>
-    <canvas id='canvas'></canvas>
+    <div id='canvas'></div>
     <div class='tool-area'>
       <select name='tool' id='tool'>
         <option value='brush'>筆刷</option>
+        <option value='line'>直線</option>
         <option value='eraser'>橡皮擦</option>
       </select>
     </div>
@@ -149,9 +151,15 @@
   src='https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns/dist/chartjs-adapter-date-fns.bundle.min.js'
 ></script>
 <script src='https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js'></script>
-
+<script src='https://unpkg.com/konva@8.2.3/konva.min.js'></script>
 <script src='/socket'></script>
+
+{{!-- init socket --}}
+<script>
+  const socket = io()
+</script>
+
 <script type='module' src='/javascript/stock-chart.js'></script>
-<script src='/javascript/canvas.js'></script>
+<script src='/javascript/konva.js'></script>
 <script src='/javascript/chat.js'></script>
 <script src='/javascript/voice.js'></script>

@@ -1,6 +1,6 @@
+// server init
 require('dotenv').config()
 const port = process.env.MODE === 'dev' ? 3000 : process.env.PORT
-
 const express = require('express')
 const app = express()
 
@@ -13,61 +13,33 @@ const exphdb = require('express-handlebars')
 app.engine('hbs', exphdb({ defaultLayout: 'main', extname: '.hbs' }))
 app.set('view engine', 'hbs')
 
-// socket
-const http = require('http')
-const server = http.createServer(app)
-const { Server } = require('socket.io')
-const io = new Server(server)
-const { ExpressPeerServer } = require('peer')
-let drawHistory = []
-
+// static files
 app.use(express.static('public'))
 app.use(
   '/socket',
   express.static(__dirname + '/node_modules/socket.io/client-dist/socket.io.js')
 )
 
+// socket
+const http = require('http')
+const server = http.createServer(app)
+const { Server } = require('socket.io')
+const io = new Server(server)
+const { ExpressPeerServer } = require('peer')
+
+// start peerjs server
 const peerServer = ExpressPeerServer(server, {
   debug: true
 })
 app.use('/peerjs', peerServer)
 
+// use Routes
 const routes = require('./server/routes')
 app.use(routes)
 
 // handle draw history
-io.on('connection', (socket) => {
-  console.log(`user: ${socket.id} connected`)
-  socket.on('send_draw_history', (drawHistory) => {
-    socket.broadcast.emit('take_draw_history', drawHistory)
-  })
-
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg)
-
-    socket.broadcast.emit('sendback', msg)
-    // send my msg
-    socket.emit('send my msg', msg)
-  })
-
-  // peerjs
-  socket.on('join-room', (roomId, userId) => {
-    socket.join(roomId)
-    console.log('user: ', userId)
-    socket.broadcast.to(roomId).emit('user-connected', userId)
-
-    // for local test
-    socket.on('ready', () => {
-      socket.broadcast.to(roomId).emit('user-connected', userId)
-    })
-
-    socket.on('disconnect', () => {
-      socket.broadcast.to(roomId).emit('user-disconnected', userId)
-    })
-  })
-})
-
-
+const socketController = require('./server/controller/socket/main-socket-controller')
+io.on('connection', socketController)
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
