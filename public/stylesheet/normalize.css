@@ -9,10 +9,6 @@ body {
   flex-direction: column;
 }
 
-style-footer {
-  margin-top: auto;
-}
-
 a {
   text-decoration: none;
   color: black;

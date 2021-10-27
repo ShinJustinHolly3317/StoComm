@@ -27,20 +27,13 @@ app.use(
   express.static(__dirname + '/node_modules/socket.io/client-dist/socket.io.js')
 )
 
+const peerServer = ExpressPeerServer(server, {
+  debug: true
+})
+app.use('/peerjs', peerServer)
+
 const routes = require('./server/routes')
 app.use(routes)
-
-app.get('/', (req, res) => {
-  res.redirect('/home.html')
-})
-
-const routes = require('./server/routes')
-app.use(routes)
-
-app.get('/', (req, res) => {
-  res.redirect('/home.html')
-})
-app.use('/', peerServer)
 
 // handle draw history
 io.on('connection', (socket) => {
@@ -74,10 +67,7 @@ io.on('connection', (socket) => {
   })
 })
 
-const peerServer = ExpressPeerServer(server, {
-  debug: true
-})
-app.use('/', peerServer)
+
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
