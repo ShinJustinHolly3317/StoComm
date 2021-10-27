@@ -8,7 +8,7 @@ const myPeer = new Peer({
   host: '/' + window.location.hostname,
   port: window.location.hostname === 'localhost' ? '3000' : '443',
   path: '/peerjs',
-  debug: 3
+  debug: 0
 })
 
 myPeer.on('open', (id) => {

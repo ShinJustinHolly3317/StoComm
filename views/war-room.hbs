@@ -157,6 +157,10 @@
 {{!-- init socket --}}
 <script>
   const socket = io()
+  let socketId
+  socket.on('connect', () => {
+    socketId = socket.id
+  })
 </script>
 
 <script type='module' src='/javascript/stock-chart.js'></script>

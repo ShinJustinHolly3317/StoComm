@@ -27,6 +27,8 @@ const stage = new Konva.Stage({
 const layer = new Konva.Layer()
 stage.add(layer)
 
+initLoadLayer()
+
 let isPaint = false
 let localToolType = 'brush'
 let localLayerObject
@@ -38,6 +40,7 @@ stage.on('mousedown touchstart', function (e) {
 
   // socket send new layer msg
   const initDrawInfo = {
+    userId: socketId,
     drawLayerCounter: null, // latest id
     location: [pos.x, pos.y, pos.x, pos.y],
     toolType: localToolType
@@ -59,6 +62,7 @@ stage.on('mousedown touchstart', function (e) {
       points: [pos.x, pos.y, pos.x, pos.y]
     })
     drawHistory[latestLayerId] = {
+      userId: socketId,
       drawLayerCounter: localLayerCounter, // latest id
       location: [pos.x, pos.y, pos.x, pos.y],
       toolType: localToolType
@@ -87,6 +91,9 @@ stage.on('mousemove touchmove', function (e) {
 
   switch (localToolType) {
     case 'brush':
+      toolController.brush(localLayerObject, [pos.x, pos.y])
+      break
+    case 'eraser':
       toolController.brush(localLayerObject, [pos.x, pos.y])
       break
     case 'line':
@@ -157,21 +164,23 @@ textNode.on('dblclick dbltap', () => {
 })
 
 // socket listener
-
 socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
   let newLine = new Konva.Line({
     stroke: '#df4b26',
     strokeWidth: 5,
     globalCompositeOperation:
-      remoteDrawHistory.at(-1).toolType === 'eraser'
+      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].toolType ===
+      'eraser'
         ? 'destination-out'
         : 'source-over',
     // round cap for smoother lines
     lineCap: 'round',
     // add point twice, so we have some drawings even on a simple click
-    points: remoteDrawHistory.at(-1).location
+    points:
+      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location
   })
-  drawHistory[remoteLatestLayerId] = remoteDrawHistory.at(-1)
+  drawHistory[remoteLatestLayerId] =
+    remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1]
   drawHistory[remoteLatestLayerId].layerObject = newLine
 
   layer.add(newLine)
@@ -185,7 +194,7 @@ function resumeHistory() {
   for (let item of drawHistory) {
     let curLine = new Konva.Line({
       points: item.lastLinePosition,
-      stroke: 'red',
+      stroke: '#df4b26',
       strokeWidth: 5,
       lineCap: 'round',
       lineJoin: 'round',
@@ -208,13 +217,40 @@ function tracking(id, layerObject, locations) {
   // console.log(newPoints)
   // layerObject.points(newPoints)
   console.log(drawHistory[id].toolType)
-  
+
   switch (drawHistory[id].toolType) {
     case 'brush':
+      toolController.brush(layerObject, locations)
+      break
+    case 'eraser':
       toolController.brush(layerObject, locations)
       break
     case 'line':
       toolController.straightLine(id, locations, layerObject)
       break
   }
+}
+
+function initLoadLayer() {
+  socket.emit('init load')
+  socket.on('init load data', (drawHistory) => {
+    console.log(drawHistory)
+    if (!Object.keys(drawHistory).length) return
+
+    for (let key in drawHistory) {
+      let layerObj = new Konva.Line({
+        points: drawHistory[key].location,
+        stroke: '#df4b26',
+        strokeWidth: 5,
+        lineCap: 'round',
+        lineJoin: 'round',
+        globalCompositeOperation:
+          drawHistory[key].toolType === 'eraser'
+            ? 'destination-out'
+            : 'source-over'
+      })
+
+      layer.add(layerObj)
+    }
+  })
 }

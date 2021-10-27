@@ -1,16 +1,19 @@
-const drawHistory = []
+const drawHistory = {}
 
 function mainSocketController(socket) {
   console.log(`user: ${socket.id} connected`)
+  // init load
+  socket.on('init load', ()=>{
+    socket.emit('init load data', drawHistory)
+  })
 
   // recieve real time draw history
   socket.on('start draw', (initDrawInfo) => {
-    console.log('start draw', initDrawInfo)
 
     // defining last incoming id
-    let topLayerId = drawHistory.length - 1
+    let topLayerId = Object.keys(drawHistory).length - 1
     initDrawInfo.drawLayerCounter = topLayerId + 1
-    drawHistory.push(initDrawInfo)
+    drawHistory[initDrawInfo.drawLayerCounter] = initDrawInfo
     socket.emit('get latest id', initDrawInfo.drawLayerCounter, drawHistory)
     // socket.broadcast.emit('get latest id', initDrawInfo.drawLayerCounter)
 
@@ -23,6 +26,9 @@ function mainSocketController(socket) {
   })
 
   socket.on('drawing', (localLayerId, location) => {
+    console.log(drawHistory)
+    drawHistory[localLayerId].location =
+      drawHistory[localLayerId].location.concat(location)
     socket.broadcast.emit('latest draw history', localLayerId, location)
   })
 
