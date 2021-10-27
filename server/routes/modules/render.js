@@ -1,17 +1,17 @@
 const express = require('express')
 const router = express.Router()
 
-router.get('/article-details', (req, res)=>{
-  res.render('article-details', {style: 'article-details.css'})
+router.get('/', (req, res) => {
+  res.redirect('/home.html')
+})
+router.get('/article-details', (req, res) => {
+  res.render('article-details', { style: 'article-details.css' })
 })
 router.get('/explore', (req, res) => {
   res.render('explore', { style: 'explore.css' })
 })
 router.get('/following', (req, res) => {
   res.render('following', { style: 'following.css' })
-})
-router.get('/home', (req, res) => {
-  res.render('home', { style: 'home.css' })
 })
 router.get('/hot-rooms', (req, res) => {
   res.render('hot-rooms', { style: 'hot-rooms.css' })
