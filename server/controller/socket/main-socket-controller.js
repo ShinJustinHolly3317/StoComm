@@ -26,10 +26,20 @@ function mainSocketController(socket) {
   })
 
   socket.on('drawing', (localLayerId, location) => {
-    console.log(drawHistory)
     drawHistory[localLayerId].location =
       drawHistory[localLayerId].location.concat(location)
     socket.broadcast.emit('latest draw history', localLayerId, location)
+
+    // clean additional location of line layer
+    const thisLocation = drawHistory[localLayerId].location
+    if (drawHistory[localLayerId].toolType === 'line'){
+      drawHistory[localLayerId].location = [
+        thisLocation[0],
+        thisLocation[1],
+        thisLocation[thisLocation.length - 2],
+        thisLocation[thisLocation.length - 1]
+      ]
+    }
   })
 
   // Chat room

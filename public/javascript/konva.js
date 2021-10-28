@@ -1,9 +1,11 @@
 // Global variables
 const drawHistory = {}
 let localLayerCounter = 0
-
 let width = window.innerWidth
-let height = window.innerHeight - 25
+let height = window.innerHeight - 70
+
+// DOM
+const cavasWrapper = document.querySelector('#canvas-wrapper')
 
 // tool controller
 const toolController = {
@@ -34,7 +36,12 @@ let localToolType = 'brush'
 let localLayerObject
 
 stage.on('mousedown touchstart', function (e) {
+  if (localToolType === 'select') {
+    isPaint = false
+    return 
+  }
   isPaint = true
+
   let latestLayerId
   const pos = stage.getPointerPosition()
 
@@ -45,32 +52,8 @@ stage.on('mousedown touchstart', function (e) {
     location: [pos.x, pos.y, pos.x, pos.y],
     toolType: localToolType
   }
+
   socket.emit('start draw', initDrawInfo)
-  socket.on('get latest id', (id) => {
-    latestLayerId = id
-    localLayerCounter = id
-
-    // create new kayer
-
-    localLayerObject = new Konva.Line({
-      stroke: '#df4b26',
-      strokeWidth: 5,
-      globalCompositeOperation:
-        localToolType === 'eraser' ? 'destination-out' : 'source-over',
-      lineCap: 'round',
-      // add point twice, so we have some drawings even on a simple click
-      points: [pos.x, pos.y, pos.x, pos.y]
-    })
-    drawHistory[latestLayerId] = {
-      userId: socketId,
-      drawLayerCounter: localLayerCounter, // latest id
-      location: [pos.x, pos.y, pos.x, pos.y],
-      toolType: localToolType
-    }
-    console.log(drawHistory)
-
-    layer.add(localLayerObject)
-  })
 })
 
 stage.on('mouseup touchend', function () {
@@ -164,6 +147,35 @@ textNode.on('dblclick dbltap', () => {
 })
 
 // socket listener
+socket.on('get latest id', (id, remoteDrawHistory) => {
+  latestLayerId = id
+  localLayerCounter = id
+
+  // create new kayer
+
+  localLayerObject = new Konva.Line({
+    stroke: '#df4b26',
+    strokeWidth: 5,
+    globalCompositeOperation:
+      localToolType === 'eraser' ? 'destination-out' : 'source-over',
+    lineCap: 'round',
+    // add point twice, so we have some drawings even on a simple click
+    points:
+      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
+    draggable: true
+  })
+  drawHistory[latestLayerId] = {
+    userId: socketId,
+    drawLayerCounter: localLayerCounter, // latest id
+    location:
+      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
+    toolType: localToolType
+  }
+  console.log(drawHistory)
+
+  layer.add(localLayerObject)
+})
+
 socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
   let newLine = new Konva.Line({
     stroke: '#df4b26',
@@ -177,7 +189,8 @@ socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
     lineCap: 'round',
     // add point twice, so we have some drawings even on a simple click
     points:
-      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location
+      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
+    draggable: true
   })
   drawHistory[remoteLatestLayerId] =
     remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1]
@@ -185,12 +198,26 @@ socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
 
   layer.add(newLine)
 })
+
 socket.on('latest draw history', (id, location) => {
   tracking(id, drawHistory[id].layerObject, location)
 })
 
+/* window listener */
+window.addEventListener('resize', resumeHistory)
+cavasWrapper.addEventListener('mouseout', (e) => {
+  isPaint = false
+})
+
 /* function */
 function resumeHistory() {
+  // if resizing
+  let width = window.innerWidth
+  let height = window.innerHeight - 70
+  stage.width(width)
+  stage.height(height)
+
+  // reloading drawing history
   for (let item of drawHistory) {
     let curLine = new Konva.Line({
       points: item.lastLinePosition,
@@ -199,7 +226,8 @@ function resumeHistory() {
       lineCap: 'round',
       lineJoin: 'round',
       globalCompositeOperation:
-        item.toolType === 'eraser' ? 'destination-out' : 'source-over'
+        item.toolType === 'eraser' ? 'destination-out' : 'source-over',
+      draggable: true
     })
 
     curLine.move({
@@ -234,7 +262,6 @@ function tracking(id, layerObject, locations) {
 function initLoadLayer() {
   socket.emit('init load')
   socket.on('init load data', (drawHistory) => {
-    console.log(drawHistory)
     if (!Object.keys(drawHistory).length) return
 
     for (let key in drawHistory) {
@@ -247,7 +274,8 @@ function initLoadLayer() {
         globalCompositeOperation:
           drawHistory[key].toolType === 'eraser'
             ? 'destination-out'
-            : 'source-over'
+            : 'source-over',
+        draggable: true
       })
 
       layer.add(layerObj)

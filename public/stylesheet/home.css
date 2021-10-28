@@ -1,4 +1,3 @@
-
 .welcome-page {
   display: flex;
   flex-direction: column;
@@ -9,24 +8,34 @@
 }
 
 .slogan {
-  padding: 50px 0 0 50px;
+  padding: 100px 0 0 100px;
 }
 
 h1 {
   color: rgb(243, 83, 80);
   margin: 0;
+  letter-spacing: 5px;
+}
+
+h2.welcome-msg {
+  margin: 50px 0;
+}
+
+h3 {
+  margin: 100px 0 0 0;
+  letter-spacing: 10px;
 }
 
 .direct-btn {
   display: flex;
   justify-content: space-around;
   width: 30%;
-  margin: auto 20px 50px 65%;
+  margin: auto 0 100px 60%;
 
   border-bottom: solid 1px black;
 }
 
-#enter-name {
+#enter-email {
   background-color: rgba(0, 0, 0, 0);
   border: none;
 }

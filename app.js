@@ -6,7 +6,7 @@ const app = express()
 
 // body parser
 app.use(express.urlencoded({ extended: false }))
-app.use(express.json({ extended: false }))
+app.use(express.json())
 
 // view engine
 const exphdb = require('express-handlebars')

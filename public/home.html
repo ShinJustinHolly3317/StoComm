@@ -5,11 +5,17 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>StoComm</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3"
+      crossorigin="anonymous"
+    />
     <link rel="stylesheet" href="/stylesheet/normalize.css" />
     <link rel="stylesheet" href="/stylesheet/home.css" />
   </head>
   <body>
-    <div class="container">
+    <div class="">
       <div class="welcome-page">
         <div class="slogan">
           <h1 id="logo">StoComm</h1>
@@ -17,10 +23,154 @@
         </div>
 
         <div class="direct-btn">
-          <input type="text" id="enter-name" placeholder="請輸入你的名字..." />
-          <a href="/hot-rooms" id="enter-btn">進入</a>
+          <form id="js-login-form">
+            <input
+              type="text"
+              id="enter-email"
+              name="email"
+              placeholder="請輸入你的email..."
+              value="haha@mail.com"
+            />
+          </form>
+
+          <a id="enter-btn">進入</a>
         </div>
+
+        <!-- Log in Modal -->
+        <div
+          class="modal fade"
+          id="login-modal"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+          tabindex="-1"
+          aria-labelledby="staticBackdropLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="login-title">登入</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form>
+                  <h2 class="welcome-msg js-login-msg"></h3>
+
+                  <div class="form-group row">
+                    <label for="staticEmail" class="col-sm-2 col-form-label"
+                      >Email</label
+                    >
+                    <div class="col-sm-10">
+                      <input
+                        type="text"
+                        readonly
+                        class="form-control-plaintext"
+                        id="user-email"
+                        value=""
+                      />
+                    </div>
+                  </div>
+                  
+                  <div class="form-group row">
+                    <label for="inputPassword" class="col-sm-2 col-form-label"
+                      >Password</label
+                    >
+                    <div class="col-sm-10">
+                      <input
+                        type="password"
+                        class="form-control"
+                        id="user-password"
+                        placeholder="Password"
+                      />
+                    </div>
+                  </div>
+                  <button type="submit" class="btn btn-primary mb-2" id="js-login-btn">送出</button>
+                </form>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Sign up Modal -->
+        <div
+          class="modal fade"
+          id="signup-modal"
+          data-bs-backdrop="static"
+          data-bs-keyboard="false"
+          tabindex="-1"
+          aria-labelledby="staticBackdropLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="login-title">註冊</h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                 <h2 class="welcome-msg js-signup-msg"></h3>
+                <form class="signup-data">
+                  <label for="staticEmail" class="col-sm-2 col-form-label"
+                    >Email</label
+                  >
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="signup-user-mail"
+                    value=""
+                    name="email"
+                  />
+
+                  <label for="staticEmail" class="col-sm-2 col-form-label"
+                  >綽號</label>
+                  <input
+                    type="text"
+                    class="form-control"
+                    id="signup-user-name"
+                    value=""
+                    name="name"
+                  />
+
+                  <label for="inputPassword" class="col-sm-2 col-form-label"
+                  >Password</label>
+                  <input
+                    type="password"
+                    class="form-control"
+                    id="signup-user-password"
+                    placeholder="Password"
+                    name="password"/>
+
+                  <button type="submit" class="btn btn-primary mb-2" id="js-signup-btn">送出</button>
+                </form>
+                
+              </div>
+
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
+
+    <!-- JS -->
+    <script src="./javascript/login-view.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+      integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+      crossorigin="anonymous"
+    ></script>
   </body>
 </html>
