@@ -11,7 +11,7 @@ router.get('/explore', (req, res) => {
   res.render('explore', { style: 'explore.css' })
 })
 router.get('/following', (req, res) => {
-  res.render('following', { style: 'following.css' })
+  res.render('following', { style: 'member.css' })
 })
 router.get('/hot-rooms', (req, res) => {
   res.render('hot-rooms', { style: 'hot-rooms.css' })
@@ -32,7 +32,7 @@ router.get('/war-room', (req, res) => {
   res.render('war-room', { style: 'war-room.css' })
 })
 router.get('/watchlist', (req, res) => {
-  res.render('watchlist', { style: 'watchlist.css' })
+  res.render('watchlist', { style: 'member.css' })
 })
 
 module.exports = router

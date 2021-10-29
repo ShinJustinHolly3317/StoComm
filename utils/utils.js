@@ -1,4 +1,3 @@
-require('dotenv').config()
 const crypto = require('crypto')
 const fs = require('fs')
 const multer = require('multer')
@@ -23,7 +22,7 @@ async function checkUserExist(req, res) {
   }
 }
 
-const wrapAsync = (fn) => {
+function wrapAsync(fn) {
   return function (req, res, next) {
     // Make sure to `.catch()` any errors and pass them along to the `next()`
     // middleware in the chain, in this case the error handler.
@@ -31,4 +30,35 @@ const wrapAsync = (fn) => {
   }
 }
 
-module.exports = { checkUserExist, wrapAsync }
+async function authentication(req, res, next) {
+  let accessToken = req.get('Authorization')
+  if (!accessToken) {
+    res.status(401).send({ error: 'Unauthorized' })
+    return
+  }
+
+  accessToken = accessToken.replace('Bearer ', '')
+  if (accessToken == 'null') {
+    res.status(401).send({ error: 'Unauthorized' })
+    return
+  }
+
+  try {
+    const user = jwt.verify(accessToken, TOKEN_SECRET)
+
+    let userDetail = await User.getUserDetail(user.email)
+
+    if (!userDetail) {
+      res.status(403).send({ error: 'Your token is not valid!' })
+    } else {
+      res.send({ data: user })
+    }
+    return
+  } catch (err) {
+    console.log(err)
+    res.status(403).send({ error: 'Forbidden' })
+    return
+  }
+}
+
+module.exports = { checkUserExist, wrapAsync, authentication }

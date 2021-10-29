@@ -54,7 +54,7 @@ async function nativeSignIn(email, password) {
     return { user }
   } catch (err) {
     await conn.query('ROLLBACK')
-    console.log(err);
+    console.log(err)
     return { err }
   } finally {
     await conn.release()
@@ -82,8 +82,8 @@ async function signUp(name, email, password) {
       name: name,
       picture: null,
       access_expired: TOKEN_EXPIRE,
-      followers:0,
-      following:0
+      followers: 0,
+      following: 0
     }
     const accessToken = jwt.sign(
       {
@@ -114,4 +114,14 @@ async function signUp(name, email, password) {
   }
 }
 
-module.exports = { findUserName, nativeSignIn, signUp }
+async function getUserDetail(email) {
+  try {
+    const [users] = await db.query('SELECT * FROM user WHERE email = ?', [email])
+    return users[0]
+  } catch (err) {
+    console.log(err);
+    return null
+  }
+}
+
+module.exports = { findUserName, nativeSignIn, signUp, getUserDetail }

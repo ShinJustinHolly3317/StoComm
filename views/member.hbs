@@ -31,7 +31,11 @@
       </div>
     </div>
 
-    <div id='start-war-btn'>開啟我的研究室</div>
+    <button
+      type='button'
+      class='btn rounded-pill js-start-war-btn'
+      id='start-war-btn'
+    >開啟我的研究室 <div id='start-war-btn-arrow'></div></button>
   </div>
 
   <div class='articles-list'>
@@ -56,4 +60,67 @@
       </div>
     </a>
   </div>
+
+  {{! modal }}
+  <div
+    class='modal fade'
+    id='war-room-check'
+    tabindex='-1'
+    aria-labelledby='exampleModalLabel'
+    aria-hidden='true'
+  >
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <h5 class='modal-title' id='war-room-check-title'>開啟我的研究室</h5>
+          <button
+            type='button'
+            class='btn-close'
+            data-bs-dismiss='modal'
+            aria-label='Close'
+          ></button>
+        </div>
+        <div class='modal-body'>
+          <h2 class="welcome-msg js-signup-msg"></h3>
+            <form class="war-room-check-data">
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+                >研究室名稱</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-mail"
+                value=""
+                name="war-room-title"
+              />
+
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+              >姓名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="user-name"
+                value=""
+                name="name"
+              />
+
+              <label for="inputPassword" class="col-sm-2 col-form-label"
+              >股票名稱或代碼</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-password"
+                placeholder="請輸入股票名稱或代碼"
+                name="stock-name-code"/>
+
+              <button type="submit" class="btn btn-primary mb-2" id="js-signup-btn">送出</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+{{!-- JS --}}
+<script src="/javascript/page-load-auth.js"></script>
+<script src="/javascript/member.js"></script>

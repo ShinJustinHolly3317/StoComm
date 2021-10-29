@@ -74,6 +74,7 @@ View.loginBtn.addEventListener('click', async (e) => {
       alert(result.error)
       break
     case 200:
+      localStorage.setItem('access_token', result.data.access_token)
       alert('登入成功 !!')
       window.location.href = '/hot-rooms'
   }
