@@ -15,7 +15,14 @@ async function checkUserExist(req, res) {
     res.send({
       searchResult: true,
       name: searchResult[0].name,
-      email: searchResult[0].email
+      email: searchResult[0].email,
+      provider: searchResult[0].provider,
+      name: searchResult[0].name,
+      email: searchResult[0].email,
+      picture: searchResult[0].picture,
+      id: searchResult[0].id,
+      access_expired: searchResult[0].access_expired,
+      access_token: searchResult[0].access_token
     })
   } else {
     res.send({ searchResult: false })
@@ -51,7 +58,7 @@ async function authentication(req, res, next) {
     if (!userDetail) {
       res.status(403).send({ error: 'Your token is not valid!' })
     } else {
-      res.send({ data: user })
+      res.send({ data: userDetail })
     }
     return
   } catch (err) {

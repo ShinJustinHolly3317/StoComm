@@ -33,7 +33,8 @@ async function nativeSignIn(email, password) {
         provider: user.provider,
         name: user.name,
         email: user.email,
-        picture: user.picture
+        picture: user.picture,
+        id: user.id
       },
       TOKEN_SECRET,
       {
@@ -80,17 +81,19 @@ async function signUp(name, email, password) {
       email: email,
       password: bcrypt.hashSync(password, salt),
       name: name,
-      picture: null,
+      picture: '/img/profile-icon.png',
       access_expired: TOKEN_EXPIRE,
       followers: 0,
-      following: 0
+      following: 0,
+      role: 'visitor'
     }
     const accessToken = jwt.sign(
       {
         provider: user.provider,
         name: user.name,
         email: user.email,
-        picture: user.picture
+        picture: user.picture,
+        id: user.id
       },
       TOKEN_SECRET,
       {
@@ -124,4 +127,15 @@ async function getUserDetail(email) {
   }
 }
 
-module.exports = { findUserName, nativeSignIn, signUp, getUserDetail }
+async function changeToStreamer(userId) {
+  const [result] = await db.query('UPDATE user SET role = streamer WHERE id = ?', [userId])
+  return result
+}
+
+module.exports = {
+  findUserName,
+  nativeSignIn,
+  signUp,
+  getUserDetail,
+  changeToStreamer
+}

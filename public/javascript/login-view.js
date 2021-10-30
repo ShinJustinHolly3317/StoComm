@@ -75,6 +75,14 @@ View.loginBtn.addEventListener('click', async (e) => {
       break
     case 200:
       localStorage.setItem('access_token', result.data.access_token)
+
+      const userRole = {
+        id: result.data.user.id,
+        name: result.data.user.name,
+        role: 'visitor'
+      }
+      localStorage.setItem('userRole', JSON.stringify(userRole))
+
       alert('登入成功 !!')
       window.location.href = '/hot-rooms'
   }
@@ -82,13 +90,12 @@ View.loginBtn.addEventListener('click', async (e) => {
 
 View.signUpBtn.addEventListener('click', async (e) => {
   e.preventDefault()
-  console.log(View.signUpData)
   const response = await fetch('/api/1.0/user/sign_up', {
     method: 'POST',
     body: new FormData(View.signUpData)
   })
   const result = await response.json()
-console.log(new FormData(View.signUpData).values[0])
+
   switch (response.status) {
     case 500:
     case 403:
@@ -97,6 +104,7 @@ console.log(new FormData(View.signUpData).values[0])
       break
     case 200:
       alert('註冊成功 !!')
+      localStorage.setItem('access_token', result.data.access_token)
       window.location.href = '/hot-rooms'
   }
 })

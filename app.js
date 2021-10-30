@@ -38,8 +38,8 @@ const routes = require('./server/routes')
 app.use(routes)
 
 // handle draw history
-const socketController = require('./server/controller/socket/main-socket-controller')
-io.on('connection', socketController)
+const socketListener = require('./server/controller/socket/main-socket-controller')
+socketListener(io)
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)

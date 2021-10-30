@@ -2,6 +2,7 @@ const form = document.getElementById('form')
 const input = document.getElementById('js-input')
 const messages = document.querySelector('#messages')
 const chatRoomEle = document.querySelector('.chat-room')
+const chatHistory = document.querySelector('.chat-history')
 const minChatRoomEle = document.querySelector('.min-chat-room')
 const chatShrinkBtn = document.querySelector('#js-chat-shrink-btn')
 const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
@@ -9,7 +10,7 @@ const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
 form.addEventListener('submit', function (e) {
   e.preventDefault()
   if (input.value) {
-    socket.emit('chat message', input.value)
+    socket.emit('chat message', input.value, JSON.parse(localStorage.getItem('userRole')).name)
     input.value = ''
   }
 })
@@ -24,19 +25,24 @@ chatEnlargeBtn.addEventListener('click', () => {
   minChatRoomEle.style.display = 'none'
 })
 
-socket.on('sendback', (msg) => {
-  console.log(msg)
-  const item = document.createElement('li')
-  item.textContent = msg
-  item.classList.add('list-group-item', 'rounded-pill')
-  messages.appendChild(item)
-  // window.scrollTo(0, document.body.scrollHeight)
+socket.on('all msg', ()=>{
+  
 })
 
-socket.on('send my msg', (msg) => {
+socket.on('sendback', (msg, name) => {
   console.log(msg)
   const item = document.createElement('li')
-  item.textContent = msg
+  item.textContent = `${name}: ${msg}`
+  item.classList.add('list-group-item', 'rounded-pill')
+  messages.appendChild(item)
+  chatHistory.scrollTo(0, chatHistory.scrollHeight)
+})
+
+socket.on('send my msg', (msg, name) => {
+  console.log(msg)
+  const item = document.createElement('li')
+  item.textContent = `${name}: ${msg}`
   item.classList.add('list-group-item', 'rounded-pill', 'my-msg', 'border-0')
   messages.appendChild(item)
+  chatHistory.scrollTo(0, chatHistory.scrollHeight)
 })

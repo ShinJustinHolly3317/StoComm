@@ -29,8 +29,6 @@ const stage = new Konva.Stage({
 const layer = new Konva.Layer()
 stage.add(layer)
 
-initLoadLayer()
-
 let isPaint = false
 let localToolType = 'brush'
 let localLayerObject
@@ -38,7 +36,7 @@ let localLayerObject
 stage.on('mousedown touchstart', function (e) {
   if (localToolType === 'select') {
     isPaint = false
-    return 
+    return
   }
   isPaint = true
 
@@ -203,6 +201,31 @@ socket.on('latest draw history', (id, location) => {
   tracking(id, drawHistory[id].layerObject, location)
 })
 
+socket.on('init load data', (drawHistory) => {
+  console.log('sdfsdfsd')
+  if (!Object.keys(drawHistory).length) {
+    console.log(Object.keys(drawHistory))
+    return
+  }
+
+  for (let key in drawHistory) {
+    let layerObj = new Konva.Line({
+      points: drawHistory[key].location,
+      stroke: '#df4b26',
+      strokeWidth: 5,
+      lineCap: 'round',
+      lineJoin: 'round',
+      globalCompositeOperation:
+        drawHistory[key].toolType === 'eraser'
+          ? 'destination-out'
+          : 'source-over',
+      draggable: true
+    })
+
+    layer.add(layerObj)
+  }
+})
+
 /* window listener */
 window.addEventListener('resize', resumeHistory)
 cavasWrapper.addEventListener('mouseout', (e) => {
@@ -262,6 +285,7 @@ function tracking(id, layerObject, locations) {
 function initLoadLayer() {
   socket.emit('init load')
   socket.on('init load data', (drawHistory) => {
+    console.log('ggggqqqq', drawHistory)
     if (!Object.keys(drawHistory).length) return
 
     for (let key in drawHistory) {

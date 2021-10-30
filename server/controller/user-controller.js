@@ -84,7 +84,8 @@ async function signUp(req, res) {
         provider: user.provider,
         name: user.name,
         email: user.email,
-        picture: user.picture
+        picture: user.picture,
+        
       }
     }
   })

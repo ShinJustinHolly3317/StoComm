@@ -91,7 +91,7 @@
                 class="form-control"
                 id="signup-user-mail"
                 value=""
-                name="war-room-title"
+                name="war_room_title"
               />
 
               <label for="staticEmail" class="col-sm-2 col-form-label"
@@ -101,7 +101,6 @@
                 class="form-control"
                 id="user-name"
                 value=""
-                name="name"
               />
 
               <label for="inputPassword" class="col-sm-2 col-form-label"
@@ -111,9 +110,10 @@
                 class="form-control"
                 id="signup-user-password"
                 placeholder="請輸入股票名稱或代碼"
-                name="stock-name-code"/>
+                name="stock_name_code"/>
 
-              <button type="submit" class="btn btn-primary mb-2" id="js-signup-btn">送出</button>
+              <input type="hidden" id="user_id" name="user_id">
+              <button type="submit" class="btn btn-primary mb-2" id="js-create-war-room-btn">送出</button>
             </form>
         </div>
       </div>

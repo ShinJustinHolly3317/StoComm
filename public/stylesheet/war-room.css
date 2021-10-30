@@ -1,5 +1,5 @@
 /* default img for canvas */
-#default-img{
+#default-img {
   width: 300px;
   height: 300px;
   display: none;
@@ -54,7 +54,7 @@
   background-color: white;
 }
 
-.min-chat-room{
+.min-chat-room {
   display: flex;
   align-items: center;
   position: absolute;
@@ -67,29 +67,35 @@
   box-shadow: 1px 3px 20px 1px rgb(216, 216, 216);
   border-radius: 20px;
   padding: 0 0 0 20px;
-  background-color: white
+  background-color: white;
 }
 
-.chat-room-navbar{
+.chat-room-navbar {
   display: flex;
   align-items: center;
 
   padding: 10px 0 0 0;
 }
 
-.shrink-icon, .enlarge-icon{
+.shrink-icon,
+.enlarge-icon {
   width: 20px;
   height: 20px;
   margin: 0 10px 0 auto;
 }
 
-.shrink-icon:hover, .enlarge-icon:hover{
+.shrink-icon:hover,
+.enlarge-icon:hover {
   cursor: pointer;
 }
 
 .chat-history {
   width: 320;
   height: 400px;
+}
+
+.chat-history::-webkit-scrollbar {
+  display: none;
 }
 
 .msg-input-area {
@@ -111,8 +117,8 @@
 }
 
 .messages-group li.my-msg {
-  margin-left: auto ;
-  margin-right: 10px ;
+  margin-left: auto;
+  margin-right: 10px;
   background-color: rgb(255, 244, 244);
 }
 
@@ -139,7 +145,7 @@ video {
   display: none;
   flex-direction: column;
   width: 300px;
- 
+
   position: absolute;
   top: 100px;
   left: 100px;
@@ -148,7 +154,7 @@ video {
   border-radius: 20px;
 }
 
-.min-stock-real-price{
+.min-stock-real-price {
   display: flex;
   align-items: center;
   position: absolute;
@@ -164,19 +170,19 @@ video {
   background-color: white;
 }
 
-.stock-real-price-navbar{
+.stock-real-price-navbar {
   display: flex;
   padding: 10px 0;
 }
 
 /* news card */
-.news-card{
+.news-card {
   width: 300px;
   height: 300px;
 }
 
 /* canvas */
-#canvas{
+#canvas {
   height: calc(100vh - 70px);
 }
 
@@ -193,4 +199,9 @@ video {
 #tool {
   font-size: 30px;
   width: 200px;
+}
+
+button.visitor,
+button.streamer {
+  display: none;
 }

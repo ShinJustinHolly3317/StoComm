@@ -95,18 +95,22 @@
         <option value='text'>文字</option>
         <option value='select'>選取</option>
       </select>
+
+      <button type="button" class="btn btn-light ms-3 visitor" data-bs-toggle="modal" data-bs-target="#visitor-leaving-modal">離開研究室</button>
+      <button type="button" class="btn btn-light ms-3 streamer" id="js-post-war-room">發文</button>
     </div>
   </div>
 
   <!-- normal size chat-room  -->
   <div class='chat-room'>
+    <div class='chat-room-navbar'><img
+      src='./img/shrink.png'
+      alt='shrink'
+      class='shrink-icon'
+      id='js-chat-shrink-btn'
+    /></div>
     <div class='chat-history overflow-auto'>
-      <div class='chat-room-navbar'><img
-          src='./img/shrink.png'
-          alt='shrink'
-          class='shrink-icon'
-          id='js-chat-shrink-btn'
-        /></div>
+      
       <ul id='messages' class='list-group messages-group'></ul>
     </div>
 
@@ -140,6 +144,26 @@
       class='enlarge-icon'
       id='js-chat-enlarge-btn'
     /></div>
+
+  <!-- visitor leaving Modal -->
+  <div class="modal fade" id="visitor-leaving-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">提醒</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          確定要離開嗎?大大正在分享他的人生精華
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">沒事，我按錯了</button>
+          <button type="button" class="btn btn-info">確定</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- JS -->
@@ -157,14 +181,7 @@
 <script src='/socket'></script>
 
 {{!-- init socket --}}
-<script>
-  const socket = io()
-  let socketId
-  socket.on('connect', () => {
-    socketId = socket.id
-  })
-</script>
-
+<script src="/javascript/war-room-init.js"></script>
 <script type='module' src='/javascript/stock-chart.js'></script>
 <script src='/javascript/konva.js'></script>
 <script src='/javascript/chat.js'></script>

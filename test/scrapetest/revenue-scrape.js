@@ -1,9 +1,12 @@
+require('dotenv').config()
 const cheerio = require('cheerio')
 const axios = require('axios')
 // MongoDB
 const StoComm = require('../../utils/stock-schema')
 const StoComm_revenue = require('../../utils/revenue-schema')
 const db = require('../../utils/mongoose')
+// MySQL
+const mysqlConn = require('../../server/model/config/mysqlConnection')
 
 // user agent list
 const USER_AGNET = [
@@ -143,15 +146,26 @@ async function getAllStockId() {
   const $ = cheerio.load(result.data)
   const rawStockIdList = $('.gvTB tr')
   const stockIdList = []
+  let counter = 1
 
   for (let item of rawStockIdList) {
     let id = item.children[1].children[0].data
     if (!id || id.length !== 4) continue
-    stockIdList.push(item.children[1].children[0].data)
+    stockIdList.push([
+      counter,
+      item.children[1].children[0].data,
+      item.children[2].children[1].children[0].data
+    ])
+    counter++
   }
-  console.log(stockIdList.length)
 
-  return stockIdList
+  // insert into mysql
+  const [sqlResult] = await mysqlConn.query(
+    'insert into stock(stock_id, stock_code, company_name) values ?',
+    [stockIdList]
+  )
+  console.log(sqlResult)
+  return sqlResult
 }
 
 async function multiScrapeGross() {
@@ -208,5 +222,5 @@ async function multiScrapeRevenue() {
 }
 
 // multiScrapeGross()
-multiScrapeRevenue()
-// getAllStockId()
+// multiScrapeRevenue()
+getAllStockId()

@@ -1,4 +1,3 @@
-const ROOM_ID = 'appworksggg'
 const videoGrid = document.querySelector('#video-grid')
 
 const myVideo = document.createElement('video')
@@ -13,7 +12,7 @@ const myPeer = new Peer({
 
 myPeer.on('open', (id) => {
   console.log('my id: ', id)
-  socket.emit('join-room', ROOM_ID, id)
+  socket.emit('start calling', id)
 })
 
 const peers = {}
@@ -34,9 +33,12 @@ navigator.mediaDevices
     })
 
     myPeer.on('call', (call) => {
-      console.log('call in')
+      console.log('call in', call.peer)
       call.answer(stream)
+
       const video = document.createElement('video')
+      video.setAttribute('peer_user_id', call.peer)
+
       call.on('stream', (userVideoStream) => {
         addVideoStream(video, userVideoStream)
       })
@@ -45,7 +47,11 @@ navigator.mediaDevices
   })
 
 socket.on('user-disconnected', (userId) => {
-  if (peers[userId]) peers[userId].close()
+  console.log(`${userId} left this room`)
+  document.querySelector(`[peer_user_id="${userId}"]`).remove()
+  if (peers[userId]) {
+    peers[userId].close()
+  }
 })
 
 // function
@@ -61,14 +67,17 @@ function connectToNewUser(userId, stream) {
   const call = myPeer.call(userId, stream)
 
   const video = document.createElement('video')
+  video.setAttribute('peer_user_id', userId)
+  
   call.on('stream', (userVideoStream) => {
     console.log('on stream')
     addVideoStream(video, userVideoStream)
   })
 
-  call.on('close', () => {
-    video.remove()
-  })
+  // call.on('close', () => {
+  //   video.remove()
+  // })
 
   peers[userId] = call
+  console.log('perssss:', peers);
 }
