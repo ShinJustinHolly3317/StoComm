@@ -3,10 +3,14 @@ require('dotenv').config()
 const port = process.env.MODE === 'dev' ? 3000 : process.env.PORT
 const express = require('express')
 const app = express()
+const cors = require('cors')
 
 // body parser
 app.use(express.urlencoded({ extended: false }))
 app.use(express.json())
+
+// CORS allow all
+app.use(cors());
 
 // view engine
 const exphdb = require('express-handlebars')

@@ -52,6 +52,7 @@ async function stockNews(req, res) {
 
     for (let key in rawTitleData) {
       if (typeof rawTimeData[key].children === 'object') {
+        console.log(rawTimeData[key].children[0].data.trim().split(' ')[0])
         let cleanDate = rawTimeData[key].children[0].data
           .trim()
           .split(' ')[0]
@@ -121,7 +122,7 @@ async function stockRevenue(req, res) {
   }
 
   res.send({
-    data: revenueData 
+    data: revenueData
   })
 }
 
@@ -179,9 +180,31 @@ async function getDayPrices(req, res) {
   res.send(result.data)
 }
 
+async function getYearPrice(req, res) {
+  const { id } = req.params
+  const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${id}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
+  const result = await axios.get(url)
+  let pricehistory = JSON.parse(result.data.split('(')[1].split(')')[0]).ta
+
+  const dataTable = pricehistory.map((item) => {
+    let date = item.t.toString()
+    return [
+      date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+      item.o,
+      item.h,
+      item.l,
+      item.c,
+      item.v
+    ]
+  })
+
+  res.send(dataTable)
+}
+
 module.exports = {
   stockNews,
   stockRevenue,
   stockGross,
-  getDayPrices
+  getDayPrices,
+  getYearPrice
 }

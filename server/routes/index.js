@@ -8,6 +8,7 @@ const {
   stockRevenue,
   stockGross,
   getDayPrices,
+  getYearPrice
 } = require('../controller/stock-info-controller')
 const render = require('./modules/render')
 const userRoutes = require('./modules/user-routes')
@@ -24,5 +25,6 @@ router.use('/stockNews/:id', stockNews)
 router.use('/stockRevenue/:id', stockRevenue)
 router.use('/stockGross/:id', stockGross)
 router.use('/dayPrices/:id', getDayPrices)
+router.use('/year_price/:id', getYearPrice)
 
 module.exports = router

@@ -1,7 +1,4 @@
-const REAL_TIME_URL =
-  'https://api.fugle.tw/realtime/v0.3/intraday/quote?symbolId=3037&apiToken=06108efd4883e72e0f65cc1672eaa4a1'
-const WWS_URL =
-  'wss://api.fugle.tw/realtime/v0.3/intraday/quote?symbolId=3037&apiToken=06108efd4883e72e0f65cc1672eaa4a1'
+const WWS_URL = `wss://api.fugle.tw/realtime/v0.3/intraday/quote?symbolId=${STOCK_CODE}&apiToken=06108efd4883e72e0f65cc1672eaa4a1`
 
 const realTimePriceCtx = document.querySelector('#stock-real-price')
 const dayPriceCtx = document.querySelector('#stock-day-history')
@@ -25,42 +22,42 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 })
 
 // first load
-;(async function() {
+;(async function () {
   await renderRevenueChart(dayPriceCtx, STOCK_CODE)
   await renderRealPriceChart(realTimePriceCtx)
   await renderNews(STOCK_CODE)
+  anychart.onDocumentReady(yearPriceHistory)
 })()
 
-
-// keep updating stock price
-// setInterval(() => {
-//   fetchStockQuote()
-//   renderChart(realTimePriceCtx)
-// }, 2000)
-
-// wws test
-// const wss = new WebSocket(WWS_URL)
-// console.log('state', wws.readyState)
-// wss.onopen = (res) => {
-//   console.log('wss msg:', res.data)
-// }
-// wss.onmessage = (res) => {
-//   console.log('wss msg:', res.data)
-// }
+// wws keep updating stock price
+const wss = new WebSocket(WWS_URL)
+wss.onopen = (res) => {
+  console.log('wss msg:', res)
+}
+wss.onmessage = (res) => {
+  stockPrice.push(JSON.parse(res.data).data.quote.trade.price)
+  timeStamps.push(
+    moment(JSON.parse(res.data).data.quote.trade.at).format(
+      'YYYY-MM-DDTHH:mm:ss'
+    )
+  )
+  renderRealPriceChart(realTimePriceCtx)
+}
 
 // functions
 async function renderRealPriceChart(ctx) {
   // Get day prices info
-  const { prevClosePrice, limitUp, limitDown, dayPrices, timestamps } =
-    await fetchDayPrices(STOCK_CODE)
+  const { prevClosePrice, limitUp, limitDown } = await fetchDayPrices(
+    STOCK_CODE
+  )
 
   // stock price data (x:time, Y:price)
   const data = {
-    labels: timestamps,
+    labels: timeStamps,
     datasets: [
       {
         label: 'Dataset 1',
-        data: dayPrices,
+        data: stockPrice,
         borderColor: 'red'
         // backgroundColor: Utils.transparentize(Utils.CHART_COLORS.red, 0.5),
       }
@@ -132,8 +129,6 @@ async function fetchStockQuote() {
   const result = await response.json()
   stockPrice.push(result.data.quote.trade.price)
   timeStamps.push(moment().format('YYYY-MM-DDTHH:mm:ss'))
-
-  console.log(moment().format('YYYY-MM-DDTHH:mm:ss'))
 }
 
 function tradingDuration() {
@@ -166,25 +161,23 @@ async function fetchDayPrices(id) {
   const prevClosePrice = result.data[0].chart.meta.previousClose
   const limitUp = prevClosePrice * 1.1
   const limitDown = prevClosePrice * 0.9
-  const dayPrices = result.data[0].chart.indicators.quote[0].close.map(
-    (price, i) => {
-      if (price) {
-        return price
+  result.data[0].chart.indicators.quote[0].close.forEach((price, i) => {
+    if (price) {
+      stockPrice.push(price)
+    } else {
+      if (i === 0) {
+        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i + 1])
       } else {
-        if (i === 0) {
-          return result.data[0].chart.indicators.quote[0].close[i + 1]
-        } else {
-          return result.data[0].chart.indicators.quote[0].close[i - 1]
-        }
+        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i - 1])
       }
     }
-  )
-
-  const timestamps = result.data[0].chart.timestamp.map((timeByMinute) => {
-    return moment(timeByMinute * 1000).format('YYYY-MM-DDTHH:mm:ss')
   })
 
-  return { prevClosePrice, limitUp, limitDown, dayPrices, timestamps }
+  result.data[0].chart.timestamp.forEach((timeByMinute) => {
+    timeStamps.push(moment(timeByMinute * 1000).format('YYYY-MM-DDTHH:mm:ss'))
+  })
+
+  return { prevClosePrice, limitUp, limitDown }
 }
 
 async function renderRevenueChart(ctx, id) {
@@ -249,6 +242,64 @@ async function renderNews(id) {
     `
   }
   newsCard.innerHTML += titleHtml
+}
+
+async function yearPriceHistory() {
+  let table, mapping, chart
+  const url = `/year_price/${STOCK_CODE}`
+  const resposne = await fetch(url)
+  const result = await resposne.json()
+
+  table = anychart.data.table()
+  table.addData(result)
+
+  // mapping the data
+  mapping = table.mapAs()
+  mapping.addField('open', 1, 'first')
+  mapping.addField('high', 2, 'max')
+  mapping.addField('low', 3, 'min')
+  mapping.addField('close', 4, 'last')
+  const valueMapping = table.mapAs({
+    value: 5
+  })
+
+  // defining the chart type
+  chart = anychart.stock()
+
+  // turn off scroll bar
+  // chart.scroller().enabled(false)
+  chart.plot(0).xGrid().enabled(true)
+  chart.plot(0).yGrid().enabled(true)
+
+  const yScale = chart.plot(0).yScale()
+  const yTicks = yScale.ticks()
+  yTicks.interval(20)
+  var scale = chart.xScale()
+  scale.ticks([
+    { major: { unit: 'month', count: 1 }, minor: { unit: 'month', count: 1 } }
+  ])
+
+  // set the series type
+  const series_globex = chart.plot(0).candlestick(mapping)
+  const volumeSeries = chart.plot(1).column(valueMapping)
+  series_globex.name(`${company_name}(${STOCK_CODE})`)
+  volumeSeries.name('volumes')
+
+  // set max height of volume series and attach it to the bottom of plot
+  chart.plot(1).height('30%').bottom(0)
+
+  // color setting
+  series_globex.risingStroke('#f35350')
+  series_globex.risingFill('#f35350')
+  series_globex.fallingStroke('#14c9ba')
+  series_globex.fallingFill('#14c9ba')
+
+  // setting the chart title
+  chart.title(`${company_name}(${STOCK_CODE})歷史走勢`)
+
+  // display the chart
+  chart.container('year-history')
+  chart.draw()
 }
 
 // Listener

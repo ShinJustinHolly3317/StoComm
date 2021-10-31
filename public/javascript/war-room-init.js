@@ -4,12 +4,11 @@ let company_name
 
 const WarRoomView = {
   postBtn: document.querySelector('#js-post-war-room'),
-  visitorLeaveBtn: document.querySelector('button.visitor')
+  visitorLeaveBtn: document.querySelector('button.visitor'),
+  canvasEle: document.querySelector('#canvas')
 }
-const postBtn = document.querySelector('#js-post-war-room')
 
-
-if(!ROOM_ID){
+if (!ROOM_ID) {
   alert('無效的房間!')
   window.location.href = '/home.html'
 }
@@ -35,11 +34,15 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   const response = await fetch('/api/1.0/war_room/end_war_room', {
     method: 'PATCH',
     body: JSON.stringify(userRole),
-    headers:{
+    headers: {
       'Content-type': 'application/json'
     }
   })
   const result = await response.json()
+
+  const canvas = await html2canvas(WarRoomView.canvasEle)
+  let canvasImg = canvas.toDataURL('image/jpeg')
+  localStorage.setItem('canvas', canvasImg)
 
   if (response.status === 200) {
     window.location.href = `/post?stockCode=${STOCK_CODE}`
@@ -52,7 +55,7 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
 function showRoleBtn() {
   const userRole = JSON.parse(localStorage.getItem('userRole'))
   console.log(userRole)
-  if(userRole.role === 'visitor') {
+  if (userRole.role === 'visitor') {
     WarRoomView.visitorLeaveBtn.style.display = 'block'
   } else if (userRole.role === 'streamer') {
     WarRoomView.postBtn.style.display = 'block'

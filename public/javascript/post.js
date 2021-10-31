@@ -4,7 +4,12 @@ const PostView = {
   closeModal: new bootstrap.Modal(document.querySelector('#leaving-modal'), {
     keyboard: false
   }),
-  publishBtn: document.querySelector('#js-publish-btn')
+  publishBtn: document.querySelector('#js-publish-btn'),
+  analysisImg: document.querySelector('#analysis-img'),
+  init: function() {
+    canvas = localStorage.getItem('canvas')
+    this.analysisImg.src = canvas
+  }
 }
 
 PostView.toggleBtns.addEventListener('click', (e) => {
@@ -31,7 +36,7 @@ PostView.publishBtn.addEventListener('click', async (e) => {
 
   // manage data into json
   textData.title = document.querySelector('#idea-title-input').value
-  textData.image = document.querySelector('#analysis-img').src.split(`${location.hostname}:${location.port}`)[1]
+  textData.image = document.querySelector('#analysis-img').src
   for (let item of textDataEle) {
     let analysisType = item.id
     console.log(analysisType)
@@ -61,3 +66,5 @@ PostView.publishBtn.addEventListener('click', async (e) => {
     alert('伺服器出錯了，請重新發送')
   }
 })
+
+PostView.init()

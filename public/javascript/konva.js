@@ -2,7 +2,7 @@
 const drawHistory = {}
 let localLayerCounter = 0
 let width = window.innerWidth
-let height = window.innerHeight - 70
+let height = window.innerHeight - 150
 
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')
@@ -96,53 +96,53 @@ select.addEventListener('change', function () {
 })
 
 /* text block */
-var textNode = new Konva.Text({
-  text: 'Some text here',
-  x: 50,
-  y: 50,
-  fontSize: 20
-})
+// var textNode = new Konva.Text({
+//   text: 'Some text here',
+//   x: 50,
+//   y: 50,
+//   fontSize: 20
+// })
 
-layer.add(textNode)
+// layer.add(textNode)
 
-textNode.on('dblclick dbltap', () => {
-  // create textarea over canvas with absolute position
+// textNode.on('dblclick dbltap', () => {
+//   // create textarea over canvas with absolute position
 
-  // first we need to find position for textarea
-  // how to find it?
+//   // first we need to find position for textarea
+//   // how to find it?
 
-  // at first lets find position of text node relative to the stage:
-  var textPosition = textNode.getAbsolutePosition()
+//   // at first lets find position of text node relative to the stage:
+//   var textPosition = textNode.getAbsolutePosition()
 
-  // then lets find position of stage container on the page:
-  var stageBox = stage.container().getBoundingClientRect()
+//   // then lets find position of stage container on the page:
+//   var stageBox = stage.container().getBoundingClientRect()
 
-  // so position of textarea will be the sum of positions above:
-  var areaPosition = {
-    x: stageBox.left + textPosition.x,
-    y: stageBox.top + textPosition.y
-  }
+//   // so position of textarea will be the sum of positions above:
+//   var areaPosition = {
+//     x: stageBox.left + textPosition.x,
+//     y: stageBox.top + textPosition.y
+//   }
 
-  // create textarea and style it
-  var textarea = document.createElement('textarea')
-  document.body.appendChild(textarea)
+//   // create textarea and style it
+//   var textarea = document.createElement('textarea')
+//   document.body.appendChild(textarea)
 
-  textarea.value = textNode.text()
-  textarea.style.position = 'absolute'
-  textarea.style.top = areaPosition.y + 'px'
-  textarea.style.left = areaPosition.x + 'px'
-  textarea.style.width = textNode.width()
+//   textarea.value = textNode.text()
+//   textarea.style.position = 'absolute'
+//   textarea.style.top = areaPosition.y + 'px'
+//   textarea.style.left = areaPosition.x + 'px'
+//   textarea.style.width = textNode.width()
 
-  textarea.focus()
+//   textarea.focus()
 
-  textarea.addEventListener('keydown', function (e) {
-    // hide on enter
-    if (e.keyCode === 13) {
-      textNode.text(textarea.value)
-      document.body.removeChild(textarea)
-    }
-  })
-})
+//   textarea.addEventListener('keydown', function (e) {
+//     // hide on enter
+//     if (e.keyCode === 13) {
+//       textNode.text(textarea.value)
+//       document.body.removeChild(textarea)
+//     }
+//   })
+// })
 
 // socket listener
 socket.on('get latest id', (id, remoteDrawHistory) => {
@@ -235,7 +235,7 @@ cavasWrapper.addEventListener('mouseout', (e) => {
 function resumeHistory() {
   // if resizing
   let width = window.innerWidth
-  let height = window.innerHeight - 70
+  let height = window.innerHeight - 150
   stage.width(width)
   stage.height(height)
 
