@@ -45,7 +45,6 @@ async function login(req, res) {
 }
 
 async function signUp(req, res) {
-  console.log(req.body)
   let { name } = req.body
   const { email, password } = req.body
 
@@ -85,10 +84,20 @@ async function signUp(req, res) {
         name: user.name,
         email: user.email,
         picture: user.picture,
-        
       }
     }
   })
 }
 
-module.exports = { login, signUp }
+async function userData(req, res) {
+  const {email} = req.query
+  const result = await User.findUserData(email)
+
+  if (result.error) {
+    res.status(500).send({ error: result.error })
+  } else {
+    res.send({ data: result })
+  }
+}
+
+module.exports = { login, signUp, userData }

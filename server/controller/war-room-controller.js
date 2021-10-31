@@ -3,9 +3,15 @@ const WarRoom = require('../model/war-room-model')
 
 async function createWarRoom(req, res) {
   const createData = req.body
-  console.log(createData)
-  const insertId = await WarRoom.createWarRoom(createData)
-  res.send({ data: { insertId } })
+  const result = await WarRoom.createWarRoom(createData)
+
+  if (result.error) {
+    return res.status(404).send({error: '無此代號或名稱'})
+  }
+
+  res.send({
+    data: { insertId: result.insertId, stock_code: result.stock_code }
+  })
 }
 
 async function showOnlineRooms(req, res) {

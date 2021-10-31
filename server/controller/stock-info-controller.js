@@ -4,50 +4,82 @@ const app = express()
 const port = 3000
 const URL = 'https://goodinfo.tw/StockInfo/'
 const cheerio = require('cheerio')
+const moment = require('moment')
 
 // model
 const {
   insertRevenue,
-  getRevenue
+  getRevenue,
+  getNews,
+  insertNews
 } = require('../model/stock_info_model')
 
 // functions
 async function stockNews(req, res) {
   const { id } = req.params
-  const url = `https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID=${id}`
-
-  const result = await axios.get(url, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-      'content-type': 'text/html; charset=UTF-8'
-    }
-  })
-
-  const $ = cheerio.load(result.data)
-
-  const rawTitleData = $(
-    'table.b0.row_bg_2n.row_mouse_over tr[valign="top"] a.link_black'
-  )
-
   const titleList = []
 
-  for (let item of rawTitleData) {
-    titleList.push({
-      title: item.children[0].data,
-      link: URL + item.attribs.href
-    })
-  }
+  const newsResult = await getNews(id)
+  if (newsResult.length) {
+    for (let item of newsResult) {
+      titleList.push({
+        title: item.title,
+        date: item.date,
+        link: item.link
+      })
+    }
 
-  res.send({ data: titleList })
+    return res.status(200).send({ data: titleList })
+  } else {
+    const url = `https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID=${id}`
+
+    const result = await axios.get(url, {
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
+        'content-type': 'text/html; charset=UTF-8'
+      }
+    })
+
+    const $ = cheerio.load(result.data)
+
+    const rawTitleData = $(
+      'table.b0.row_bg_2n.row_mouse_over tr[valign="top"] a.link_black'
+    )
+    const rawTimeData = $(
+      'table.b0.row_bg_2n.row_mouse_over tr[valign="top"] span'
+    )
+
+    for (let key in rawTitleData) {
+      if (typeof rawTimeData[key].children === 'object') {
+        let cleanDate = rawTimeData[key].children[0].data
+          .trim()
+          .split(' ')[0]
+          .split(`\u00a0`)[1]
+          .replace('/', '-')
+
+        titleList.push({
+          title: rawTitleData[key].children[0].data,
+          date: moment().format('YYYY') + '-' + cleanDate,
+          link: URL + rawTitleData[key].attribs.href
+        })
+      }
+    }
+    const insertResult = await insertNews(titleList, id)
+
+    res.send({ data: titleList })
+  }
 }
 
 async function stockRevenue(req, res) {
   const { id } = req.params
   const url = `https://goodinfo.tw/StockInfo/ShowSaleMonChart.asp?STOCK_ID=${id}`
   const cssSelector = '#divSaleMonChartDetail table tr[align="center"] td'
+  const allRevenueList = {}
+  let stockInfo
 
-  const revenueData = await getRevenue(id)
+  let revenueData = await getRevenue(id)
+  console.log(revenueData)
   if (!revenueData.length) {
     const result = await axios.get(url, {
       headers: {
@@ -62,7 +94,7 @@ async function stockRevenue(req, res) {
     })
     const $ = cheerio.load(result.data)
     const rawData = $(cssSelector)
-    const allRevenueList = {}
+
     let thisMonth = ''
     let counter = 0
     for (let item of rawData) {
@@ -74,15 +106,22 @@ async function stockRevenue(req, res) {
       }
       counter++
     }
+
     const sqlRevenueList = []
     for (let key in allRevenueList) {
-      sqlRevenueList.push([Number(id), Number(allRevenueList[key][6]), key])
+      sqlRevenueList.push([
+        id,
+        Number(allRevenueList[key][6].replace(',', '')),
+        key.replace('/', '-')
+      ])
     }
-    const inserId = await insertRevenue(sqlRevenueList)
+
+    await insertRevenue(sqlRevenueList, id)
+    revenueData = await getRevenue(id)
   }
 
   res.send({
-    data: !revenueData.length ? allRevenueList : revenueData
+    data: revenueData 
   })
 }
 

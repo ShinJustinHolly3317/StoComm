@@ -6,7 +6,7 @@ const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
 const jwt = require('jsonwebtoken')
 const moment = require('moment')
 
-async function findUserName(email) {
+async function findUserData(email) {
   const qryString = `SELECT * FROM user WHERE email = ?`
   const [result] = await db.query(qryString, [email])
   return result
@@ -22,10 +22,10 @@ async function nativeSignIn(email, password) {
     ])
     const user = result[0]
 
-    // if (!bcrypt.compareSync(password, user.password)) {
-    //   await conn.query('COMMIT')
-    //   return { error: 'Wrong password' }
-    // }
+    if (!bcrypt.compareSync(password, user.password)) {
+      await conn.query('COMMIT')
+      return { error: 'Wrong password' }
+    }
 
     const loginAt = new Date()
     const accessToken = jwt.sign(
@@ -133,7 +133,7 @@ async function changeToStreamer(userId) {
 }
 
 module.exports = {
-  findUserName,
+  findUserData,
   nativeSignIn,
   signUp,
   getUserDetail,

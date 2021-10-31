@@ -1,28 +1,3 @@
-/* navbar */
-.navbar {
-  background-color: rgb(121, 209, 201);
-  height: 80px;
-
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navbar h3 {
-  font-size: 35px;
-  letter-spacing: 4px;
-  margin: 0 20px;
-  color: rgb(243, 83, 80);
-}
-
-#member-link {
-  width: 50px;
-  height: 50px;
-  margin: 0 60px 0 0;
-  background-color: white;
-  border-radius: 50%;
-}
-
 /* main area */
 .container {
   width: 90%;
@@ -34,7 +9,7 @@
 }
 
 #profile-img {
-  margin: 20px 100px;
+  margin: 50px 0;
 
   display: flex;
   align-items: center;
@@ -55,7 +30,7 @@
   display: flex;
 }
 
-.following-info h3 {
+.following-info p {
   margin: 0 20px;
 }
 
@@ -65,15 +40,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
+  width: 100%;
 }
 
-.article-tabs {
-  margin: 50px 0 0 100px;
-
+.ideas-tabs {
   display: flex;
 }
 
-.article-tabs div {
+.ideas-tabs div {
   border-bottom: solid 2px rgb(243, 83, 80);
   margin: 0 10px;
 }
@@ -83,7 +58,6 @@
   align-items: center;
 
   padding: 5px 10px;
-  margin: 50px 100px 0 0;
   border: 1px solid rgb(20, 201, 186);
   color: rgb(20, 201, 186);
   font-size: 20px;
@@ -103,21 +77,42 @@ div#war-room-check label {
   display: flex;
 }
 
-/* article area */
-.chat-room {
+/* ideas area */
+.ideas-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+}
+
+.ideas-card {
   background-color: white;
   border-radius: 20px;
-  width: 80%;
-  height: 200px;
+  width: 100%;
   margin: 20px auto;
   padding: 25px 25px;
   cursor: pointer;
 
   display: flex;
+  flex-direction: column;
 }
 
-.chat-room h3 {
+#ideas-card-img{
+  display: flex;
+  justify-content: center;
+
+  width: 70%;
+  margin: 0 auto;
+}
+
+.ideas-card h3, .ideas-card p {
   margin: 0 10px;
+}
+
+.user-name {
+  display: flex;
+  align-items: center;
+
+  margin-top: 20px;
 }
 
 .stock-situation {

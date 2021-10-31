@@ -22,8 +22,6 @@ const Controller = {
       body: new FormData(inputForm)
     })
     const result = await resposne.json()
-
-    console.log(result)
   }
 }
 
@@ -33,7 +31,7 @@ View.submitBtn.addEventListener('click', async (e) => {
     body: new FormData(View.loginForm)
   })
   const result = await response.json()
-console.log(new FormData(View.loginForm))
+
   const logInModal = new bootstrap.Modal(View.logInModal, {
     keyboard: false
   })
@@ -79,6 +77,7 @@ View.loginBtn.addEventListener('click', async (e) => {
       const userRole = {
         id: result.data.user.id,
         name: result.data.user.name,
+        email: result.data.user.email,
         role: 'visitor'
       }
       localStorage.setItem('userRole', JSON.stringify(userRole))

@@ -1,0 +1,112 @@
+<div class='post-area mx-3'>
+  <div
+    class='title-area d-flex align-items-center justify-content-between pt-4'
+  >
+    <h3 class='post-title mx-3'>發表你的觀點</h3>
+    <img src='/img/close.png' alt='close' class='mx-3' id='close-icon' />
+  </div>
+
+  <hr />
+
+  <div class='mb-3 mx-3'>
+    <label for='idea-title-input' class='idea-title'>
+      <h5>標題 / 敘述</h5>
+    </label>
+    <input
+      type='text'
+      class='form-control'
+      id='idea-title-input'
+      placeholder='簡短敘述你的想法或概念，請不要直接填寫個股名稱或代號'
+    />
+  </div>
+
+  <div class='toggle-btns-area d-flex justify-content-center my-5'>
+    <button
+      type='button'
+      class='btn btn-outline-secondary mx-3'
+      toggle-type='fundamental-analysis'
+    >添加基本分析</button>
+    <button
+      type='button'
+      class='btn btn-outline-secondary mx-3'
+      toggle-type='financial-analysis'
+    >添加財務分析</button>
+    <button
+      type='button'
+      class='btn btn-outline-secondary mx-3'
+      toggle-type='chips-analysis'
+    >添加籌碼分析</button>
+    <button
+      type='button'
+      class='btn btn-outline-secondary mx-3'
+      toggle-type='technical-analysis'
+    >添加技術分析</button>
+    <button
+      type='button'
+      class='btn btn-outline-secondary mx-3'
+      toggle-type='your-idea'
+    >添加你的獨特觀點</button>
+  </div>
+
+  <hr />
+
+  <img src="/img/revsample.png" class="rounded mx-auto d-block" id="analysis-img" alt="analysis-img">
+
+  <div class='my-5 mx-3 hidden analysis' id='fundamental-analysis'>
+    <label for='fundamental-analysis' class='form-label'>基本分析</label>
+    <textarea class='form-control analysis-text' id='fundamental-analysis-input'></textarea>
+  </div>
+
+  <div class='my-5 mx-3 hidden analysis' id='financial-analysis'>
+    <label for='financial-analysis' class='form-label'>財務分析</label>
+    <textarea class='form-control analysis-text' id='financial-analysis-input'></textarea>
+  </div>
+
+  <div class='my-5 mx-3 hidden analysis' id='chips-analysis'>
+    <label for='chips-analysis' class='form-label'>籌碼分析</label>
+    <textarea class='form-control analysis-text' id='chips-analysis-input'></textarea>
+  </div>
+
+  <div class='my-5 mx-3 hidden analysis' id='technical-analysis'>
+    <label for='technical-analysis' class='form-label'>技術分析</label>
+    <textarea class='form-control analysis-text' id='technical-analysis-input'></textarea>
+  </div>
+
+  <div class='my-5 mx-3 hidden analysis' id='your-idea'>
+    <label for='your-idea' class='form-label'>你的獨特觀點</label>
+    <textarea class='form-control analysis-text' id='your-idea-input'></textarea>
+  </div>
+
+  <button type="button" class="btn btn-outline-primary hidden mx-3" id="js-publish-btn">發表我的觀點</button>
+
+  {{! leaving notification }}
+  <div class="modal fade" id="leaving-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <h5 class='modal-title'>提醒</h5>
+          <button
+            type='button'
+            class='btn-close'
+            data-bs-dismiss='modal'
+            aria-label='Close'
+          ></button>
+        </div>
+        <div class='modal-body'>
+          <p>確定不發表就離開嗎?</p>
+        </div>
+        <div class='modal-footer'>
+          <button
+            type='button'
+            class='btn btn-secondary'
+            data-bs-dismiss='modal'
+          >沒事，我按錯了</button>
+          <a href="/hot-rooms"><button type='button' class='btn btn-primary'> 確定離開 </button></a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{{! JS }}
+<script src='/javascript/post.js'></script>

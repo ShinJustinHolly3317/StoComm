@@ -1,4 +1,7 @@
 const ROOM_ID = getQueryObject().roomId
+const STOCK_CODE = getQueryObject().stockCode
+let company_name
+
 const WarRoomView = {
   postBtn: document.querySelector('#js-post-war-room'),
   visitorLeaveBtn: document.querySelector('button.visitor')
@@ -39,25 +42,13 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   const result = await response.json()
 
   if (response.status === 200) {
-    window.location.href = '/post'
+    window.location.href = `/post?stockCode=${STOCK_CODE}`
   } else {
     alert('錯誤的操作')
   }
 })
 
 // Functions
-function getQueryObject() {
-  const queryParamsString = window.location.search.substr(1)
-  const queryParams = queryParamsString
-    .split('&')
-    .reduce((accumulator, singleOueryParam) => {
-      const [key, value] = singleOueryParam.split('=')
-      accumulator[key] = value
-      return accumulator
-    }, {})
-  return queryParams
-}
-
 function showRoleBtn() {
   const userRole = JSON.parse(localStorage.getItem('userRole'))
   console.log(userRole)

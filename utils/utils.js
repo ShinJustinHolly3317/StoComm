@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken')
 
 async function checkUserExist(req, res) {
   const inputEmail = req.body.email
-  const searchResult = await User.findUserName(inputEmail)
+  const searchResult = await User.findUserData(inputEmail)
 
   if (searchResult.length) {
     res.send({
@@ -45,7 +45,8 @@ async function authentication(req, res, next) {
   }
 
   accessToken = accessToken.replace('Bearer ', '')
-  if (accessToken == 'null') {
+  
+  if (!accessToken) {
     res.status(401).send({ error: 'Unauthorized' })
     return
   }

@@ -1,0 +1,47 @@
+<div class='container'>
+  <div>
+
+    <div class='title-area'>
+      <div>
+        <h4>{{ideaData.title}}</h4>
+        <p>{{ideaData.company_name}} ({{ideaData.stock_code}})</p>
+      </div>
+
+      <div>
+
+        <p>{{ideaData.date}}</p>
+      </div>
+    </div>
+
+    <hr />
+
+    <div id='ideas-card-img'>
+      <img src='{{ideaData.image}}' class='img-fluid' />
+    </div>
+
+    <hr />
+
+    <div class='footer-area'>
+      <div class="user-area">
+        <img src="{{ideaData.user_picture}}" alt="" id="user-img">
+        <p>{{ideaData.user_name}}</p>
+      </div>
+
+      <div>
+        <img src='/img/like.png' class='social-btn' />
+        <img src='/img/bookmark.png' class='social-btn' />
+        <img src='/img/share.png' class='social-btn' />
+      </div>
+    </div>
+
+    {{#each ideaData.content}}
+      <div class='analysis-card'>
+        <h4 class="fw-bold">{{@key}}</h4>
+        <p>{{this}}</p>
+      </div>
+    {{/each}}
+  </div>
+</div>
+
+{{! JS }}
+<script src='/javascript/ideas-details.js'></script>

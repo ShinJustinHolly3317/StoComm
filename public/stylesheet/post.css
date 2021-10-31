@@ -1,0 +1,14 @@
+#close-icon{
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+}
+
+textarea {
+  resize: none;
+  height: 150px;
+}
+
+.hidden {
+  display: none;
+}

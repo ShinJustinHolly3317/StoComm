@@ -1,27 +1,4 @@
-/* navbar */
-.navbar {
-  background-color: rgb(121, 209, 201);
-  height: 80px;
 
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-}
-
-.navbar h3 {
-  font-size: 35px;
-  letter-spacing: 4px;
-  margin: 0 20px;
-  color: rgb(243, 83, 80);
-}
-
-#member-link{
-  width: 50px;
-  height: 50px;
-  margin: 0 60px 0 0;
-  background-color: white;
-  border-radius: 50%;
-}
 
 body{
   background-color: rgb(255, 249, 249);
@@ -75,8 +52,18 @@ body{
   cursor: pointer;
 
   display: flex;
+  flex-direction: column;
 }
 
 .war-room h3 {
   margin: 0 10px;
+  font-weight: 800;
+}
+
+#war_room_title {
+  margin: 50px 0 0 10px;
+}
+
+#war-room-time{
+  text-align: right;
 }

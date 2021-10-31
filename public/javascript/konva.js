@@ -202,7 +202,6 @@ socket.on('latest draw history', (id, location) => {
 })
 
 socket.on('init load data', (drawHistory) => {
-  console.log('sdfsdfsd')
   if (!Object.keys(drawHistory).length) {
     console.log(Object.keys(drawHistory))
     return

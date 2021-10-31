@@ -25,9 +25,12 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 })
 
 // first load
-renderRealPriceChart(realTimePriceCtx)
-renderRevenueChart(dayPriceCtx, 2303)
-renderNews(2303)
+;(async function() {
+  await renderRevenueChart(dayPriceCtx, STOCK_CODE)
+  await renderRealPriceChart(realTimePriceCtx)
+  await renderNews(STOCK_CODE)
+})()
+
 
 // keep updating stock price
 // setInterval(() => {
@@ -49,7 +52,7 @@ renderNews(2303)
 async function renderRealPriceChart(ctx) {
   // Get day prices info
   const { prevClosePrice, limitUp, limitDown, dayPrices, timestamps } =
-    await fetchDayPrices(2303)
+    await fetchDayPrices(STOCK_CODE)
 
   // stock price data (x:time, Y:price)
   const data = {
@@ -82,7 +85,7 @@ async function renderRealPriceChart(ctx) {
         },
         title: {
           display: true,
-          text: `聯電(2330) 即時股價`,
+          text: `${company_name}(${STOCK_CODE}) 即時股價`,
           font: {
             size: 30
           }
@@ -188,6 +191,7 @@ async function renderRevenueChart(ctx, id) {
   const response = await fetch(`/stockRevenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
+  company_name = revenueData[0].company_name
 
   // arrange revenue data
   const monthList = []
@@ -202,7 +206,7 @@ async function renderRevenueChart(ctx, id) {
     labels: monthList,
     datasets: [
       {
-        label: '聯電(2303) 月營收 (億)',
+        label: `${company_name}(${STOCK_CODE}) 月營收 (億)`,
         data: revenueByMonth,
         backgroundColor: ['rgba(54, 162, 235)'],
         borderColor: ['rgb(54, 162, 235)'],

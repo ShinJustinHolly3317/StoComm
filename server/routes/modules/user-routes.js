@@ -3,10 +3,11 @@ const multer = require('multer')
 const upload = multer()
 
 const { wrapAsync, checkUserExist, authentication } = require('../../../utils/utils')
-const { login, signUp } = require('../../controller/user-controller')
+const { login, signUp, userData } = require('../../controller/user-controller')
 
 
 router.get('/user_auth', authentication)
+router.get('/user_data', userData)
 router.post(
   '/check_user_exist',
   upload.array(),
