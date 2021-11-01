@@ -1,3 +1,8 @@
+.post-area{
+  width: 90%;
+  margin: 0 auto;
+}
+
 #close-icon{
   width: 30px;
   height: 30px;
@@ -11,4 +16,8 @@ textarea {
 
 .hidden {
   display: none;
+}
+
+#analysis-img{
+  width: 70%;
 }

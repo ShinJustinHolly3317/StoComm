@@ -104,6 +104,16 @@ View.signUpBtn.addEventListener('click', async (e) => {
     case 200:
       alert('註冊成功 !!')
       localStorage.setItem('access_token', result.data.access_token)
+
+      const userRole = {
+        id: result.data.user.id,
+        name: result.data.user.name,
+        email: result.data.user.email,
+        role: 'visitor'
+      }
+      localStorage.setItem('userRole', JSON.stringify(userRole))
+
+      
       window.location.href = '/hot-rooms'
   }
 })

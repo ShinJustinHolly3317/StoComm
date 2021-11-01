@@ -1,4 +1,5 @@
 const drawHistory = {}
+const chatHistory = {}
 let clientList
 let isAdmin
 
@@ -65,8 +66,23 @@ function socketListener (io) {
       })
 
       // Chat room
-      socket.on('chat message', (msg, name) => {
+      if (!chatHistory[roomId]) {
+        // initialization
+        chatHistory[roomId] = []
+      } else {
+        socket.emit('all messages', chatHistory[roomId])
+      }
+
+      // socket.on('get all messages', () => {
+      //   console.log('sdfsdfsdfhistory', chatHistory[roomId])
+      //   socket.emit('all messages', chatHistory[roomId])
+      // })
+
+      socket.on('chat message', (msg, name, id) => {
         console.log('message: ' + msg, name)
+
+        // store chat history
+        chatHistory[roomId].push([id, name, msg])
 
         socket.to(roomId).emit('sendback', msg, name)
         // send my msg

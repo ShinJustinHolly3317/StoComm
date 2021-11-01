@@ -1,4 +1,4 @@
-const WWS_URL = `wss://api.fugle.tw/realtime/v0.3/intraday/quote?symbolId=${STOCK_CODE}&apiToken=06108efd4883e72e0f65cc1672eaa4a1`
+const REAL_TIME_URL = `https://api.fugle.tw/realtime/v0.3/intraday/quote?symbolId=${STOCK_CODE}&apiToken=06108efd4883e72e0f65cc1672eaa4a1`
 
 const realTimePriceCtx = document.querySelector('#stock-real-price')
 const dayPriceCtx = document.querySelector('#stock-day-history')
@@ -6,10 +6,6 @@ const stockWrapper = document.querySelector('#stock-real-price-wrapper')
 const minStockWrapper = document.querySelector('.min-stock-real-price')
 const stockShrinkBtn = document.querySelector('#js-stock-shrink-btn')
 const stockEnlargeBtn = document.querySelector('#js-stock-enlarge-btn')
-
-// real time price temp
-const timeStamps = []
-const stockPrice = []
 
 // chart ID
 let realTimePriceChart = ''
@@ -22,34 +18,28 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 })
 
 // first load
+let chartIntervalId
 ;(async function () {
-  await renderRevenueChart(dayPriceCtx, STOCK_CODE)
+  await renderRevenueChart(STOCK_CODE)
+  // await renderGrossChart(STOCK_CODE)
   await renderRealPriceChart(realTimePriceCtx)
   await renderNews(STOCK_CODE)
-  anychart.onDocumentReady(yearPriceHistory)
-})()
+  await renderChips(STOCK_CODE)
+  yearPriceHistory()
 
-// wws keep updating stock price
-const wss = new WebSocket(WWS_URL)
-wss.onopen = (res) => {
-  console.log('wss msg:', res)
-}
-wss.onmessage = (res) => {
-  stockPrice.push(JSON.parse(res.data).data.quote.trade.price)
-  timeStamps.push(
-    moment(JSON.parse(res.data).data.quote.trade.at).format(
-      'YYYY-MM-DDTHH:mm:ss'
-    )
-  )
-  renderRealPriceChart(realTimePriceCtx)
-}
+  chartIntervalId = setInterval(() => {
+    if (new Date().getHours() * 60 + new Date().getMinutes() - 540 > 270) {
+      clearInterval(chartIntervalId)
+    }
+    renderRealPriceChart(realTimePriceCtx)
+  }, 60000)
+})()
 
 // functions
 async function renderRealPriceChart(ctx) {
   // Get day prices info
-  const { prevClosePrice, limitUp, limitDown } = await fetchDayPrices(
-    STOCK_CODE
-  )
+  const { prevClosePrice, limitUp, limitDown, stockPrice, timeStamps } =
+    await fetchDayPrices(STOCK_CODE)
 
   // stock price data (x:time, Y:price)
   const data = {
@@ -124,13 +114,6 @@ async function renderRealPriceChart(ctx) {
   })
 }
 
-async function fetchStockQuote() {
-  const response = await fetch(REAL_TIME_URL)
-  const result = await response.json()
-  stockPrice.push(result.data.quote.trade.price)
-  timeStamps.push(moment().format('YYYY-MM-DDTHH:mm:ss'))
-}
-
 function tradingDuration() {
   // get friday date
   let friday
@@ -149,7 +132,6 @@ function tradingDuration() {
       ? moment().format('YYYY-MM-DD') + 'T13:30:00'
       : friday.format('YYYY-MM-DD') + 'T13:30:00'
 
-  console.log(openTime, closeTime)
   return { openTime, closeTime }
 }
 
@@ -161,6 +143,9 @@ async function fetchDayPrices(id) {
   const prevClosePrice = result.data[0].chart.meta.previousClose
   const limitUp = prevClosePrice * 1.1
   const limitDown = prevClosePrice * 0.9
+  const stockPrice = []
+  const timeStamps = []
+
   result.data[0].chart.indicators.quote[0].close.forEach((price, i) => {
     if (price) {
       stockPrice.push(price)
@@ -177,51 +162,118 @@ async function fetchDayPrices(id) {
     timeStamps.push(moment(timeByMinute * 1000).format('YYYY-MM-DDTHH:mm:ss'))
   })
 
-  return { prevClosePrice, limitUp, limitDown }
+  return { prevClosePrice, limitUp, limitDown, stockPrice, timeStamps }
 }
 
-async function renderRevenueChart(ctx, id) {
+async function renderRevenueChart(id) {
   const response = await fetch(`/stockRevenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
   company_name = revenueData[0].company_name
 
-  // arrange revenue data
-  const monthList = []
   const revenueByMonth = []
   for (let item of revenueData) {
-    if (item.month === '2018/01') break
-    monthList.push(moment(item.month).format('YYYY-MM'))
-    revenueByMonth.push(item.revenue)
+    revenueByMonth.push([moment(item.month).format('YYYY-MM'), item.revenue])
   }
 
-  const data = {
-    labels: monthList,
-    datasets: [
-      {
-        label: `${company_name}(${STOCK_CODE}) 月營收 (億)`,
-        data: revenueByMonth,
-        backgroundColor: ['rgba(54, 162, 235)'],
-        borderColor: ['rgb(54, 162, 235)'],
-        borderWidth: 1
-      }
-    ]
+  // create a chart
+  const chart = anychart.column()
+
+  // set chart title text settings
+  chart.title(`${company_name}(${STOCK_CODE}) 月營收 (億)`)
+
+  // create a column series and set the data
+  var series = chart.column(revenueByMonth)
+
+  // set series tooltip settings
+  series.tooltip().titleFormat('{%X}')
+
+  series
+    .tooltip()
+    .position('center-top')
+    .anchor('center-bottom')
+    .offsetX(0)
+    .offsetY(5)
+    .format('${%Value}(億)')
+
+  // set yAxis labels formatter
+  chart.yAxis().labels().format('${%Value}(億)')
+
+  // set the container id
+  chart.container('revenue-chart')
+
+  // initiate drawing the chart
+  chart.draw()
+}
+
+async function renderGrossChart(id) {
+  const response = await fetch(`/stockGross/${id}`)
+  const result = await response.json()
+  const grossData = result.data
+
+  const grossByQuarter = []
+  for (let key of grossData) {
+    grossByQuarter.push([key, grossData[key][0]])
   }
 
-  dayPriceChart = new Chart(ctx, {
-    type: 'bar',
-    data: data,
-    options: {
-      scales: {
-        x: {
-          stacked: true
-        },
-        y: {
-          stacked: true
-        }
-      }
-    }
-  })
+  // create a chart
+  const chart = anychart.column()
+
+  // set chart title text settings
+  chart.title(`${company_name}(${STOCK_CODE}) 季毛利(億)`)
+
+  // create a column series and set the data
+  var series = chart.column(grossByQuarter)
+
+  // set series tooltip settings
+  series.tooltip().titleFormat('{%X}')
+
+  series
+    .tooltip()
+    .position('center-top')
+    .anchor('center-bottom')
+    .offsetX(0)
+    .offsetY(5)
+    .format('${%Value}(億)')
+
+  // set yAxis labels formatter
+  chart.yAxis().labels().format('${%Value}(億)')
+
+  // set the container id
+  chart.container('gross-chart')
+
+  // initiate drawing the chart
+  chart.draw()
+}
+
+async function renderChips(stockCode) {
+  // create data
+  const response = await fetch(`/stockChip/${stockCode}`)
+  const chipData = await response.json()
+  const foreign = []
+  const investmentTrust = []
+  const dealer = []
+
+  for (let item of chipData){
+    foreign.push([item[0], item[1]])
+    investmentTrust.push([item[0], item[2]])
+    dealer.push([item[0], item[3]])
+  }
+
+  // create a chart
+  const chart = anychart.line()
+  chart.title(`${company_name}(${STOCK_CODE})三大法人買賣超`)
+
+  // create a line series and set the data
+  const series1 = chart.line(foreign)
+  const series2 = chart.line(investmentTrust)
+  const series3 = chart.line(dealer)
+
+  // set the container id
+  chart.container('chip-chart')
+
+  // initiate drawing the chart
+  chart.draw()
 }
 
 async function renderNews(id) {
@@ -246,7 +298,7 @@ async function renderNews(id) {
 
 async function yearPriceHistory() {
   let table, mapping, chart
-  const url = `/year_price/${STOCK_CODE}`
+  const url = `/yearPrice/${STOCK_CODE}`
   const resposne = await fetch(url)
   const result = await resposne.json()
 
@@ -305,10 +357,12 @@ async function yearPriceHistory() {
 // Listener
 stockShrinkBtn.addEventListener('click', () => {
   stockWrapper.style.display = 'none'
+  stockWrapper.style.zIndex = 2
   minStockWrapper.style.display = 'flex'
 })
 
 stockEnlargeBtn.addEventListener('click', () => {
   stockWrapper.style.display = 'flex'
+  stockWrapper.style.zIndex = 3
   minStockWrapper.style.display = 'none'
 })

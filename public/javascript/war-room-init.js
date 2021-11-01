@@ -1,5 +1,6 @@
 const ROOM_ID = getQueryObject().roomId
 const STOCK_CODE = getQueryObject().stockCode
+const USER_ROLE = JSON.parse(localStorage.getItem('userRole'))
 let company_name
 
 const WarRoomView = {
@@ -24,16 +25,15 @@ showRoleBtn()
 
 // listener
 WarRoomView.postBtn.addEventListener('click', async (e) => {
-  const userRole = JSON.parse(localStorage.getItem('userRole'))
-  if (userRole.role !== 'streamer') {
+  if (USER_ROLE.role !== 'streamer') {
     return
   } else {
-    userRole.roomId = ROOM_ID
+    USER_ROLE.roomId = ROOM_ID
   }
 
   const response = await fetch('/api/1.0/war_room/end_war_room', {
     method: 'PATCH',
-    body: JSON.stringify(userRole),
+    body: JSON.stringify(USER_ROLE),
     headers: {
       'Content-type': 'application/json'
     }
@@ -51,13 +51,23 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   }
 })
 
+document.querySelector('.navbar').addEventListener('click', (e) => {
+  console.log(e.target.tagName)
+  if (e.target.parentElement.tagName === 'A') {
+    window.addEventListener('beforeunload', function (e) {
+      // Cancel the event
+      e.preventDefault() // If you prevent default behavior in Mozilla Firefox prompt will always be shown
+      // Chrome requires returnValue to be set
+      e.returnValue = ''
+    })
+  }
+})
+
 // Functions
 function showRoleBtn() {
-  const userRole = JSON.parse(localStorage.getItem('userRole'))
-  console.log(userRole)
-  if (userRole.role === 'visitor') {
+  if (USER_ROLE.role === 'visitor') {
     WarRoomView.visitorLeaveBtn.style.display = 'block'
-  } else if (userRole.role === 'streamer') {
+  } else if (USER_ROLE.role === 'streamer') {
     WarRoomView.postBtn.style.display = 'block'
   }
 }

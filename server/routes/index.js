@@ -8,7 +8,8 @@ const {
   stockRevenue,
   stockGross,
   getDayPrices,
-  getYearPrice
+  getYearPrice,
+  stockChip
 } = require('../controller/stock-info-controller')
 const render = require('./modules/render')
 const userRoutes = require('./modules/user-routes')
@@ -21,10 +22,11 @@ router.use('/api/1.0/war_room', warRoomRoutes)
 router.use('/api/1.0/ideas', ideasRoute)
 
 // bellow needs refactor
-router.use('/stockNews/:id', stockNews)
-router.use('/stockRevenue/:id', stockRevenue)
-router.use('/stockGross/:id', stockGross)
-router.use('/dayPrices/:id', getDayPrices)
-router.use('/year_price/:id', getYearPrice)
+router.use('/stockNews/:stockCode', stockNews)
+router.use('/stockRevenue/:stockCode', stockRevenue)
+router.use('/stockGross/:stockCode', stockGross)
+router.use('/dayPrices/:stockCode', getDayPrices)
+router.use('/yearPrice/:stockCode', getYearPrice)
+router.use('/stockChip/:stockCode', stockChip)
 
 module.exports = router

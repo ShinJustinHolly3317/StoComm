@@ -1,7 +1,4 @@
 const axios = require('axios')
-const express = require('express')
-const app = express()
-const port = 3000
 const URL = 'https://goodinfo.tw/StockInfo/'
 const cheerio = require('cheerio')
 const moment = require('moment')
@@ -11,15 +8,17 @@ const {
   insertRevenue,
   getRevenue,
   getNews,
-  insertNews
+  insertNews,
+  insertChip,
+  getChip
 } = require('../model/stock_info_model')
 
 // functions
 async function stockNews(req, res) {
-  const { id } = req.params
+  const { stockCode } = req.params
   const titleList = []
 
-  const newsResult = await getNews(id)
+  const newsResult = await getNews(stockCode)
   if (newsResult.length) {
     for (let item of newsResult) {
       titleList.push({
@@ -31,7 +30,7 @@ async function stockNews(req, res) {
 
     return res.status(200).send({ data: titleList })
   } else {
-    const url = `https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID=${id}`
+    const url = `https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID=${stockCode}`
 
     const result = await axios.get(url, {
       headers: {
@@ -66,21 +65,21 @@ async function stockNews(req, res) {
         })
       }
     }
-    const insertResult = await insertNews(titleList, id)
+    const insertResult = await insertNews(titleList, stockCode)
 
     res.send({ data: titleList })
   }
 }
 
 async function stockRevenue(req, res) {
-  const { id } = req.params
-  const url = `https://goodinfo.tw/StockInfo/ShowSaleMonChart.asp?STOCK_ID=${id}`
+  const { stockCode } = req.params
+  const url = `https://goodinfo.tw/StockInfo/ShowSaleMonChart.asp?STOCK_ID=${stockCode}`
   const cssSelector = '#divSaleMonChartDetail table tr[align="center"] td'
   const allRevenueList = {}
   let stockInfo
 
-  let revenueData = await getRevenue(id)
-  console.log(revenueData)
+  let revenueData = await getRevenue(stockCode)
+
   if (!revenueData.length) {
     const result = await axios.get(url, {
       headers: {
@@ -111,14 +110,14 @@ async function stockRevenue(req, res) {
     const sqlRevenueList = []
     for (let key in allRevenueList) {
       sqlRevenueList.push([
-        id,
+        stockCode,
         Number(allRevenueList[key][6].replace(',', '')),
         key.replace('/', '-')
       ])
     }
 
-    await insertRevenue(sqlRevenueList, id)
-    revenueData = await getRevenue(id)
+    await insertRevenue(sqlRevenueList, stockCode)
+    revenueData = await getRevenue(stockCode)
   }
 
   res.send({
@@ -127,8 +126,8 @@ async function stockRevenue(req, res) {
 }
 
 async function stockGross(req, res) {
-  // const { id } = req.params
-  const url = `https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=IS_M_QUAR_ACC&STOCK_ID=${3037}`
+  const { stockCode } = req.params
+  const url = `https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=IS_M_QUAR_ACC&STOCK_ID=${stockCode}}`
   const grossSelector =
     '#divFinDetail table tbody tr[bgcolor="white"][align="right"][valign="middle"]'
   const titleSelector = '#divFinDetail table tbody tr.bg_h1'
@@ -136,8 +135,12 @@ async function stockGross(req, res) {
   const result = await axios.get(url, {
     headers: {
       'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-      'content-type': 'text/html; charset=UTF-8'
+        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+      'content-type': 'text/html; charset=UTF-8',
+      'x-requested-with': 'XMLHttpRequest',
+      'Accept-Encoding': 'br, gzip, deflate',
+      'Accept-Language': 'en-gb',
+      Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
     }
   })
 
@@ -169,23 +172,23 @@ async function stockGross(req, res) {
   }
 
   console.log(grossDataByQuarter)
-  // res.send({ data: [] })
+  res.send({ data: grossDataByQuarter })
 }
 
 async function getDayPrices(req, res) {
-  const { id } = req.params
-  const dayPricesUrl = `https://tw.stock.yahoo.com/_td-stock/api/resource/FinanceChartService.ApacLibraCharts;autoRefresh=1634548365569;symbols=%5B%22${id}.TW%22%5D;type=tick?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern%2CuseVersionSwitch%2CuseNewQuoteTabColor%2ChideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=2vk2nmlgmqegi&region=TW&site=finance&tz=Asia%2FTaipei&ver=1.2.1173&returnMeta=true`
+  const { stockCode } = req.params
+  const dayPricesUrl = `https://tw.stock.yahoo.com/_td-stock/api/resource/FinanceChartService.ApacLibraCharts;autoRefresh=1634548365569;symbols=%5B%22${stockCode}.TW%22%5D;type=tick?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern%2CuseVersionSwitch%2CuseNewQuoteTabColor%2ChideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=2vk2nmlgmqegi&region=TW&site=finance&tz=Asia%2FTaipei&ver=1.2.1173&returnMeta=true`
 
   const result = await axios.get(dayPricesUrl)
   res.send(result.data)
 }
 
 async function getYearPrice(req, res) {
-  const { id } = req.params
-  const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${id}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
+  const { stockCode } = req.params
+  const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${stockCode}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
   const result = await axios.get(url)
-  let pricehistory = JSON.parse(result.data.split('(')[1].split(')')[0]).ta
 
+  let pricehistory = JSON.parse(result.data.split(`"ta":`)[1].split(',"ex"')[0])
   const dataTable = pricehistory.map((item) => {
     let date = item.t.toString()
     return [
@@ -201,10 +204,55 @@ async function getYearPrice(req, res) {
   res.send(dataTable)
 }
 
+async function stockChip(req, res) {
+  let { stockCode } = req.params
+  const url = `https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=60;period=week;symbol=${stockCode}.TW?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=3pf2d09gnvivj&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true`
+  const rawChipData = []
+  let chipData = await getChip(stockCode)
+
+  if (!chipData.length) {
+    const result = await axios.get(url, {
+      headers: {
+        'user-agent':
+          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+        'content-type': 'text/html; charset=UTF-8',
+        'x-requested-with': 'XMLHttpRequest',
+        'Accept-Encoding': 'br, gzip, deflate',
+        'Accept-Language': 'en-gb',
+        Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+      }
+    })
+
+    for (let item of result.data.data.list) {
+      rawChipData.push([
+        moment(item.date).format('YYYY-MM-DD'),
+        item.foreignDiffVolK,
+        item.investmentTrustDiffVolK,
+        item.dealerDiffVolK
+      ])
+    }
+
+    await insertChip(rawChipData, stockCode)
+    chipData = await getChip(stockCode)
+  }
+
+  const updateChipData = chipData.map(item => {
+    return [
+      moment(item.date).format('YYYY-MM-DD'),
+      item.foreigner,
+      item.investment_trust,
+      item.dealer
+    ]
+  })
+
+  res.send(updateChipData)
+}
+
 module.exports = {
   stockNews,
   stockRevenue,
   stockGross,
   getDayPrices,
-  getYearPrice
+  getYearPrice,
+  stockChip
 }

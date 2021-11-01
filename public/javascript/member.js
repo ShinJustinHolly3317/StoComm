@@ -9,6 +9,7 @@ const View = {
   userIdInput: document.querySelector('#user_id'),
 
   memberNameEle: document.querySelector('#member-name'),
+  logoutBtn: document.querySelector('.js-logout-btn'),
   followingInfoEle: document.querySelectorAll('.following-info span'),
   ideasListEle: document.querySelector('.ideas-list')
 }
@@ -91,4 +92,11 @@ View.createBtn.addEventListener('click', async (e) => {
   localStorage.setItem('userRole', JSON.stringify(streamerRole))
 
   window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
+})
+
+View.logoutBtn.addEventListener('click', (e) => {
+  localStorage.removeItem('userRole')
+  localStorage.removeItem('access_token')
+
+  window.location.href = '/'
 })

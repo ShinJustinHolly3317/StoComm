@@ -6,6 +6,7 @@ let height = window.innerHeight - 150
 
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')
+const addCanvasBtn = document.querySelector('.add-canvas')
 
 // tool controller
 const toolController = {
@@ -231,6 +232,14 @@ cavasWrapper.addEventListener('mouseout', (e) => {
   isPaint = false
 })
 
+addCanvasBtn.addEventListener('click', async (e) => {
+  const curStockInfo = document.querySelector('.carousel-item.active')
+  const canvas = await html2canvas(curStockInfo)
+  let canvasImg = canvas.toDataURL('image/jpeg')
+
+  addImg(canvasImg, layer)
+})
+
 /* function */
 function resumeHistory() {
   // if resizing
@@ -304,4 +313,21 @@ function initLoadLayer() {
       layer.add(layerObj)
     }
   })
+}
+
+function addImg(imageBase64, layer) {
+ var imageObj = new Image()
+ imageObj.onload = function () {
+   var yoda = new Konva.Image({
+     x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
+     y: 10,
+     image: imageObj,
+     width: window.innerHeight - 150,
+     height: window.innerHeight - 150
+   })
+
+   // add the shape to the layer
+   layer.add(yoda)
+ }
+ imageObj.src = imageBase64
 }
