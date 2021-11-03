@@ -1,5 +1,6 @@
 // Global variables
 const drawHistory = {}
+const commandHistory = []
 let localLayerCounter = 0
 let width = window.innerWidth
 let height = window.innerHeight - 150
@@ -7,6 +8,7 @@ let height = window.innerHeight - 150
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')
 const addCanvasBtn = document.querySelector('.add-canvas')
+const undoBtn = document.querySelector('#undo-btn')
 
 // tool controller
 const toolController = {
@@ -30,9 +32,24 @@ const stage = new Konva.Stage({
 const layer = new Konva.Layer()
 stage.add(layer)
 
+// transformer
+const tr = new Konva.Transformer()
+tr.rotateEnabled(false)
+tr.resizeEnabled(false)
+tr.padding(10)
+layer.add(tr)
+
+// add a new feature, lets add ability to draw selection rectangle
+const selectionRectangle = new Konva.Rect({
+  fill: 'rgba(200, 200, 200, 0.5)',
+  visible: false
+})
+layer.add(selectionRectangle)
+
 let isPaint = false
-let localToolType = 'brush'
+let localToolType = 'select'
 let localLayerObject
+let curSelectShape
 
 stage.on('mousedown touchstart', function (e) {
   if (localToolType === 'select') {
@@ -46,7 +63,7 @@ stage.on('mousedown touchstart', function (e) {
 
   // socket send new layer msg
   const initDrawInfo = {
-    userId: socketId,
+    userId: USER_ROLE.id,
     drawLayerCounter: null, // latest id
     location: [pos.x, pos.y, pos.x, pos.y],
     toolType: localToolType
@@ -71,6 +88,8 @@ stage.on('mousemove touchmove', function (e) {
 
   const pos = stage.getPointerPosition()
 
+  if (!localLayerObject) return
+
   switch (localToolType) {
     case 'brush':
       toolController.brush(localLayerObject, [pos.x, pos.y])
@@ -87,13 +106,76 @@ stage.on('mousemove touchmove', function (e) {
       break
   }
 
+  if (localToolType === 'brush') {
+    drawHistory[localLayerCounter].location = drawHistory[
+      localLayerCounter
+    ].location.concat([pos.x, pos.y])
+  }
+
   socket.emit('drawing', localLayerCounter, [pos.x, pos.y])
 })
 
+// clicks should select/deselect shapes
+stage.on('click tap', function (e) {
+  // if click on empty area - remove all selections
+
+  if (e.target === stage) {
+    tr.nodes([])
+    // console.log('curSelectShape', curSelectShape)
+    // console.log('cursleectshape', stage.find(`#${0}`))
+    if (curSelectShape) {
+      // socket.emit('update drawing', curSelectShape)
+      // curSelectShape.draggable(false)
+      curSelectShape = null
+    }
+    return
+  }
+
+  // if we are selecting with rect, do nothing
+  if (selectionRectangle.visible()) {
+    return
+  }
+
+  // do nothing if clicked NOT on our rectangles
+  if (!e.target.hasName('select')) {
+    return
+  }
+
+  // do we pressed shift or ctrl?
+  const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey
+  const isSelected = tr.nodes().indexOf(e.target) >= 0
+  console.log(e.target)
+  if (!metaPressed && !isSelected) {
+    // if no key pressed and the node is not selected
+    // select just one
+    tr.nodes([e.target])
+    curSelectShape = e.target
+
+    // e.target.draggable(true)
+  } else if (metaPressed && isSelected) {
+    // if we pressed keys and node was selected
+    // we need to remove it from selection:
+    const nodes = tr.nodes().slice() // use slice to have new copy of array
+    // remove node from array
+    nodes.splice(nodes.indexOf(e.target), 1)
+    tr.nodes(nodes)
+  } else if (metaPressed && !isSelected) {
+    // add the node into selection
+    const nodes = tr.nodes().concat([e.target])
+    tr.nodes(nodes)
+  }
+})
+
 // listener
-const select = document.getElementById('tool')
-select.addEventListener('change', function () {
-  localToolType = select.value
+const toolArea = document.querySelector('.draw-tool-area')
+toolArea.addEventListener('click', (e) => {
+  if (e.target.tagName === 'IMG') {
+    if (document.querySelector('.tool-active')) {
+      document.querySelector('.tool-active').classList.toggle('tool-active')
+    }
+    e.target.classList.toggle('tool-active')
+  }
+  localToolType = e.target.getAttribute('value')
 })
 
 /* text block */
@@ -151,7 +233,6 @@ socket.on('get latest id', (id, remoteDrawHistory) => {
   localLayerCounter = id
 
   // create new kayer
-
   localLayerObject = new Konva.Line({
     stroke: '#df4b26',
     strokeWidth: 5,
@@ -159,17 +240,20 @@ socket.on('get latest id', (id, remoteDrawHistory) => {
       localToolType === 'eraser' ? 'destination-out' : 'source-over',
     lineCap: 'round',
     // add point twice, so we have some drawings even on a simple click
-    points:
-      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
-    draggable: true
+    points: remoteDrawHistory[id].location,
+    name: 'select',
+    id: id.toString()
   })
-  drawHistory[latestLayerId] = {
+  drawHistory[id] = {
     userId: socketId,
-    drawLayerCounter: localLayerCounter, // latest id
-    location:
-      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
+    drawLayerCounter: id, // latest id
+    location: remoteDrawHistory[id].location,
     toolType: localToolType
   }
+
+  // push into conmmand history
+  commandHistory.push({ command: 'create', drawObj: drawHistory[id] })
+
   console.log(drawHistory)
 
   layer.add(localLayerObject)
@@ -180,19 +264,17 @@ socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
     stroke: '#df4b26',
     strokeWidth: 5,
     globalCompositeOperation:
-      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].toolType ===
-      'eraser'
+      remoteDrawHistory[remoteLatestLayerId].toolType === 'eraser'
         ? 'destination-out'
         : 'source-over',
     // round cap for smoother lines
     lineCap: 'round',
     // add point twice, so we have some drawings even on a simple click
-    points:
-      remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1].location,
-    draggable: true
+    points: remoteDrawHistory[remoteLatestLayerId].location,
+    name: 'select',
+    id: remoteLatestLayerId.toString()
   })
-  drawHistory[remoteLatestLayerId] =
-    remoteDrawHistory[Object.keys(remoteDrawHistory).length - 1]
+  drawHistory[remoteLatestLayerId] = remoteDrawHistory[remoteLatestLayerId]
   drawHistory[remoteLatestLayerId].layerObject = newLine
 
   layer.add(newLine)
@@ -208,22 +290,82 @@ socket.on('init load data', (drawHistory) => {
     return
   }
 
-  for (let key in drawHistory) {
-    let layerObj = new Konva.Line({
-      points: drawHistory[key].location,
-      stroke: '#df4b26',
-      strokeWidth: 5,
-      lineCap: 'round',
-      lineJoin: 'round',
-      globalCompositeOperation:
-        drawHistory[key].toolType === 'eraser'
-          ? 'destination-out'
-          : 'source-over',
-      draggable: true
-    })
+  // for (let key in drawHistory) {
+  //   let layerObj = new Konva.Line({
+  //     points: drawHistory[key].location,
+  //     stroke: '#df4b26',
+  //     strokeWidth: 5,
+  //     lineCap: 'round',
+  //     lineJoin: 'round',
+  //     globalCompositeOperation:
+  //       drawHistory[key].toolType === 'eraser'
+  //         ? 'destination-out'
+  //         : 'source-over',
+  //     name: 'select',
+  //     id: key
+  //   })
 
-    layer.add(layerObj)
+  //   layer.add(layerObj)
+  // }
+
+  for (let key in drawHistory) {
+    if (drawHistory[key].toolType === 'image') {
+      addImg(drawHistory[key].canvasImg, key)
+    } else {
+      // setTimeout(() => {
+      //   // handle html render async
+      //   let layerObj = new Konva.Line({
+      //     points: drawHistory[key].location,
+      //     stroke: '#df4b26',
+      //     strokeWidth: 5,
+      //     lineCap: 'round',
+      //     lineJoin: 'round',
+      //     globalCompositeOperation:
+      //       drawHistory[key].toolType === 'eraser'
+      //         ? 'destination-out'
+      //         : 'source-over',
+      //     name: 'select',
+      //     id: key
+      //   })
+      //   layer.add(layerObj)
+      // }, 0)
+
+      let layerObj = new Konva.Line({
+        points: drawHistory[key].location,
+        stroke: '#df4b26',
+        strokeWidth: 5,
+        lineCap: 'round',
+        lineJoin: 'round',
+        globalCompositeOperation:
+          drawHistory[key].toolType === 'eraser'
+            ? 'destination-out'
+            : 'source-over',
+        name: 'select',
+        id: key
+      })
+      layer.add(layerObj)
+    }
   }
+  console.log(drawHistory)
+})
+
+socket.on('update delete drawing', (drawingId) => {
+  console.log(stage.find(`#${drawingId}`))
+  stage.find(`#${drawingId}`)[0].destroy()
+})
+
+socket.on('update add image', (topLayerId, canvasImg) => {
+  console.log('update image')
+  addImg(canvasImg, topLayerId)
+  drawHistory[topLayerId] = {
+    userId: USER_ROLE.id,
+    toolType: 'image',
+    canvasImg
+  }
+})
+
+socket.on('update undo', (commandLayer) => {
+  undoLayer(commandLayer)
 })
 
 /* window listener */
@@ -236,8 +378,38 @@ addCanvasBtn.addEventListener('click', async (e) => {
   const curStockInfo = document.querySelector('.carousel-item.active')
   const canvas = await html2canvas(curStockInfo)
   let canvasImg = canvas.toDataURL('image/jpeg')
+  const cavasInfo = {
+    userId: USER_ROLE.id,
+    toolType: 'image',
+    canvasImg
+  }
 
-  addImg(canvasImg, layer)
+  socket.emit('add image', cavasInfo)
+})
+
+window.addEventListener('keydown', (e) => {
+  // delete selected object
+  if (e.code === 'Delete') {
+    if (curSelectShape) {
+      curSelectShape.destroy()
+      socket.emit('delete drawing', curSelectShape.attrs.id)
+      curSelectShape = null
+      tr.nodes([])
+    }
+  }
+})
+
+undoBtn.addEventListener('click', (e) => {
+  if (!commandHistory.length) {
+    return
+  }
+
+  undoLayer(commandHistory[commandHistory.length - 1])
+  socket.emit('undo', commandHistory[commandHistory.length - 1])
+  commandHistory.pop()
+  
+  // console.log(commandHistory)
+  // console.log(drawHistory)
 })
 
 /* function */
@@ -249,33 +421,46 @@ function resumeHistory() {
   stage.height(height)
 
   // reloading drawing history
-  for (let item of drawHistory) {
-    let curLine = new Konva.Line({
-      points: item.lastLinePosition,
-      stroke: '#df4b26',
-      strokeWidth: 5,
-      lineCap: 'round',
-      lineJoin: 'round',
-      globalCompositeOperation:
-        item.toolType === 'eraser' ? 'destination-out' : 'source-over',
-      draggable: true
-    })
+  // layer.removeChildren()
+  // if (Object.keys(drawHistory).length) {
+  //   for (let key in drawHistory) {
+  //     if (drawHistory[key].toolType === 'image') {
+  //       console.log(drawHistory[key])
+  //       addImg(drawHistory[key].canvasImg, key)
+  //     } else {
+  //       console.log(drawHistory[key])
+  //       let curLine = new Konva.Line({
+  //         points: drawHistory[key].location,
+  //         stroke: '#df4b26',
+  //         strokeWidth: 5,
+  //         lineCap: 'round',
+  //         lineJoin: 'round',
+  //         globalCompositeOperation:
+  //           drawHistory[key].toolType === 'eraser'
+  //             ? 'destination-out'
+  //             : 'source-over',
+  //         name: 'select',
+  //         id: key
+  //       })
 
-    curLine.move({
-      x: 0,
-      y: 50
-    })
+  //       curLine.move({
+  //         x: 0,
+  //         y: 50
+  //       })
 
-    layer.add(curLine)
-    stage.add(layer)
-  }
+  //       layer.add(curLine)
+  //       stage.add(layer)
+  //     }
+  //   }
+  // }
 }
 
 function tracking(id, layerObject, locations) {
   // let newPoints = layerObject.points().concat([locations[0], locations[1]])
   // console.log(newPoints)
   // layerObject.points(newPoints)
-  console.log(drawHistory[id].toolType)
+  // drawHistory[id][location].concat(locations)
+  console.log(drawHistory[id])
 
   switch (drawHistory[id].toolType) {
     case 'brush':
@@ -293,41 +478,89 @@ function tracking(id, layerObject, locations) {
 function initLoadLayer() {
   socket.emit('init load')
   socket.on('init load data', (drawHistory) => {
-    console.log('ggggqqqq', drawHistory)
+    console.log('init load', drawHistory)
     if (!Object.keys(drawHistory).length) return
+    console.log(drawHistory)
+    resumeHistory()
+    // for (let key in drawHistory) {
+    //   let layerObj = new Konva.Line({
+    //     points: drawHistory[key].location,
+    //     stroke: '#df4b26',
+    //     strokeWidth: 5,
+    //     lineCap: 'round',
+    //     lineJoin: 'round',
+    //     globalCompositeOperation:
+    //       drawHistory[key].toolType === 'eraser'
+    //         ? 'destination-out'
+    //         : 'source-over',
+    //     name: 'select',
+    //     id: key
+    //   })
 
-    for (let key in drawHistory) {
+    //   layer.add(layerObj)
+    // }
+  })
+}
+
+function addImg(imageBase64, topLayerId) {
+  console.log(window.innerWidth / 2 - (window.innerHeight - 150) / 2)
+  var imageObj = new Image()
+  imageObj.onload = function () {
+    const image = new Konva.Image({
+      x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
+      y: 10,
+      image: imageObj,
+      width: window.innerHeight - 150,
+      height: window.innerHeight - 150,
+      name: 'select',
+      id: topLayerId
+    })
+
+    // add the shape to the layer
+    layer.add(image)
+  }
+  imageObj.src = imageBase64
+}
+
+function undoLayer(commandLayer) {
+  // check delete or create
+  if (commandLayer.command === 'create') {
+    // undo create
+    stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
+    delete drawHistory[commandLayer.drawObj.drawLayerCounter]
+  } else {
+    // undo delete
+    if (commandLayer.drawObj.toolType === 'image') {
+      imageObj.onload = function () {
+        const image = new Konva.Image({
+          x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
+          y: 10,
+          image: commandLayer.drawObj.imageObj,
+          width: window.innerHeight - 150,
+          height: window.innerHeight - 150,
+          name: 'select',
+          id: commandLayer.drawObj.drawLayerCounter
+        })
+
+        // add the shape to the layer
+        layer.add(image)
+      }
+      imageObj.src = imageBase64
+    } else {
       let layerObj = new Konva.Line({
-        points: drawHistory[key].location,
+        points: commandLayer.drawObj.location,
         stroke: '#df4b26',
         strokeWidth: 5,
         lineCap: 'round',
         lineJoin: 'round',
         globalCompositeOperation:
-          drawHistory[key].toolType === 'eraser'
+          commandLayer.drawObj.toolType === 'eraser'
             ? 'destination-out'
             : 'source-over',
-        draggable: true
+        name: 'select',
+        id: commandLayer.drawObj.drawLayerCounter
       })
-
       layer.add(layerObj)
     }
-  })
-}
-
-function addImg(imageBase64, layer) {
- var imageObj = new Image()
- imageObj.onload = function () {
-   var yoda = new Konva.Image({
-     x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
-     y: 10,
-     image: imageObj,
-     width: window.innerHeight - 150,
-     height: window.innerHeight - 150
-   })
-
-   // add the shape to the layer
-   layer.add(yoda)
- }
- imageObj.src = imageBase64
+  }
 }

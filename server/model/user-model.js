@@ -21,7 +21,7 @@ async function nativeSignIn(email, password) {
       email
     ])
     const user = result[0]
-
+    
     if (!bcrypt.compareSync(password, user.password)) {
       await conn.query('COMMIT')
       return { error: 'Wrong password' }

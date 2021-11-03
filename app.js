@@ -19,9 +19,13 @@ app.set('view engine', 'hbs')
 
 // static files
 app.use(express.static('public'))
+// app.use(
+//   '/socket',
+//   express.static(__dirname + '/node_modules/socket.io/client-dist/socket.io.js')
+// )
 app.use(
-  '/socket',
-  express.static(__dirname + '/node_modules/socket.io/client-dist/socket.io.js')
+  '/peerjsmod',
+  express.static(__dirname + '/node_modules/peerjs/dist/peerjs.min.js')
 )
 
 // socket
@@ -42,8 +46,8 @@ const routes = require('./server/routes')
 app.use(routes)
 
 // handle draw history
-const socketListener = require('./server/controller/socket/main-socket-controller')
-socketListener(io)
+const socketController = require('./server/controller/socket/main-socket-controller')
+socketController(io)
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)

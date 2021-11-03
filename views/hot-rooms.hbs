@@ -8,16 +8,15 @@
     >Explore</a>
   </div>
 
-  <div class='war-rooms'>
-    <a href='/war-room?roomId=justinishandsome&stockCode=2330'>
-      <div class='war-room shadow-lg'>
-        <h3>Justin 測試台</h3>
-        <p id="war_room_title">AppWorks School 的那些年</p>
-      </div>
-    </a>
-  </div>
+  <div class='war-rooms'></div>
 </div>
 
 {{!-- JS --}}
+<script src="https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js"></script>
+<script
+  src='https://cdn.anychart.com/releases/8.10.0/js/anychart-stock.min.js'
+  type='text/javascript'
+></script>
+<script src="/socket.io/socket.io.js"></script>
 <script src="/javascript/page-load-auth.js"></script>
 <script src="/javascript/hot-rooms.js"></script>

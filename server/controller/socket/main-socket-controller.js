@@ -1,17 +1,31 @@
 const drawHistory = {}
 const chatHistory = {}
+const onlineClients = {}
 let clientList
-let isAdmin
 
-function socketListener (io) {
+function socketController(io) {
   io.on('connection', mainSocketController)
 
   function mainSocketController(socket) {
-    socket.on('join room', async (roomId) => {
+    socket.on('get all room clients', () => {
+      socket.emit('recieve all room clients', onlineClients)
+    })
+
+    socket.on('join room', async (roomId, userId) => {
       socket.join(roomId)
-      if (!drawHistory[roomId]){
+
+      if (!onlineClients[roomId]) {
+        onlineClients[roomId] = {}
+        onlineClients[roomId][socket.id] = {}
+        onlineClients[roomId][socket.id].socketConn = true // add new client id
+      } else {
+        onlineClients[roomId][socket.id] = {}
+        onlineClients[roomId][socket.id].socketConn = true // add new client id
+      }
+
+      if (!drawHistory[roomId]) {
         drawHistory[roomId] = {}
-      } 
+      }
       // init load
       socket.emit('init load data', drawHistory[roomId])
 
@@ -36,7 +50,7 @@ function socketListener (io) {
           drawHistory[roomId]
         )
         // socket.broadcast.emit('get latest id', initDrawInfo.drawLayerCounter)
-
+        console.log(initDrawInfo.drawLayerCounter)
         // send drawing loction to others
         socket
           .to(roomId)
@@ -47,10 +61,17 @@ function socketListener (io) {
           )
       })
 
+      socket.on('add image', (cavasInfo) => {
+        let topLayerId = Object.keys(drawHistory[roomId]).length
+        drawHistory[roomId][topLayerId] = cavasInfo
+
+        io.to(roomId).emit('update add image', topLayerId, cavasInfo.canvasImg)
+      })
+
       socket.on('drawing', (localLayerId, location) => {
         drawHistory[roomId][localLayerId].location =
           drawHistory[roomId][localLayerId].location.concat(location)
-        console.log(drawHistory)
+        // console.log(drawHistory)
         socket.to(roomId).emit('latest draw history', localLayerId, location)
 
         // clean additional location of line layer
@@ -63,6 +84,28 @@ function socketListener (io) {
             thisLocation[thisLocation.length - 1]
           ]
         }
+
+        // console.log(drawHistory[roomId]);
+        console.log(Object.keys(drawHistory[roomId]))
+      })
+
+      // socket.on('update drawing', (curSelectShape) => {
+      //   console.log(JSON.parse(curSelectShape).attrs)
+      // })
+
+      socket.on('delete drawing', (drawingId) => {
+        console.log('drawingId', drawingId)
+        delete drawHistory[roomId][drawingId]
+        console.log(Object.keys(drawHistory[roomId]))
+
+        socket.to(roomId).emit('update delete drawing', drawingId)
+      })
+
+      socket.on('undo', (commandLayer) => {
+        let topLayerId = commandLayer.drawObj.drawLayerCounter
+        console.log(topLayerId)
+        delete drawHistory[roomId][topLayerId]
+        socket.to(roomId).emit('update undo', commandLayer)
       })
 
       // Chat room
@@ -93,21 +136,27 @@ function socketListener (io) {
       socket.on('start calling', (userId) => {
         console.log('Peer user: ', userId)
         // socket.to(roomId).emit('user-connected', userId)
-
-        // for local test
         socket.on('ready', () => {
           socket.to(roomId).emit('user-connected', userId)
         })
 
-        socket.on('disconnect', () => {
-          console.log(`${userId} left this room(${roomId})!`)
-          socket.to(roomId).emit('user-disconnected', userId)
-        })
+        onlineClients[roomId][socket.id].peerId = userId
+      })
+
+      socket.on('disconnect', () => {
+        console.log(
+          `${
+            onlineClients[roomId][socket.id].peerId
+          } left this room(${roomId})!`
+        )
+        socket
+          .to(roomId)
+          .emit('user-disconnected', onlineClients[roomId][socket.id].peerId)
+        console.log('going to delete', onlineClients[roomId][socket.id])
+        delete onlineClients[roomId][socket.id]
       })
     })
   }
 }
 
-
-
-module.exports = socketListener
+module.exports = socketController

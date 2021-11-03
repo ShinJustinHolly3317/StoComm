@@ -18,13 +18,16 @@ form.addEventListener('submit', function (e) {
 chatShrinkBtn.addEventListener('click', () => {
   chatRoomEle.style.display = 'none'
   chatRoomEle.style.zIndex = 2
-  minChatRoomEle.style.display = 'flex'
+  // minChatRoomEle.style.display = 'flex'
 })
 
 chatEnlargeBtn.addEventListener('click', () => {
-  chatRoomEle.style.display = 'flex'
-  chatRoomEle.style.zIndex = 3
-  minChatRoomEle.style.display = 'none'
+  if (chatRoomEle.style.display === 'flex'){
+    chatRoomEle.style.display = 'none'
+  } else {
+    chatRoomEle.style.display = 'flex'
+    chatRoomEle.style.zIndex = 3
+  }
 })
 
 socket.on('all messages', (chatHistory)=>{

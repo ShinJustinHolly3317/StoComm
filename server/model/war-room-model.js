@@ -52,6 +52,10 @@ async function showOnlineRooms() {
   INNER JOIN stock on war_room.stock_id=stock.stock_id
   WHERE state=1 `
   const [result] = await db.query(qryString)
+
+  for (let item of result) {
+    item.date_time = moment(item.date_time).format('YYYY-MM-DD')
+  }
   return result
 }
 

@@ -18,7 +18,7 @@ const socket = io()
 let socketId
 socket.on('connect', () => {
   socketId = socket.id
-  socket.emit('join room', ROOM_ID)
+  socket.emit('join room', ROOM_ID, USER_ROLE.id)
 })
 
 showRoleBtn()
@@ -71,3 +71,4 @@ function showRoleBtn() {
     WarRoomView.postBtn.style.display = 'block'
   }
 }
+

@@ -358,11 +358,15 @@ async function yearPriceHistory() {
 stockShrinkBtn.addEventListener('click', () => {
   stockWrapper.style.display = 'none'
   stockWrapper.style.zIndex = 2
-  minStockWrapper.style.display = 'flex'
+  // minStockWrapper.style.display = 'flex'
 })
 
 stockEnlargeBtn.addEventListener('click', () => {
-  stockWrapper.style.display = 'flex'
-  stockWrapper.style.zIndex = 3
-  minStockWrapper.style.display = 'none'
+  if (stockWrapper.style.display === 'flex') {
+    stockWrapper.style.display = 'none'
+  } else {
+    stockWrapper.style.display = 'flex'
+    stockWrapper.style.zIndex = 3
+  }
+  // minStockWrapper.style.display = 'none'
 })

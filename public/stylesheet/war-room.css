@@ -166,7 +166,7 @@ video {
   height: 400px;
 }
 
-/* candlestick chart */
+/* anychart watermark */
 a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8.10.0.1933'] {
   display: none;
 }
@@ -182,9 +182,37 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   justify-content: center;
   align-items: center;
 
-  background-color: rgb(212, 212, 212);
+  background-color: rgb(53, 53, 53);
   margin-top: auto;
   height: 70px;
+}
+
+.functional-area {
+  margin-right: 40px;
+}
+
+.draw-tool-icon {
+  width: 40px;
+  height: 40px;
+  padding: 10px 10px;
+  border-radius: 3px;
+}
+
+#leave-icon{
+  margin-left: 40px
+}
+
+.draw-tool-icon:hover {
+  background-color:rgb(0, 0, 0);
+  cursor: pointer
+}
+
+.tool-active {
+  background-color:#14c9ba;
+}
+
+.tool-active:hover {
+  background-color:#0e726a;
 }
 
 #tool {

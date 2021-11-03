@@ -111,31 +111,47 @@
   </div>
 
   <!-- minimize stock-real-price -->
-  <div class='min-stock-real-price'>個股訊息<img
+  {{!-- <div class='min-stock-real-price'>個股訊息<img
       src='./img/enlarge.png'
       alt='shrink'
       class='enlarge-icon'
       id='js-stock-enlarge-btn'
-    /></div>
+    /></div> --}}
 
   <!-- paiting canvas -->
   <div id='canvas-wrapper'>
     <div id='canvas'></div>
     <div class='tool-area'>
-      <select name='tool' id='tool'>
+      {{!-- <select name='tool' id='tool'>
         <option value='brush'>筆刷</option>
         <option value='line'>直線</option>
         <option value='eraser'>橡皮擦</option>
         <option value='text'>文字</option>
         <option value='select'>選取</option>
-      </select>
+      </select> --}}
 
-      <button
+      <div class="tool-area d-flex">
+        <div class="functional-area">
+          <img src="/img/draw-tool/chat.png" alt="" class="draw-tool-icon" id="js-chat-enlarge-btn">
+          <img src="/img/draw-tool/stock.png" alt="" class="draw-tool-icon" id="js-stock-enlarge-btn">
+        </div>
+        <div class="draw-tool-area">
+          <img src="/img/draw-tool/select.png" alt="" class="draw-tool-icon tool-active" value="select">
+          <img src="/img/draw-tool/line.png" alt="" class="draw-tool-icon" value="line">
+          <img src="/img/draw-tool/brush.png" alt="" class="draw-tool-icon" value="brush">
+          <img src="/img/draw-tool/eraser.png" alt="" class="draw-tool-icon" value="eraser">
+          <img src="/img/draw-tool/delete.png" alt="" class="draw-tool-icon" value="delete">
+          <img src="/img/draw-tool/undo.png" alt="" class="draw-tool-icon" value="undo" id="undo-btn">
+          <img src="/img/draw-tool/leave.png" alt="" class="draw-tool-icon" value="leave" id="leave-icon">
+        </div>
+      </div>
+
+      {{!-- <button
         type='button'
         class='btn btn-light ms-3 visitor'
         data-bs-toggle='modal'
         data-bs-target='#visitor-leaving-modal'
-      >離開研究室</button>
+      >離開研究室</button> --}}
       <button
         type='button'
         class='btn btn-light ms-3 streamer'
@@ -181,12 +197,12 @@
   </div>
 
   <!-- minimize chat-room -->
-  <div class='min-chat-room'>聊天室<img
+  {{!-- <div class='min-chat-room'>聊天室<img
       src='./img/enlarge.png'
       alt='shrink'
       class='enlarge-icon'
       id='js-chat-enlarge-btn'
-    /></div>
+    /></div> --}}
 
   <!-- visitor leaving Modal -->
   <div
@@ -241,12 +257,11 @@
   src='https://cdn.anychart.com/releases/8.10.0/js/anychart-stock.min.js'
   type='text/javascript'
 ></script>
-<script src='https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js'></script>
+<script src="/socket.io/socket.io.js"></script>
+<script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
 <script src='https://unpkg.com/konva@8.2.3/konva.min.js'></script>
-<script src="http://html2canvas.hertzen.com/dist/html2canvas.js"></script>
-<script src='/socket'></script>
+<script src="https://html2canvas.hertzen.com/dist/html2canvas.js"></script>
 
-{{! init socket }}
 <script src='/javascript/war-room-init.js'></script>
 <script type='module' src='/javascript/stock-chart.js'></script>
 <script src='/javascript/konva.js'></script>

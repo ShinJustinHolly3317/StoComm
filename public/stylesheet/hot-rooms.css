@@ -1,9 +1,6 @@
-
-
-body{
+body {
   background-color: rgb(255, 249, 249);
 }
-
 
 .nav-area {
   display: flex;
@@ -17,12 +14,12 @@ body{
   margin: 0 10px;
 }
 
-#hot-room-title{
+#hot-room-title {
   font-weight: 800;
   letter-spacing: 10px;
 }
 
-#explore-btn{
+#explore-btn {
   font-size: 30px;
   padding: 10px 20px;
 }
@@ -52,7 +49,22 @@ body{
   cursor: pointer;
 
   display: flex;
-  flex-direction: column;
+}
+
+.war-room-preview {
+  margin-left: auto;
+}
+
+/* anychart watermark */
+a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8.10.0.1933'] {
+  display: none;
+}
+
+.stock-preview {
+  position: relative;
+  width: 200px;
+  height: 120px;
+  margin-top: 15px;
 }
 
 .war-room h3 {
@@ -64,6 +76,50 @@ body{
   margin: 50px 0 0 10px;
 }
 
-#war-room-time{
-  text-align: right;
+
+.live-icon {
+  width: 50px;
+  height: 50px;
+  animation: blink 2s linear infinite;
+}
+@keyframes blink {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+.clients-icon{
+  width: 20px;
+  height: 20px;
+  margin: 0 10px 0 50px;
+}
+
+.online-people{
+  font-size: 10px;
+  letter-spacing: 2px;
+}
+
+.stock-code-title {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0 10px;
+  background-color: #6e6e6e;
+}
+
+.stock-code-title p {
+  margin: 0;
+  color: white;
+}
+
+.war-room-code {
+  font-size: 5px;
+  color: #c2c2c2;
 }

@@ -117,3 +117,21 @@ View.signUpBtn.addEventListener('click', async (e) => {
       window.location.href = '/hot-rooms'
   }
 })
+
+async function userAuth() {
+  const response = await fetch('/api/1.0/user/user_auth', {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + localStorage.getItem('access_token')
+    }
+  })
+
+  const result = await response.json()
+  if(result.error){
+    return 
+  } else {
+    window.location.href = '/hot-rooms'
+  }
+}
+
+userAuth()
