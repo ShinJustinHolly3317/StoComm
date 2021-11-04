@@ -322,7 +322,7 @@ socket.on('init load data', (drawHistory) => {
 
   for (let key in drawHistory) {
     if (drawHistory[key].toolType === 'image') {
-      addImg(drawHistory[key].canvasImg, key)
+      addImg(drawHistory[key].canvasImg, key, drawHistory[key].location)
     } else {
       // setTimeout(() => {
       //   // handle html render async
