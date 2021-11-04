@@ -45,7 +45,7 @@ function socketController(io) {
         initDrawInfo.drawLayerCounter = topLayerId + 1
         drawHistory[roomId][initDrawInfo.drawLayerCounter] = initDrawInfo
         socket.emit(
-          'get latest id',
+          'update my draw',
           initDrawInfo.drawLayerCounter,
           drawHistory[roomId]
         )
@@ -55,7 +55,7 @@ function socketController(io) {
         socket
           .to(roomId)
           .emit(
-            'start sync draw',
+            'update start draw',
             initDrawInfo.drawLayerCounter,
             drawHistory[roomId]
           )
@@ -65,14 +65,26 @@ function socketController(io) {
         let topLayerId = Object.keys(drawHistory[roomId]).length
         drawHistory[roomId][topLayerId] = cavasInfo
 
-        io.to(roomId).emit('update add image', topLayerId, cavasInfo.canvasImg)
+        socket.to(roomId).emit(
+          'update add image',
+          topLayerId,
+          cavasInfo.canvasImg,
+          cavasInfo.location
+        )
+
+        socket.emit(
+          'update my image',
+          topLayerId,
+          cavasInfo.canvasImg,
+          cavasInfo.location
+        )
       })
 
       socket.on('drawing', (localLayerId, location) => {
         drawHistory[roomId][localLayerId].location =
           drawHistory[roomId][localLayerId].location.concat(location)
         // console.log(drawHistory)
-        socket.to(roomId).emit('latest draw history', localLayerId, location)
+        socket.to(roomId).emit('update drawing', localLayerId, location)
 
         // clean additional location of line layer
         const thisLocation = drawHistory[roomId][localLayerId].location
@@ -103,8 +115,16 @@ function socketController(io) {
 
       socket.on('undo', (commandLayer) => {
         let topLayerId = commandLayer.drawObj.drawLayerCounter
-        console.log(topLayerId)
-        delete drawHistory[roomId][topLayerId]
+        let commandType = commandLayer.command
+        console.log('topLayerId', topLayerId)
+        console.log('commandType', commandType)
+        if (commandType === 'create') {
+          delete drawHistory[roomId][topLayerId]
+        } else {
+          drawHistory[roomId][topLayerId] = commandLayer.drawObj
+        }
+        
+        
         socket.to(roomId).emit('update undo', commandLayer)
       })
 

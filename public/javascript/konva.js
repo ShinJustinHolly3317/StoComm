@@ -1,6 +1,7 @@
 // Global variables
 const drawHistory = {}
 const commandHistory = []
+const undoHistroy = []
 let localLayerCounter = 0
 let width = window.innerWidth
 let height = window.innerHeight - 150
@@ -228,7 +229,7 @@ toolArea.addEventListener('click', (e) => {
 // })
 
 // socket listener
-socket.on('get latest id', (id, remoteDrawHistory) => {
+socket.on('update my draw', (id, remoteDrawHistory) => {
   latestLayerId = id
   localLayerCounter = id
 
@@ -242,24 +243,28 @@ socket.on('get latest id', (id, remoteDrawHistory) => {
     // add point twice, so we have some drawings even on a simple click
     points: remoteDrawHistory[id].location,
     name: 'select',
-    id: id.toString()
+    id: id.toString() // use string for consistancy
   })
+
   drawHistory[id] = {
     userId: socketId,
-    drawLayerCounter: id, // latest id
+    drawLayerCounter: id.toString(), // latest id
     location: remoteDrawHistory[id].location,
     toolType: localToolType
   }
 
   // push into conmmand history
   commandHistory.push({ command: 'create', drawObj: drawHistory[id] })
-
   console.log(drawHistory)
 
+  // attach to layer
   layer.add(localLayerObject)
+
+  // setting correct z index
+  localLayerObject.zIndex(id)
 })
 
-socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
+socket.on('update start draw', (remoteLatestLayerId, remoteDrawHistory) => {
   let newLine = new Konva.Line({
     stroke: '#df4b26',
     strokeWidth: 5,
@@ -272,15 +277,18 @@ socket.on('start sync draw', (remoteLatestLayerId, remoteDrawHistory) => {
     // add point twice, so we have some drawings even on a simple click
     points: remoteDrawHistory[remoteLatestLayerId].location,
     name: 'select',
-    id: remoteLatestLayerId.toString()
+    id: remoteLatestLayerId.toString() // use string for consistancy
   })
   drawHistory[remoteLatestLayerId] = remoteDrawHistory[remoteLatestLayerId]
   drawHistory[remoteLatestLayerId].layerObject = newLine
 
   layer.add(newLine)
+
+  // reset z index
+  newLine.zIndex(remoteLatestLayerId)
 })
 
-socket.on('latest draw history', (id, location) => {
+socket.on('update drawing', (id, location) => {
   tracking(id, drawHistory[id].layerObject, location)
 })
 
@@ -344,6 +352,9 @@ socket.on('init load data', (drawHistory) => {
         id: key
       })
       layer.add(layerObj)
+
+      // set z index
+      layerObj.zIndex(key)
     }
   }
   console.log(drawHistory)
@@ -354,14 +365,31 @@ socket.on('update delete drawing', (drawingId) => {
   stage.find(`#${drawingId}`)[0].destroy()
 })
 
-socket.on('update add image', (topLayerId, canvasImg) => {
+socket.on('update add image', (topLayerId, canvasImg, location) => {
   console.log('update image')
-  addImg(canvasImg, topLayerId)
+  addImg(canvasImg, topLayerId, location)
   drawHistory[topLayerId] = {
     userId: USER_ROLE.id,
+    drawLayerCounter: topLayerId.toString(),
+    location,
     toolType: 'image',
     canvasImg
   }
+})
+
+socket.on('update my image', (topLayerId, canvasImg, location) => {
+  console.log('update image')
+  addImg(canvasImg, topLayerId, location)
+  drawHistory[topLayerId] = {
+    userId: USER_ROLE.id,
+    drawLayerCounter: topLayerId.toString(),
+    location,
+    toolType: 'image',
+    canvasImg
+  }
+
+  // push into conmmand history
+  commandHistory.push({ command: 'create', drawObj: drawHistory[topLayerId] })
 })
 
 socket.on('update undo', (commandLayer) => {
@@ -380,6 +408,13 @@ addCanvasBtn.addEventListener('click', async (e) => {
   let canvasImg = canvas.toDataURL('image/jpeg')
   const cavasInfo = {
     userId: USER_ROLE.id,
+    drawLayerCounter: null,
+    location: {
+      x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
+      y: 10,
+      width: window.innerHeight - 150,
+      height: window.innerHeight - 150
+    },
     toolType: 'image',
     canvasImg
   }
@@ -393,23 +428,29 @@ window.addEventListener('keydown', (e) => {
     if (curSelectShape) {
       curSelectShape.destroy()
       socket.emit('delete drawing', curSelectShape.attrs.id)
-      curSelectShape = null
+      commandHistory.push({
+        command: 'delete',
+        drawObj: drawHistory[curSelectShape.attrs.id]
+      })
+      delete drawHistory[curSelectShape.attrs.id]
+
+      curSelectShape = null // reset curSelectShape
       tr.nodes([])
     }
   }
 })
 
 undoBtn.addEventListener('click', (e) => {
+  console.log(commandHistory)
+  console.log(drawHistory)
   if (!commandHistory.length) {
     return
   }
 
   undoLayer(commandHistory[commandHistory.length - 1])
   socket.emit('undo', commandHistory[commandHistory.length - 1])
-  commandHistory.pop()
-  
-  // console.log(commandHistory)
-  // console.log(drawHistory)
+  const undoCommandObj = commandHistory.pop()
+  undoHistroy.push(undoCommandObj)
 })
 
 /* function */
@@ -502,24 +543,29 @@ function initLoadLayer() {
   })
 }
 
-function addImg(imageBase64, topLayerId) {
-  console.log(window.innerWidth / 2 - (window.innerHeight - 150) / 2)
+function addImg(imageBase64, topLayerId, location) {
+  // console.log(window.innerWidth / 2 - (window.innerHeight - 150) / 2)
   var imageObj = new Image()
+  imageObj.src = imageBase64
   imageObj.onload = function () {
     const image = new Konva.Image({
-      x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
-      y: 10,
+      x: location.x,
+      y: location.y,
       image: imageObj,
-      width: window.innerHeight - 150,
-      height: window.innerHeight - 150,
+      width: location.width,
+      height: location.height,
       name: 'select',
-      id: topLayerId
+      id: topLayerId.toString() // use string for consistancy
     })
 
     // add the shape to the layer
     layer.add(image)
+
+    // setting z index
+    image.zIndex(topLayerId)
   }
-  imageObj.src = imageBase64
+
+  return {}
 }
 
 function undoLayer(commandLayer) {
@@ -531,21 +577,11 @@ function undoLayer(commandLayer) {
   } else {
     // undo delete
     if (commandLayer.drawObj.toolType === 'image') {
-      imageObj.onload = function () {
-        const image = new Konva.Image({
-          x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
-          y: 10,
-          image: commandLayer.drawObj.imageObj,
-          width: window.innerHeight - 150,
-          height: window.innerHeight - 150,
-          name: 'select',
-          id: commandLayer.drawObj.drawLayerCounter
-        })
-
-        // add the shape to the layer
-        layer.add(image)
-      }
-      imageObj.src = imageBase64
+      addImg(
+        commandLayer.drawObj.canvasImg,
+        commandLayer.drawObj.drawLayerCounter,
+        commandLayer.drawObj.location
+      )
     } else {
       let layerObj = new Konva.Line({
         points: commandLayer.drawObj.location,
@@ -560,7 +596,12 @@ function undoLayer(commandLayer) {
         name: 'select',
         id: commandLayer.drawObj.drawLayerCounter
       })
+
+      // push back
       layer.add(layerObj)
+
+      // reset z index
+      layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
     }
   }
 }
