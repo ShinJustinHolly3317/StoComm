@@ -2,11 +2,12 @@ const drawHistory = {}
 const chatHistory = {}
 const onlineClients = {}
 let clientList
+const Canvas = require('../../model/canvas-model')
 
-function socketController(io) {
+async function socketController(io) {
   io.on('connection', mainSocketController)
 
-  function mainSocketController(socket) {
+  async function mainSocketController(socket) {
     socket.on('get all room clients', () => {
       socket.emit('recieve all room clients', onlineClients)
     })
@@ -65,12 +66,14 @@ function socketController(io) {
         let topLayerId = Object.keys(drawHistory[roomId]).length
         drawHistory[roomId][topLayerId] = cavasInfo
 
-        socket.to(roomId).emit(
-          'update add image',
-          topLayerId,
-          cavasInfo.canvasImg,
-          cavasInfo.location
-        )
+        socket
+          .to(roomId)
+          .emit(
+            'update add image',
+            topLayerId,
+            cavasInfo.canvasImg,
+            cavasInfo.location
+          )
 
         socket.emit(
           'update my image',
@@ -98,7 +101,7 @@ function socketController(io) {
         }
 
         // console.log(drawHistory[roomId]);
-        console.log(Object.keys(drawHistory[roomId]))
+        // console.log(drawHistory)
       })
 
       // socket.on('update drawing', (curSelectShape) => {
@@ -123,8 +126,7 @@ function socketController(io) {
         } else {
           drawHistory[roomId][topLayerId] = commandLayer.drawObj
         }
-        
-        
+
         socket.to(roomId).emit('update undo', commandLayer)
       })
 
@@ -151,7 +153,7 @@ function socketController(io) {
       }
 
       // socket.on('get all messages', () => {
-      //   console.log('sdfsdfsdfhistory', chatHistory[roomId])
+      //   console.log('sending all messages', chatHistory[roomId])
       //   socket.emit('all messages', chatHistory[roomId])
       // })
 
@@ -177,7 +179,7 @@ function socketController(io) {
         onlineClients[roomId][socket.id].peerId = userId
       })
 
-      socket.on('disconnect', () => {
+      socket.on('disconnect', async () => {
         console.log(
           `${
             onlineClients[roomId][socket.id].peerId
@@ -188,9 +190,38 @@ function socketController(io) {
           .emit('user-disconnected', onlineClients[roomId][socket.id].peerId)
         console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
+
+        // store history data after each user left
+        if (Object.keys(drawHistory[roomId])) {
+          // store drawing history 
+          await Canvas.insertDrawHistory(cleanHistoryData(roomId), roomId)
+        }
+        if (chatHistory[roomId]) {
+          // store chat history 
+        }
       })
     })
   }
+}
+
+function cleanHistoryData(roomId) {
+  // arrange drawing history data that it fits mysql column
+  const cleanHistory = []
+
+  for (let layerId in drawHistory[roomId]) {
+    cleanHistory.push([
+      drawHistory[roomId][layerId].userId,
+      layerId,
+      roomId,
+      drawHistory[roomId][layerId].toolType,
+      5,
+      '#df4b26',
+      drawHistory[roomId][layerId].canvasImg || null,
+      JSON.stringify(drawHistory[roomId][layerId].location)
+    ])
+  }
+
+  return cleanHistory
 }
 
 module.exports = socketController
