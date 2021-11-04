@@ -23,11 +23,11 @@ async function insertDrawHistory(drawHistoryData, roomId) {
   }
 }
 
-async function getDrawHistory() {
-  const qryString = `SELECT * FROM drawing_history`
+async function getDrawHistory(roomId) {
+  const qryString = `SELECT * FROM drawing_history WHERE war_room_id = ?`
 
   try {
-    const [result] = await db.query(qryString)
+    const [result] = await db.query(qryString, [roomId])
     return result
   } catch (error) {
     console.error(error)

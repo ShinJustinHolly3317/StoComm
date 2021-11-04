@@ -26,8 +26,22 @@ async function socketController(io) {
         onlineClients[roomId][socket.id].socketConn = true // add new client id
       }
 
+      // drawing canvas 
       if (!drawHistory[roomId]) {
+        // initialize draw history
         drawHistory[roomId] = {}
+        const drawResult = await Canvas.getDrawHistory(roomId)
+        if (drawResult.length) {
+          for (let item of drawResult) {
+            drawHistory[roomId][item.draw_id] = {
+              userId: item.user_id,
+              drawLayerCounter: item.draw_id,
+              location: item.locations,
+              toolType: item.tool,
+              canvasImg: item.url
+            }
+          }
+        }
       }
       // init load
       socket.emit('init load data', drawHistory[roomId])
@@ -152,10 +166,9 @@ async function socketController(io) {
         chatHistory[roomId] = []
 
         const chatResult = await Chat.getChatHistory(roomId)
-        if (!chatResult.length) {
-        } else {
+        if (chatResult.length) {
           for (let item of chatResult) {
-            console.log(item)
+            // console.log(item)
             chatHistory[roomId].push([
               item.user_id,
               item.user_name,
@@ -164,9 +177,9 @@ async function socketController(io) {
             ])
           }
         }
-      } else {
-        socket.emit('all messages', chatHistory[roomId])
       }
+      socket.emit('all messages', chatHistory[roomId])
+
 
       // socket.on('get all messages', () => {
       //   console.log('sending all messages', chatHistory[roomId])
