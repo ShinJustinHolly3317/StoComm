@@ -3,6 +3,8 @@ const chatHistory = {}
 const onlineClients = {}
 let clientList
 const Canvas = require('../../model/canvas-model')
+const Chat = require('../../model/chat-model')
+const moment = require('moment')
 
 async function socketController(io) {
   io.on('connection', mainSocketController)
@@ -148,6 +150,20 @@ async function socketController(io) {
       if (!chatHistory[roomId]) {
         // initialization
         chatHistory[roomId] = []
+
+        const chatResult = await Chat.getChatHistory(roomId)
+        if (!chatResult.length) {
+        } else {
+          for (let item of chatResult) {
+            console.log(item)
+            chatHistory[roomId].push([
+              item.user_id,
+              item.user_name,
+              item.content,
+              item.chat_time
+            ])
+          }
+        }
       } else {
         socket.emit('all messages', chatHistory[roomId])
       }
@@ -161,7 +177,12 @@ async function socketController(io) {
         console.log('message: ' + msg, name)
 
         // store chat history
-        chatHistory[roomId].push([id, name, msg])
+        chatHistory[roomId].push([
+          id,
+          name,
+          msg,
+          moment().format('YYYY-MM-DD hh:mm:ss')
+        ])
 
         socket.to(roomId).emit('sendback', msg, name)
         // send my msg
@@ -192,19 +213,20 @@ async function socketController(io) {
         delete onlineClients[roomId][socket.id]
 
         // store history data after each user left
-        if (Object.keys(drawHistory[roomId])) {
-          // store drawing history 
-          await Canvas.insertDrawHistory(cleanHistoryData(roomId), roomId)
+        if (Object.keys(drawHistory[roomId]).length) {
+          // store drawing history
+          await Canvas.insertDrawHistory(cleanDrawHistory(roomId), roomId)
         }
-        if (chatHistory[roomId]) {
-          // store chat history 
+        if (chatHistory[roomId].length) {
+          // store chat history
+          await Chat.insertChatHistory(cleanChatHistory(roomId))
         }
       })
     })
   }
 }
 
-function cleanHistoryData(roomId) {
+function cleanDrawHistory(roomId) {
   // arrange drawing history data that it fits mysql column
   const cleanHistory = []
 
@@ -219,6 +241,17 @@ function cleanHistoryData(roomId) {
       drawHistory[roomId][layerId].canvasImg || null,
       JSON.stringify(drawHistory[roomId][layerId].location)
     ])
+  }
+
+  return cleanHistory
+}
+
+function cleanChatHistory(roomId) {
+  // arrange chat history data that it fits mysql column
+  const cleanHistory = []
+
+  for (let item of chatHistory[roomId]) {
+    cleanHistory.push([item[0], roomId, item[2], item[3]])
   }
 
   return cleanHistory
