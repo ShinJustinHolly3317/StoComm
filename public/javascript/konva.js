@@ -1,7 +1,7 @@
 // Global variables
 const drawHistory = {}
 const commandHistory = []
-const undoHistroy = []
+const undoHistory = []
 let localLayerCounter = 0
 let width = window.innerWidth
 let height = window.innerHeight - 150
@@ -10,6 +10,7 @@ let height = window.innerHeight - 150
 const cavasWrapper = document.querySelector('#canvas-wrapper')
 const addCanvasBtn = document.querySelector('.add-canvas')
 const undoBtn = document.querySelector('#undo-btn')
+const redoBtn = document.querySelector('#redo-btn')
 
 // tool controller
 const toolController = {
@@ -257,6 +258,9 @@ socket.on('update my draw', (id, remoteDrawHistory) => {
   commandHistory.push({ command: 'create', drawObj: drawHistory[id] })
   console.log(drawHistory)
 
+  // clear undo history
+  undoHistory.length = 0
+
   // attach to layer
   layer.add(localLayerObject)
 
@@ -390,10 +394,17 @@ socket.on('update my image', (topLayerId, canvasImg, location) => {
 
   // push into conmmand history
   commandHistory.push({ command: 'create', drawObj: drawHistory[topLayerId] })
+
+  // clear undo history
+  undoHistory.length = 0
 })
 
 socket.on('update undo', (commandLayer) => {
   undoLayer(commandLayer)
+})
+
+socket.on('update redo', (commandLayer) => {
+  redoLayer(commandLayer)
 })
 
 /* window listener */
@@ -450,7 +461,20 @@ undoBtn.addEventListener('click', (e) => {
   undoLayer(commandHistory[commandHistory.length - 1])
   socket.emit('undo', commandHistory[commandHistory.length - 1])
   const undoCommandObj = commandHistory.pop()
-  undoHistroy.push(undoCommandObj)
+  undoHistory.push(undoCommandObj)
+})
+
+redoBtn.addEventListener('click', (e) => {
+  console.log(undoHistory)
+  console.log(drawHistory)
+  if (!undoHistory.length) {
+    return
+  }
+
+  redoLayer(undoHistory[undoHistory.length - 1])
+  socket.emit('redo', undoHistory[undoHistory.length - 1])
+  const redoCommandObj = undoHistory.pop()
+  commandHistory.push(redoCommandObj)
 })
 
 /* function */
@@ -571,6 +595,44 @@ function addImg(imageBase64, topLayerId, location) {
 function undoLayer(commandLayer) {
   // check delete or create
   if (commandLayer.command === 'create') {
+    // undo create
+    stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
+    delete drawHistory[commandLayer.drawObj.drawLayerCounter]
+  } else {
+    // undo delete
+    if (commandLayer.drawObj.toolType === 'image') {
+      addImg(
+        commandLayer.drawObj.canvasImg,
+        commandLayer.drawObj.drawLayerCounter,
+        commandLayer.drawObj.location
+      )
+    } else {
+      let layerObj = new Konva.Line({
+        points: commandLayer.drawObj.location,
+        stroke: '#df4b26',
+        strokeWidth: 5,
+        lineCap: 'round',
+        lineJoin: 'round',
+        globalCompositeOperation:
+          commandLayer.drawObj.toolType === 'eraser'
+            ? 'destination-out'
+            : 'source-over',
+        name: 'select',
+        id: commandLayer.drawObj.drawLayerCounter
+      })
+
+      // push back
+      layer.add(layerObj)
+
+      // reset z index
+      layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
+    }
+  }
+}
+
+function redoLayer(commandLayer) {
+  // check delete or create
+  if (commandLayer.command === 'delete') {
     // undo create
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]

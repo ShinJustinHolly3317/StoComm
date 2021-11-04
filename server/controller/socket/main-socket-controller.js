@@ -116,8 +116,8 @@ function socketController(io) {
       socket.on('undo', (commandLayer) => {
         let topLayerId = commandLayer.drawObj.drawLayerCounter
         let commandType = commandLayer.command
-        console.log('topLayerId', topLayerId)
-        console.log('commandType', commandType)
+        console.log('undo topLayerId', topLayerId)
+        console.log('undo commandType', commandType)
         if (commandType === 'create') {
           delete drawHistory[roomId][topLayerId]
         } else {
@@ -126,6 +126,20 @@ function socketController(io) {
         
         
         socket.to(roomId).emit('update undo', commandLayer)
+      })
+
+      socket.on('redo', (commandLayer) => {
+        let topLayerId = commandLayer.drawObj.drawLayerCounter
+        let commandType = commandLayer.command
+        console.log('redo topLayerId', topLayerId)
+        console.log('redo commandType', commandType)
+        if (commandType === 'delete') {
+          delete drawHistory[roomId][topLayerId]
+        } else {
+          drawHistory[roomId][topLayerId] = commandLayer.drawObj
+        }
+
+        socket.to(roomId).emit('update redo', commandLayer)
       })
 
       // Chat room
