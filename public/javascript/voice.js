@@ -1,7 +1,7 @@
 const videoGrid = document.querySelector('#video-grid')
 const myVideo = document.createElement('video')
 const peers = {}
-const peerId = USER_ROLE.id
+const peerId = USER.id
 myVideo.muted = true
 
 const myPeer = new Peer({

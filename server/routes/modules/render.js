@@ -4,7 +4,7 @@ const Ideas = require('../../model/ideas-model')
 const moment = require('moment')
 
 router.get('/', (req, res) => {
-  res.redirect('/home.html')
+  res.render('home', { style: 'home.css' })
 })
 
 router.get('/explore', (req, res) => {

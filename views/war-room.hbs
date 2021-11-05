@@ -143,7 +143,8 @@
           <img src="/img/draw-tool/delete.png" alt="" class="draw-tool-icon" value="delete">
           <img src="/img/draw-tool/undo.png" alt="" class="draw-tool-icon" value="undo" id="undo-btn">
           <img src="/img/draw-tool/redo.png" alt="" class="draw-tool-icon" value="redo" id="redo-btn">
-          <img src="/img/draw-tool/leave.png" alt="" class="draw-tool-icon" value="leave" id="leave-icon">
+          <img src="/img/draw-tool/leave.png" alt="" class="draw-tool-icon" value="leave" id="leave-icon" data-bs-toggle='modal'
+        data-bs-target='#visitor-leaving-modal'>
         </div>
       </div>
 
@@ -233,7 +234,7 @@
             class='btn btn-secondary'
             data-bs-dismiss='modal'
           >沒事，我按錯了</button>
-          <button type='button' class='btn btn-info'>
+          <button type='button' class='btn btn-info' id="confirm-leave-btn">
             <a href='/hot-rooms'>確定</a>
           </button>
         </div>

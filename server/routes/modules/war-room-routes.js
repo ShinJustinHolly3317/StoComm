@@ -15,7 +15,7 @@ const {
 } = require('../../controller/war-room-controller')
 
 router.get('/show_online_rooms', showOnlineRooms)
-router.post('/create_war_room', upload.array(), createWarRoom)
-router.patch('/end_war_room', endWarRoom)
+router.post('/create_war_room', upload.none(), createWarRoom)
+router.patch('/end_war_room/:roomId', authentication, endWarRoom)
 
 module.exports = router

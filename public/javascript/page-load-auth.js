@@ -14,7 +14,7 @@ async function userAuth() {
   const result = await response.json()
   if(result.error){
     alert('你沒有權限進來!!')
-    window.location.href = '/home.html'
+    window.location.href = '/'
   } else {
     document.querySelector('body').style.display = 'block'
     userData = result.data

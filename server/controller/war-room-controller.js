@@ -6,7 +6,7 @@ async function createWarRoom(req, res) {
   const result = await WarRoom.createWarRoom(createData)
 
   if (result.error) {
-    return res.status(404).send({error: '無此代號或名稱'})
+    return res.status(404).send({ error: '無此代號或名稱' })
   }
 
   res.send({
@@ -20,8 +20,9 @@ async function showOnlineRooms(req, res) {
 }
 
 async function endWarRoom(req, res) {
-  const userRole = req.body
-  const result = await WarRoom.endWarRoom(userRole.roomId)
+  const { roomId } = req.params
+  const userId = req.user.id
+  const result = await WarRoom.endWarRoom(roomId, userId)
 
   if (result.error) {
     res.status(500).send({ error: result.error })

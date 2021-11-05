@@ -10,7 +10,7 @@ const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
 form.addEventListener('submit', function (e) {
   e.preventDefault()
   if (input.value) {
-    socket.emit('chat message', input.value, USER_ROLE.name, USER_ROLE.id)
+    socket.emit('chat message', input.value, USER.name, USER.id)
     input.value = ''
   }
 })
@@ -33,8 +33,8 @@ chatEnlargeBtn.addEventListener('click', () => {
 socket.on('all messages', (chatHistory)=>{
   if (!chatHistory || !chatHistory.length) return
   for (let item of chatHistory) {
-    console.log('userid', Number(USER_ROLE.id))
-    if (item[0] === Number(USER_ROLE.id)) {
+    console.log('userid', Number(USER.id))
+    if (item[0] === Number(USER.id)) {
       const otherChat = document.createElement('li')
       otherChat.textContent = `${item[1]}: ${item[2]}`
       otherChat.classList.add(

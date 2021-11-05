@@ -65,7 +65,7 @@ stage.on('mousedown touchstart', function (e) {
 
   // socket send new layer msg
   const initDrawInfo = {
-    userId: USER_ROLE.id,
+    userId: USER.id,
     drawLayerCounter: null, // latest id
     location: [pos.x, pos.y, pos.x, pos.y],
     toolType: localToolType
@@ -373,7 +373,7 @@ socket.on('update add image', (topLayerId, canvasImg, location) => {
   console.log('update image')
   addImg(canvasImg, topLayerId, location)
   drawHistory[topLayerId] = {
-    userId: USER_ROLE.id,
+    userId: USER.id,
     drawLayerCounter: topLayerId.toString(),
     location,
     toolType: 'image',
@@ -385,7 +385,7 @@ socket.on('update my image', (topLayerId, canvasImg, location) => {
   console.log('update image')
   addImg(canvasImg, topLayerId, location)
   drawHistory[topLayerId] = {
-    userId: USER_ROLE.id,
+    userId: USER.id,
     drawLayerCounter: topLayerId.toString(),
     location,
     toolType: 'image',
@@ -418,7 +418,7 @@ addCanvasBtn.addEventListener('click', async (e) => {
   const canvas = await html2canvas(curStockInfo)
   let canvasImg = canvas.toDataURL('image/jpeg')
   const cavasInfo = {
-    userId: USER_ROLE.id,
+    userId: USER.id,
     drawLayerCounter: null,
     location: {
       x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
@@ -427,7 +427,7 @@ addCanvasBtn.addEventListener('click', async (e) => {
       height: window.innerHeight - 150
     },
     toolType: 'image',
-    canvasImg
+    canvasImg                                                                                                                                                                                                                                                                                                                                         
   }
 
   socket.emit('add image', cavasInfo)

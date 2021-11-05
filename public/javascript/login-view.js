@@ -119,10 +119,14 @@ View.signUpBtn.addEventListener('click', async (e) => {
 })
 
 async function userAuth() {
+  const accessToken = localStorage.getItem('access_token')
+
+  if(!accessToken) return
+
   const response = await fetch('/api/1.0/user/user_auth', {
     method: 'GET',
     headers: {
-      Authorization: 'Bearer ' + localStorage.getItem('access_token')
+      Authorization: 'Bearer ' + accessToken
     }
   })
 

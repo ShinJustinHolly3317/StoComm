@@ -13,7 +13,7 @@ async function fetchOnlineRooms(onlineClients) {
   onlineRooms.forEach((item) => {
     const clients = onlineClients[item.id]
       ? Object.keys(onlineClients[item.id]).length
-      : ''
+      : 0
     warRoomHtml += `
     <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
       <div class='war-room shadow-lg'>
@@ -21,7 +21,7 @@ async function fetchOnlineRooms(onlineClients) {
           <div class="d-flex align-items-center">
             <h3>${item.name} 開台中</h3>
             <img src="/img/live.png" class="live-icon">
-            <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:${clients}</span>
+            <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:<span room="${item.id}">${clients}</span></span>
           </div>
           <h4 id="war_room_title">${item.war_room_title}</h4>
         </div>
@@ -93,6 +93,10 @@ async function fetchDayPrices(id) {
   return { isBull, stockPrice }
 }
 
+async function updateRoomClients(roomId, clients){
+
+}
+
 async function socketInit() {
   const socket = io()
   let socketId
@@ -104,7 +108,10 @@ async function socketInit() {
   })
 
   socket.on('recieve all room clients', (roomClients) => {
-    fetchOnlineRooms(roomClients)
+    if(!View.warRooms.children.length){
+      View.warRooms.innerHTML = ''
+      fetchOnlineRooms(roomClients)
+    }
     console.log(roomClients)
   })
 }

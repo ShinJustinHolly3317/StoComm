@@ -208,35 +208,53 @@ async function stockChip(req, res) {
   let { stockCode } = req.params
   const url = `https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=60;period=week;symbol=${stockCode}.TW?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=3pf2d09gnvivj&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true`
   const rawChipData = []
+  let result
   let chipData = await getChip(stockCode)
 
   if (!chipData.length) {
-    const result = await axios.get(url, {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
-        'content-type': 'text/html; charset=UTF-8',
-        'x-requested-with': 'XMLHttpRequest',
-        'Accept-Encoding': 'br, gzip, deflate',
-        'Accept-Language': 'en-gb',
-        Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+    try {
+      result = await axios.get(url, {
+        headers: {
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+          'content-type': 'text/html; charset=UTF-8',
+          'x-requested-with': 'XMLHttpRequest',
+          'Accept-Encoding': 'br, gzip, deflate',
+          'Accept-Language': 'en-gb',
+          Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+        }
+      })
+    } catch (error) {
+      // handle OTC
+      const otcUrl = `
+      https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=100;period=day;symbol=${stockCode}.TWO?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=0jqb8o9go9qt5&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true
+      `
+      result = await axios.get(otcUrl, {
+        headers: {
+          'user-agent':
+            'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+          'content-type': 'text/html; charset=UTF-8',
+          'x-requested-with': 'XMLHttpRequest',
+          'Accept-Encoding': 'br, gzip, deflate',
+          'Accept-Language': 'en-gb',
+          Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+        }
+      })
+    } finally {
+      for (let item of result.data.data.list) {
+        rawChipData.push([
+          moment(item.date).format('YYYY-MM-DD'),
+          item.foreignDiffVolK,
+          item.investmentTrustDiffVolK,
+          item.dealerDiffVolK
+        ])
       }
-    })
-
-    for (let item of result.data.data.list) {
-      rawChipData.push([
-        moment(item.date).format('YYYY-MM-DD'),
-        item.foreignDiffVolK,
-        item.investmentTrustDiffVolK,
-        item.dealerDiffVolK
-      ])
+      await insertChip(rawChipData, stockCode)
+      chipData = await getChip(stockCode)
     }
-
-    await insertChip(rawChipData, stockCode)
-    chipData = await getChip(stockCode)
   }
 
-  const updateChipData = chipData.map(item => {
+  const updateChipData = chipData.map((item) => {
     return [
       moment(item.date).format('YYYY-MM-DD'),
       item.foreigner,

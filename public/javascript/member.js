@@ -87,9 +87,9 @@ View.createBtn.addEventListener('click', async (e) => {
   const roomId = result.data.insertId
   const stockCode = result.data.stock_code
 
-  const streamerRole = JSON.parse(localStorage.getItem('userRole'))
-  streamerRole.role = 'streamer'
-  localStorage.setItem('userRole', JSON.stringify(streamerRole))
+  // const streamerRole = JSON.parse(localStorage.getItem('userRole'))
+  // streamerRole.role = 'streamer'
+  // localStorage.setItem('userRole', JSON.stringify(streamerRole))
 
   window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
 })

@@ -1,36 +1,84 @@
+.home-wrapper {
+  display: flex;
+  height: calc(100vh - 80px);
+}
+
 .welcome-page {
   display: flex;
-  flex-direction: column;
 
-  background-color: rgb(121, 209, 201);
-  height: 100vh;
-  width: 100%;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  /* background-image: url('/img/candlechart.png');
+  background-size: 600px 380px;
+  background-repeat: no-repeat;
+  background-position: right center; */
+  width: 50%;
 }
 
 .slogan {
-  padding: 100px 0 0 100px;
+  display: flex;
+  justify-content: space-between;
+  /* padding: 100px 0 0 100px; */
+
+  width: 90%;
+  margin: 100px auto 0 auto;
 }
 
-h1 {
-  color: rgb(243, 83, 80);
-  margin: 0;
-  letter-spacing: 5px;
+.slogon-title {
+  margin-right: auto;
+}
+
+.cover-img {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgb(231, 251, 240);
+}
+
+#ad-img {
+  width: 100%;
+
+  max-width: 500px;
+  max-height: 500px;
+}
+
+.tilte-1 {
+  /* color: rgb(243, 83, 80); */
+  margin: 0 0 20px 0;
+  font-size: 40px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.title-2 {
+  font-size: 16px;
+  line-height: 1;
 }
 
 h2.welcome-msg {
   margin: 50px 0;
 }
-
+/* 
 h3 {
   margin: 100px 0 0 0;
   letter-spacing: 10px;
+} */
+
+.hint-login{
+  font-size: 8px;
 }
 
-.direct-btn {
+.login-area{
+  width: 90%;
+  margin-top: 100px;
+}
+
+.login-btn-area {
   display: flex;
   justify-content: space-around;
-  width: 30%;
-  margin: auto 0 100px 60%;
 
   border-bottom: solid 1px black;
 }

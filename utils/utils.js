@@ -4,7 +4,7 @@ const multer = require('multer')
 const path = require('path')
 const port = process.env.PORT
 const User = require('../server/model/user-model')
-const { TOKEN_SECRET } = process.env // 30 days by seconds
+const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
 
 async function checkUserExist(req, res) {
@@ -39,27 +39,33 @@ function wrapAsync(fn) {
 
 async function authentication(req, res, next) {
   let accessToken = req.get('Authorization')
+  const isMiddleware = !req.originalUrl.includes('user_auth')
+
   if (!accessToken) {
     res.status(401).send({ error: 'Unauthorized' })
     return
   }
 
   accessToken = accessToken.replace('Bearer ', '')
-  
-  if (!accessToken) {
+
+  if (accessToken == 'null') {
     res.status(401).send({ error: 'Unauthorized' })
     return
   }
 
   try {
     const user = jwt.verify(accessToken, TOKEN_SECRET)
-
     let userDetail = await User.getUserDetail(user.email)
 
     if (!userDetail) {
       res.status(403).send({ error: 'Your token is not valid!' })
     } else {
-      res.send({ data: userDetail })
+      if (isMiddleware) {
+        req.user = userDetail
+        next()
+      } else {
+        res.status(200).send({ data: userDetail })
+      }
     }
     return
   } catch (err) {

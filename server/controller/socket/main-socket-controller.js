@@ -26,7 +26,7 @@ async function socketController(io) {
         onlineClients[roomId][socket.id].socketConn = true // add new client id
       }
 
-      // drawing canvas 
+      // drawing canvas
       if (!drawHistory[roomId]) {
         // initialize draw history
         drawHistory[roomId] = {}
@@ -179,7 +179,6 @@ async function socketController(io) {
         }
       }
       socket.emit('all messages', chatHistory[roomId])
-
 
       // socket.on('get all messages', () => {
       //   console.log('sending all messages', chatHistory[roomId])
