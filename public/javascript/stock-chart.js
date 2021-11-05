@@ -301,7 +301,7 @@ async function yearPriceHistory() {
   const url = `/yearPrice/${STOCK_CODE}`
   const resposne = await fetch(url)
   const result = await resposne.json()
-console.log(result)
+
   table = anychart.data.table()
   table.addData(result)
 

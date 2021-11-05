@@ -32,6 +32,7 @@ chatEnlargeBtn.addEventListener('click', () => {
 
 socket.on('all messages', (chatHistory)=>{
   if (!chatHistory || !chatHistory.length) return
+  console.log(chatHistory)
   for (let item of chatHistory) {
     console.log('userid', Number(USER.id))
     if (item[0] === Number(USER.id)) {

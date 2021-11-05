@@ -1,6 +1,6 @@
 const ROOM_ID = getQueryObject().roomId
 const STOCK_CODE = getQueryObject().stockCode
-const USER = JSON.parse(localStorage.getItem('userRole'))
+const USER = {}
 let company_name
 const accessToken = localStorage.getItem('access_token')
 
@@ -106,6 +106,13 @@ async function roleAuth() {
             window.location.href = '/hot-rooms'
           }
         })
+    }
+    
+    USER['data'] = {
+      id: result.data.id,
+      name: result.data.name,
+      email: result.data.email,
+      piture: result.data.picture
     }
   }
 }

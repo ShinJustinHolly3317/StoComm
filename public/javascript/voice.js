@@ -1,10 +1,10 @@
 const videoGrid = document.querySelector('#video-grid')
 const myVideo = document.createElement('video')
 const peers = {}
-const peerId = USER.id
+// const peerId = USER.id
 myVideo.muted = true
 
-const myPeer = new Peer({
+const myPeer = new Peer( {
   host: '/' + window.location.hostname,
   port: window.location.hostname === 'localhost' ? '3000' : '443',
   path: '/peerjs',
@@ -30,12 +30,21 @@ myPeer.on('open', (id) => {
         connectToNewUser(userId, stream)
       })
 
+      const audioIcon = document.createElement('div')
+      audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon">`
+      // audioIcon.classList.add('audio-icon')
+      console.log(audioIcon)
+      videoGrid.append(audioIcon)
+
       myPeer.on('call', (call) => {
         console.log('call in', call.peer)
         call.answer(stream)
 
         const video = document.createElement('video')
         video.setAttribute('peer_user_id', call.peer)
+        const audioIcon = document.createElement('div')
+        audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon">`
+        videoGrid.append(audioIcon)
 
         call.on('stream', (userVideoStream) => {
           addVideoStream(video, userVideoStream)
@@ -53,7 +62,7 @@ myPeer.on('open', (id) => {
 socket.on('user-disconnected', (userId) => {
   console.log(`${userId} left this room`)
 
-  if(document.querySelector(`[peer_user_id="${userId}"]`)){
+  if (document.querySelector(`[peer_user_id="${userId}"]`)) {
     document.querySelector(`[peer_user_id="${userId}"]`).remove()
   }
 
@@ -76,6 +85,12 @@ function connectToNewUser(userId, stream) {
 
   const video = document.createElement('video')
   video.setAttribute('peer_user_id', userId)
+  console.log(USER.data.picture)
+
+  const audioIcon = document.createElement('div')
+  audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon">`
+  console.log(audioIcon)
+  videoGrid.append(audioIcon)
 
   call.on('stream', (userVideoStream) => {
     console.log('on stream')

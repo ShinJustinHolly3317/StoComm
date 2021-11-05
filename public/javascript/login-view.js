@@ -74,13 +74,13 @@ View.loginBtn.addEventListener('click', async (e) => {
     case 200:
       localStorage.setItem('access_token', result.data.access_token)
 
-      const userRole = {
+      const user = {
         id: result.data.user.id,
         name: result.data.user.name,
         email: result.data.user.email,
-        role: 'visitor'
+        piture: result.data.user.picture
       }
-      localStorage.setItem('userRole', JSON.stringify(userRole))
+      localStorage.setItem('user', JSON.stringify(user))
 
       alert('登入成功 !!')
       window.location.href = '/hot-rooms'
@@ -105,15 +105,14 @@ View.signUpBtn.addEventListener('click', async (e) => {
       alert('註冊成功 !!')
       localStorage.setItem('access_token', result.data.access_token)
 
-      const userRole = {
+      const user = {
         id: result.data.user.id,
         name: result.data.user.name,
         email: result.data.user.email,
-        role: 'visitor'
+        piture: result.data.user.picture
       }
-      localStorage.setItem('userRole', JSON.stringify(userRole))
+      localStorage.setItem('user', JSON.stringify(user))
 
-      
       window.location.href = '/hot-rooms'
   }
 })
@@ -121,7 +120,7 @@ View.signUpBtn.addEventListener('click', async (e) => {
 async function userAuth() {
   const accessToken = localStorage.getItem('access_token')
 
-  if(!accessToken) return
+  if (!accessToken) return
 
   const response = await fetch('/api/1.0/user/user_auth', {
     method: 'GET',
@@ -131,8 +130,8 @@ async function userAuth() {
   })
 
   const result = await response.json()
-  if(result.error){
-    return 
+  if (result.error) {
+    return
   } else {
     window.location.href = '/hot-rooms'
   }
