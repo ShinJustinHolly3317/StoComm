@@ -48,13 +48,17 @@
   width: 100%;
 }
 
-.ideas-tabs {
+/* .ideas-tabs {
   display: flex;
 }
 
 .ideas-tabs div {
   border-bottom: solid 2px rgb(243, 83, 80);
   margin: 0 10px;
+} */
+
+a.active.member-tab{
+  color: rgb(20, 201, 186) !important;
 }
 
 #start-war-btn {

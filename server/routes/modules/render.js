@@ -28,7 +28,7 @@ router.get('/member', (req, res) => {
 })
 
 router.get('/personal-articles', (req, res) => {
-  res.render('personal-articles', { style: 'personal-articles.css' })
+  res.render('personal-articles', { style: 'member.css' })
 })
 
 router.get('/stock-rooms', (req, res) => {

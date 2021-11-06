@@ -3,35 +3,88 @@
     <div id='profile-img'>
       <img src='/img/profile-icon.png' alt='' id='profile-icon' />
       <div class='self-info'>
-        <h1 id='member-name'>JJJJ HHHHHH</h1>
+        <h1 id='member-name'>Justin Holly</h1>
         <div class='following-info'>
-          <h3><span>100,999</span> 位追蹤者</h3>
-          <h3>正在追蹤 <span>9,999,999</span> 人</h3>
+          <p><span>100</span> 位追蹤者</p>
+          <p>正在追蹤 <span>999</span> 人</p>
         </div>
       </div>
+      <button type="button" class="btn btn-outline-secondary rounded-pill follow-btn js-follow-btn mx-3">追蹤</button>
+      <button type="button" class="btn btn-outline-secondary rounded-pill unfollow-btn js-unfollow-btn mx-3">取消追蹤</button>
     </div>
   </div>
 
-  <div class='articles-list'>
-    <a href='/article-details'>
-      <div class='chat-room shadow-lg'>
-        <h3>Justin 分析文 2021/10/18</h3>
-        <h3>聯電(2303)</h3>
-      </div>
-    </a>
+  <div class='function-select'>
+    <div class='ideas-tabs'>
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active member-tab" aria-current="page" href="/member">他的觀點</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link text-secondary" href="/following">他的追蹤觀點</a>
+        </li>
+      </ul>
+    </div>
+  </div>
 
-    <a href='/article-details'>
-      <div class='chat-room shadow-lg'>
-        <h3>Justin 分析文 2021/10/18</h3>
-        <h3>聯電(2303)</h3>
-      </div>
-    </a>
+  <div class='ideas-list'></div>
 
-    <a href='/article-details'>
-      <div class='chat-room shadow-lg'>
-        <h3>Justin 分析文 2021/10/18</h3>
-        <h3>聯電(2303)</h3>
+  {{! modal }}
+  <div
+    class='modal fade'
+    id='war-room-check'
+    tabindex='-1'
+    aria-labelledby='exampleModalLabel'
+    aria-hidden='true'
+  >
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <h5 class='modal-title' id='war-room-check-title'>開啟我的研究室</h5>
+          <button
+            type='button'
+            class='btn-close'
+            data-bs-dismiss='modal'
+            aria-label='Close'
+          ></button>
+        </div>
+        <div class='modal-body'>
+          <h2 class="welcome-msg js-signup-msg"></h3>
+            <form class="war-room-check-data">
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+                >研究室名稱</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-mail"
+                value=""
+                name="war_room_title"
+              />
+
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+              >姓名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="user-name"
+                value=""
+              />
+
+              <label for="inputPassword" class="col-sm-2 col-form-label"
+              >股票名稱或代碼</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-password"
+                placeholder="請輸入股票名稱或代碼"
+                name="stock_name_code"/>
+
+              <input type="hidden" id="user_id" name="user_id">
+              <button type="submit" class="btn btn-primary mb-2" id="js-create-war-room-btn">送出</button>
+            </form>
+        </div>
       </div>
-    </a>
+    </div>
   </div>
 </div>
