@@ -6,6 +6,7 @@ const accessToken = localStorage.getItem('access_token')
 
 const WarRoomView = {
   postBtn: document.querySelector('#js-post-war-room'),
+  allowBtn: document.querySelector('#js-allow-draw'),
   visitorLeaveBtn: document.querySelector('#leave-icon'),
   canvasEle: document.querySelector('#canvas'),
   confirmLeaveBtn: document.querySelector('#confirm-leave-btn'),
@@ -52,6 +53,42 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   }
 })
 
+WarRoomView.allowBtn.addEventListener('click', async (e) => {
+  const clientsId = []
+  const userResult = await userAuth()
+
+  if (userResult.data.role !== 'streamer') return
+
+  socket.once('recieve all room clients', (onlineClients) => {
+    for (let key in onlineClients[ROOM_ID]){
+      clientsId.push(onlineClients[ROOM_ID][key].peerId)
+    }
+    console.log(clientsId)
+
+    const response = await fetch('/api/1.0/user/user_permission', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        type: 'is_allDrawable',
+        isAllow: true,
+        usersId: clientsId
+      }),
+      headers: {
+        'Content-type': 'application/json'
+      }
+    })
+    const result = await response.json()
+  })
+  socket.emit('get all room clients')
+  
+  
+  
+  // if (response.status === 200) {
+  //   window.location.href = `/post?stockCode=${STOCK_CODE}`
+  // } else {
+  //   alert('錯誤的操作')
+  // }
+})
+
 document.querySelector('.navbar').addEventListener('click', (e) => {
   console.log(e.target.tagName)
   if (e.target.parentElement.tagName === 'A') {
@@ -86,6 +123,7 @@ async function roleAuth() {
   } else {
     if (result.data.role === 'streamer') {
       WarRoomView.postBtn.style.display = 'block'
+      WarRoomView.allowBtn.style.display = 'block'
       WarRoomView.confirmLeaveBtn.innerHTML = '確定'
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)

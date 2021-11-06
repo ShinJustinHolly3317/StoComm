@@ -138,6 +138,12 @@ async function changeToStreamer(userId) {
 }
 
 async function allowUserDraw(userId) {
+  if (userId === 'all') {
+    const [result] = await db.query(
+      'UPDATE user SET is_drawable = 1 WHERE id = ?',
+      [userId]
+    )
+  }
   const [result] = await db.query(
     'UPDATE user SET is_drawable = 1 WHERE id = ?',
     [userId]
@@ -169,6 +175,12 @@ async function denyUserMic(userId) {
   return result
 }
 
+async function allowAllUserDraw(usersId) {
+  console.log(usersId)
+}
+
+async function denyAllUserDraw(usersId) {}
+
 module.exports = {
   findUserData,
   nativeSignIn,
@@ -178,5 +190,7 @@ module.exports = {
   allowUserDraw,
   denyUserDraw,
   allowUserMic,
-  denyUserMic
+  denyUserMic,
+  allowAllUserDraw,
+  denyAllUserDraw
 }
