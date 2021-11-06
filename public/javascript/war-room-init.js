@@ -7,6 +7,7 @@ const accessToken = localStorage.getItem('access_token')
 const WarRoomView = {
   postBtn: document.querySelector('#js-post-war-room'),
   allowBtn: document.querySelector('#js-allow-draw'),
+  denyBtn: document.querySelector('#js-deny-draw'),
   visitorLeaveBtn: document.querySelector('#leave-icon'),
   canvasEle: document.querySelector('#canvas'),
   confirmLeaveBtn: document.querySelector('#confirm-leave-btn'),
@@ -60,7 +61,7 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
   if (userResult.data.role !== 'streamer') return
 
   socket.once('recieve all room clients', async (onlineClients) => {
-    for (let key in onlineClients[ROOM_ID]){
+    for (let key in onlineClients[ROOM_ID]) {
       clientsId.push(onlineClients[ROOM_ID][key].peerId)
     }
     console.log(clientsId)
@@ -77,16 +78,50 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
       }
     })
     const result = await response.json()
+
+    if (response.status === 200) {
+      WarRoomView.denyBtn.style.display = 'block'
+      WarRoomView.allowBtn.style.display = 'none'
+    } else {
+      alert('錯誤的操作')
+    }
   })
   socket.emit('get all room clients')
-  
-  
-  
-  // if (response.status === 200) {
-  //   window.location.href = `/post?stockCode=${STOCK_CODE}`
-  // } else {
-  //   alert('錯誤的操作')
-  // }
+})
+
+WarRoomView.denyBtn.addEventListener('click', async (e) => {
+  const clientsId = []
+  const userResult = await userAuth()
+
+  if (userResult.data.role !== 'streamer') return
+
+  socket.once('recieve all room clients', async (onlineClients) => {
+    for (let key in onlineClients[ROOM_ID]) {
+      clientsId.push(onlineClients[ROOM_ID][key].peerId)
+    }
+    console.log(clientsId)
+
+    const response = await fetch('/api/1.0/user/user_permission', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        type: 'is_allDrawable',
+        isAllow: false,
+        usersId: clientsId
+      }),
+      headers: {
+        'Content-type': 'application/json'
+      }
+    })
+    const result = await response.json()
+
+    if (response.status === 200) {
+      WarRoomView.denyBtn.style.display = 'none'
+      WarRoomView.allowBtn.style.display = 'block'
+    } else {
+      alert('錯誤的操作')
+    }
+  })
+  socket.emit('get all room clients')
 })
 
 document.querySelector('.navbar').addEventListener('click', (e) => {

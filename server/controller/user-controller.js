@@ -103,7 +103,7 @@ async function userData(req, res) {
 async function setUserPermisstion(req, res) {
   const permissionType = req.body.type
   const { isAllow, userId, usersId } = req.body
-console.log(req.body)
+
   try {
     switch (permissionType) {
       case 'is_drawable':

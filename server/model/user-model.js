@@ -138,12 +138,6 @@ async function changeToStreamer(userId) {
 }
 
 async function allowUserDraw(userId) {
-  if (userId === 'all') {
-    const [result] = await db.query(
-      'UPDATE user SET is_drawable = 1 WHERE id = ?',
-      [userId]
-    )
-  }
   const [result] = await db.query(
     'UPDATE user SET is_drawable = 1 WHERE id = ?',
     [userId]
@@ -176,10 +170,28 @@ async function denyUserMic(userId) {
 }
 
 async function allowAllUserDraw(usersId) {
-  console.log(usersId)
+  try {
+    const [result] = await db.query(
+      'UPDATE user SET is_drawable = 1 WHERE id in ?',
+      [[usersId]]
+    )
+    return result
+  } catch (error) {
+    console.log(error)
+  }
 }
 
-async function denyAllUserDraw(usersId) {}
+async function denyAllUserDraw(usersId) {
+  try {
+    const [result] = await db.query(
+      'UPDATE user SET is_drawable = 0 WHERE id in ?',
+      [[usersId]]
+    )
+    return result
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 module.exports = {
   findUserData,
