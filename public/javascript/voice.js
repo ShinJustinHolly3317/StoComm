@@ -1,6 +1,7 @@
 const videoGrid = document.querySelector('#video-grid')
 const myVideo = document.createElement('video')
 const peers = {}
+let roomHostId
 // const peerId = USER.id
 myVideo.muted = true
 
@@ -19,7 +20,7 @@ socket.on('user-disconnected', (userId) => {
 // function
 async function initPeer() {
   const peerId = (await userAuth()).data.id
-  const myPeer = new Peer(peerId, {
+  const myPeer = new Peer({
     host: '/' + window.location.hostname,
     port: window.location.hostname === 'localhost' ? '3000' : '443',
     path: '/peerjs',
@@ -40,8 +41,8 @@ async function initPeer() {
         addVideoStream(myVideo, stream)
 
         // default visitor mic is off
-        const isMicOn = (await userAuth()).data.is_mic_on
-        if (!isMicOn) {
+        const isMicOnInit = (await userAuth()).data.is_mic_on
+        if (!isMicOnInit) {
           stream.getAudioTracks()[0].enabled = false
         }
 
@@ -55,7 +56,7 @@ async function initPeer() {
         // create myself audio icon
         const audioIcon = document.createElement('div')
         audioIcon.setAttribute('peer_user_id', id)
-        if (isMicOn) {
+        if (isMicOnInit) {
           audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon" peer_user_id="${id}">
           <img src="/img/mic.png" class="mic-icon">`
         } else {
@@ -73,32 +74,70 @@ async function initPeer() {
           const video = document.createElement('video')
           // video.setAttribute('peer_user_id', call.peer)
 
-          const audioIcon = document.createElement('div')
-          audioIcon.setAttribute('peer_user_id', call.peer)
-          audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon" peer_user_id="${call.peer}">
-          <img src="/img/mute.png" class="mute-icon">
-          `
-          videoGrid.append(audioIcon)
+          if(call.peer === roomHostId) {
+            const audioIcon = document.createElement('div')
+            audioIcon.setAttribute('peer_user_id', call.peer)
+            audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon" peer_user_id="${call.peer}">
+            <img src="/img/mic.png" class="mic-icon">
+            `
+            videoGrid.append(audioIcon)
+          } else {
+            const audioIcon = document.createElement('div')
+            audioIcon.setAttribute('peer_user_id', call.peer)
+            audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon" peer_user_id="${call.peer}">
+            <img src="/img/mute.png" class="mute-icon">
+            `
+            videoGrid.append(audioIcon)
+          }
+
+          
 
           call.on('stream', (userVideoStream) => {
             addVideoStream(video, userVideoStream)
           })
         })
-        socket.emit('ready')
+        socket.emit('ready', isMicOnInit ? peerId : null)
+        socket.on('myself-connected', (hostId) => {
+          // define hostId
+          if (hostId) {
+            roomHostId = hostId
+            console.log('hostId', hostId)
+          }
+        })
 
-        socket.on('update ban audio', (banUserId) => {
+        socket.on('update ban audio', async (banUserId) => {
           if (banUserId === id) {
-            console.log('banUserId', banUserId)
-            stream.getAudioTracks()[0].enabled = true
-            console.log(stream.getAudioTracks()[0])
+            const isMicOn = (await userAuth()).data.is_mic_on 
+            console.log('isMicOn', isMicOn)
+            if (isMicOn) {
+              console.log('banUserId', banUserId)
+              stream.getAudioTracks()[0].enabled = false
+              console.log(stream.getAudioTracks()[0])
 
-            const banAudioIcon = document.querySelector(
-              `img[peer_user_id="${banUserId}"]`
-            ).nextElementSibling
-            console.log(banAudioIcon)
-            banAudioIcon.src = '/img/mic.png'
-            banAudioIcon.classList.remove('mute-icon')
-            banAudioIcon.classList.add('mic-icon')
+              await updateUserMic(false, 13)
+
+              const banAudioIcon = document.querySelector(
+                `img[peer_user_id="${banUserId}"]`
+              ).nextElementSibling
+              console.log(banAudioIcon)
+              banAudioIcon.src = '/img/mute.png'
+              banAudioIcon.classList.remove('mic-icon')
+              banAudioIcon.classList.add('mute-icon')
+            } else {
+              console.log('banUserId', banUserId)
+              stream.getAudioTracks()[0].enabled = true
+              console.log(stream.getAudioTracks()[0])
+
+              await updateUserMic(true, 13)
+
+              const banAudioIcon = document.querySelector(
+                `img[peer_user_id="${banUserId}"]`
+              ).nextElementSibling
+              console.log(banAudioIcon)
+              banAudioIcon.src = '/img/mic.png'
+              banAudioIcon.classList.remove('mute-icon')
+              banAudioIcon.classList.add('mic-icon')
+            }
           }
         })
 
@@ -112,6 +151,8 @@ async function initPeer() {
           if (e.target.classList.contains('audio-icon')) {
             socket.emit('ban audio', e.target.getAttribute('peer_user_id'))
           }
+
+
         })
         // setTimeout(() => {
         //   stream.getAudioTracks()[0].enabled = false
@@ -154,5 +195,21 @@ async function initPeer() {
 
     peers[userId] = call
     console.log('perssss:', peers)
+  }
+
+  async function updateUserMic(isAllow, userId) {
+    const response = await fetch('/api/1.0/user/user_permission', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        type: 'is_mic_on',
+        isAllow, 
+        userId
+      }),
+      headers:{
+        'Content-type': 'application/json'
+      }
+    })
+
+    return response.status
   }
 }

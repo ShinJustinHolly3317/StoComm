@@ -21,7 +21,7 @@ async function nativeSignIn(email, password) {
       email
     ])
     const user = result[0]
-    
+
     if (!bcrypt.compareSync(password, user.password)) {
       await conn.query('COMMIT')
       return { error: 'Wrong password' }
@@ -119,16 +119,53 @@ async function signUp(name, email, password) {
 
 async function getUserDetail(email) {
   try {
-    const [users] = await db.query('SELECT * FROM user WHERE email = ?', [email])
+    const [users] = await db.query('SELECT * FROM user WHERE email = ?', [
+      email
+    ])
     return users[0]
   } catch (err) {
-    console.log(err);
+    console.log(err)
     return null
   }
 }
 
 async function changeToStreamer(userId) {
-  const [result] = await db.query('UPDATE user SET role = streamer WHERE id = ?', [userId])
+  const [result] = await db.query(
+    'UPDATE user SET role = streamer WHERE id = ?',
+    [userId]
+  )
+  return result
+}
+
+async function allowUserDraw(userId) {
+  const [result] = await db.query(
+    'UPDATE user SET is_drawable = 1 WHERE id = ?',
+    [userId]
+  )
+  return result
+}
+
+async function denyUserDraw(userId) {
+  const [result] = await db.query(
+    'UPDATE user SET is_drawable = 0 WHERE id = ?',
+    [userId]
+  )
+  return result
+}
+
+async function allowUserMic(userId) {
+  const [result] = await db.query(
+    'UPDATE user SET is_mic_on = 1 WHERE id = ?',
+    [userId]
+  )
+  return result
+}
+
+async function denyUserMic(userId) {
+  const [result] = await db.query(
+    'UPDATE user SET is_mic_on = 0 WHERE id = ?',
+    [userId]
+  )
   return result
 }
 
@@ -137,5 +174,9 @@ module.exports = {
   nativeSignIn,
   signUp,
   getUserDetail,
-  changeToStreamer
+  changeToStreamer,
+  allowUserDraw,
+  denyUserDraw,
+  allowUserMic,
+  denyUserMic
 }

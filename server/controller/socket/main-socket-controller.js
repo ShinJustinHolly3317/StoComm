@@ -205,7 +205,10 @@ async function socketController(io) {
       socket.on('start calling', (userId) => {
         console.log('Peer user: ', userId)
         // socket.to(roomId).emit('user-connected', userId)
-        socket.on('ready', () => {
+        socket.on('ready', (hostId) => {
+          if(!hostId) return
+          onlineClients[roomId].host = hostId
+          socket.emit('myself-connected', onlineClients[roomId].host)
           socket.to(roomId).emit('user-connected', userId)
         })
 

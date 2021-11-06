@@ -83,14 +83,14 @@ async function signUp(req, res) {
         provider: user.provider,
         name: user.name,
         email: user.email,
-        picture: user.picture,
+        picture: user.picture
       }
     }
   })
 }
 
 async function userData(req, res) {
-  const {email} = req.query
+  const { email } = req.query
   const result = await User.findUserData(email)
 
   if (result.error) {
@@ -100,4 +100,32 @@ async function userData(req, res) {
   }
 }
 
-module.exports = { login, signUp, userData }
+async function setUserPermisstion(req, res) {
+  const permissionType = req.body.type
+  const { isAllow, userId } = req.body
+console.log(req.body)
+  try {
+    switch (permissionType) {
+      case 'is_drawable':
+        if (isAllow) {
+          User.allowUserDraw(userId)
+        } else {
+          User.denyUserDraw(userId)
+        }
+        break
+      case 'is_mic_on':
+        if (isAllow) {
+          User.allowUserMic(userId)
+        } else {
+          User.denyUserMic(userId)
+        }
+        break
+    }
+    res.status(200).send({ message: 'user permission set successfully!' })
+  } catch (error) {
+    console.error(error)
+    return { error }
+  }
+}
+
+module.exports = { login, signUp, userData, setUserPermisstion }
