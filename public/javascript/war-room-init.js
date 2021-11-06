@@ -59,7 +59,7 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
 
   if (userResult.data.role !== 'streamer') return
 
-  socket.once('recieve all room clients', (onlineClients) => {
+  socket.once('recieve all room clients', async (onlineClients) => {
     for (let key in onlineClients[ROOM_ID]){
       clientsId.push(onlineClients[ROOM_ID][key].peerId)
     }
