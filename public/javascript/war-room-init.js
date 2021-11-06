@@ -1,6 +1,6 @@
 const ROOM_ID = getQueryObject().roomId
 const STOCK_CODE = getQueryObject().stockCode
-const USER = {}
+let USER = JSON.parse(localStorage.getItem('user'))
 let company_name
 const accessToken = localStorage.getItem('access_token')
 
@@ -16,15 +16,14 @@ if (!ROOM_ID) {
   alert('無效的房間!')
   window.location.href = '/'
 }
-
 const socket = io()
 let socketId
-socket.on('connect', () => {
+socket.on('connect', async () => {
   socketId = socket.id
+  await roleAuth()
   socket.emit('join room', ROOM_ID, USER.id)
+  initPeer()
 })
-
-roleAuth()
 
 // listener
 WarRoomView.postBtn.addEventListener('click', async (e) => {
@@ -67,19 +66,20 @@ document.querySelector('.navbar').addEventListener('click', (e) => {
 
 // Functions
 async function roleAuth() {
-  if (!accessToken || !USER) {
+  if (!accessToken) {
     alert('你沒有權限進來!!')
     window.location.href = '/hot-rooms'
   }
 
-  const response = await fetch('/api/1.0/user/user_auth', {
-    method: 'GET',
-    headers: {
-      Authorization: 'Bearer ' + accessToken
-    }
-  })
+  // const response = await fetch('/api/1.0/user/user_auth', {
+  //   method: 'GET',
+  //   headers: {
+  //     Authorization: 'Bearer ' + accessToken
+  //   }
+  // })
 
-  const result = await response.json()
+  // const result = await response.json()
+  const result = await userAuth()
   if (result.error) {
     alert('你沒有權限進來!!')
     window.location.href = '/hot-rooms'
@@ -89,6 +89,8 @@ async function roleAuth() {
       WarRoomView.confirmLeaveBtn.innerHTML = '確定'
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)
+
+      // closing room btn
       document
         .querySelector(`[streamer="true"]`)
         .addEventListener('click', async () => {
@@ -102,21 +104,38 @@ async function roleAuth() {
             }
           )
 
-          if(response.status === 200) {
+          if (response.status === 200) {
             window.location.href = '/hot-rooms'
           }
         })
+    } else if (!result.data.is_drawable) {
+      document.querySelector('.add-canvas').style.display = 'none'
     }
-    
-    USER['data'] = {
-      id: result.data.id,
-      name: result.data.name,
-      email: result.data.email,
-      piture: result.data.picture
-    }
+    // USER = {
+    //   id: result.data.id,
+    //   name: result.data.name,
+    //   email: result.data.email,
+    //   piture: result.data.picture
+    // }
   }
 }
 
 async function roomAuth() {
   // check this room exist or not
+}
+
+async function userAuth() {
+  const response = await fetch('/api/1.0/user/user_auth', {
+    method: 'GET',
+    headers: {
+      Authorization: 'Bearer ' + accessToken
+    }
+  })
+
+  if(response.status !== 200){
+    console.log(response.status)
+  }
+
+  const result = await response.json()
+  return result
 }

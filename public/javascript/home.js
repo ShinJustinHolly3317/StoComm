@@ -12,7 +12,10 @@ const View = {
   logInModal: document.querySelector('#login-modal'),
   signUpModal: document.querySelector('#signup-modal'),
 
-  signUpData: document.querySelector('.signup-data')
+  signUpData: document.querySelector('.signup-data'),
+
+  navBarBtns: document.querySelector('.functional-part'),
+  homeLoginBtns: document.querySelector('.home-login-btns')
 }
 
 const Controller = {
@@ -119,6 +122,11 @@ View.signUpBtn.addEventListener('click', async (e) => {
 
 async function userAuth() {
   const accessToken = localStorage.getItem('access_token')
+  // const pathname = window.location.pathname
+
+  // render nav btns
+  View.navBarBtns.style.display = 'none'
+  View.homeLoginBtns.style.display = 'flex'
 
   if (!accessToken) return
 

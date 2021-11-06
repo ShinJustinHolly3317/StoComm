@@ -1,18 +1,20 @@
 // Require mysql connection
 const db = require('./config/mysqlConnection')
 
-async function insertChatHistory(chatHistory) {
-  const qryString = `INSERT INTO war_room_chat_history (user_id, war_room_id, content, chat_time) VALUES ?`
+async function insertChatHistory(chatHistory, roomId) {
+  const deleteQry = `DELETE FROM war_room_chat_history WHERE war_room_id = ?`
+  const insertQry = `INSERT INTO war_room_chat_history (user_id, war_room_id, content, chat_time) VALUES ?`
   const conn = await db.getConnection()
 
   try {
     await conn.query('START TRANSACTION')
 
-    const [result] = await conn.query(qryString, [chatHistory])
+    await conn.query(deleteQry, [roomId])
+    const [result] = await conn.query(insertQry, [chatHistory])
 
     await conn.query('COMMIT')
     return result.insertId
-  } catch(error) {
+  } catch (error) {
     console.error(error)
     await conn.query('ROLLBACK')
     return { error }

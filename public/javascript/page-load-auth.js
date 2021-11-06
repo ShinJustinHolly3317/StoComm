@@ -19,7 +19,7 @@ async function userAuth() {
     document.querySelector('body').style.display = 'block'
     userData = result.data
   }
-  console.log(result)
+  return result
 }
 
 function preventLoading() {

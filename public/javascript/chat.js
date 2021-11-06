@@ -10,6 +10,7 @@ const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
 form.addEventListener('submit', function (e) {
   e.preventDefault()
   if (input.value) {
+    console.log(USER);
     socket.emit('chat message', input.value, USER.name, USER.id)
     input.value = ''
   }

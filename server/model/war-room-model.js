@@ -47,7 +47,11 @@ async function createWarRoom(createData) {
   try {
     await conn.query('BEGIN')
     const [roomResult] = await conn.query(qryString, createData)
-    await conn.query(`UPDATE user SET role = 'streamer' WHERE id = ?`, [createData.user_id])
+    await conn.query(
+      `UPDATE user SET role = 'streamer', is_drawable=1, is_mic_on=1 
+      WHERE id = ?`,
+      [createData.user_id]
+    )
     console.log(roomResult)
 
     conn.query('COMMIT')
@@ -85,7 +89,10 @@ async function endWarRoom(roomId, userId) {
       'UPDATE war_room SET state = 0 WHERE id = ?',
       [roomId]
     )
-    await conn.query('UPDATE user SET role = "visitor" WHERE id = ?', [userId])
+    await conn.query(
+      'UPDATE user SET role = "visitor", is_drawable=0, is_mic_on=0 WHERE id = ?',
+      [userId]
+    )
     await conn.query('COMMIT')
     
     return result

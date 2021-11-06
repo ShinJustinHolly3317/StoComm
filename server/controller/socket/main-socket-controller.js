@@ -209,6 +209,10 @@ async function socketController(io) {
           socket.to(roomId).emit('user-connected', userId)
         })
 
+        socket.on('ban audio', (banUserId) => {
+          socket.to(roomId).emit('update ban audio', banUserId)
+        })
+
         onlineClients[roomId][socket.id].peerId = userId
       })
 
@@ -231,7 +235,7 @@ async function socketController(io) {
         }
         if (chatHistory[roomId].length) {
           // store chat history
-          await Chat.insertChatHistory(cleanChatHistory(roomId))
+          await Chat.insertChatHistory(cleanChatHistory(roomId), roomId)
         }
       })
     })

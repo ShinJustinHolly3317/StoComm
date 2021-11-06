@@ -3,13 +3,13 @@ const db = require('./config/mysqlConnection')
 
 async function insertDrawHistory(drawHistoryData, roomId) {
   const insertQry = `INSERT INTO drawing_history (user_id, draw_id, war_room_id, tool, thick, color, url, locations) VALUES ?`
-  const dleteQry = `DELETE FROM drawing_history WHERE war_room_id = ?`
+  const deleteQry = `DELETE FROM drawing_history WHERE war_room_id = ?`
 
   const conn = await db.getConnection()
   try {
     await conn.query('START TRANSACTION')
 
-    await conn.query(dleteQry, [roomId])
+    await conn.query(deleteQry, [roomId])
     const [result] = await conn.query(insertQry, [drawHistoryData])
 
     await conn.query('COMMIT')

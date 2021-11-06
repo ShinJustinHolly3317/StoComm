@@ -16,8 +16,9 @@ const View = {
 
 const Controller = {
   init: async () => {
-    const email = JSON.parse(localStorage.getItem('userRole')).email
-
+    // const email = JSON.parse(localStorage.getItem('user')).email
+    const email = (await userAuth()).data.email
+    console.log('email', email);
     const userResponse = await fetch(`/api/1.0/user/user_data?email=${email}`)
 
     if (userResponse.status === 200) {
@@ -87,15 +88,15 @@ View.createBtn.addEventListener('click', async (e) => {
   const roomId = result.data.insertId
   const stockCode = result.data.stock_code
 
-  // const streamerRole = JSON.parse(localStorage.getItem('userRole'))
+  // const streamerRole = JSON.parse(localStorage.getItem('user'))
   // streamerRole.role = 'streamer'
-  // localStorage.setItem('userRole', JSON.stringify(streamerRole))
+  // localStorage.setItem('user', JSON.stringify(streamerRole))
 
   window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
 })
 
 View.logoutBtn.addEventListener('click', (e) => {
-  localStorage.removeItem('userRole')
+  localStorage.removeItem('user')
   localStorage.removeItem('access_token')
 
   window.location.href = '/'

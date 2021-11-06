@@ -53,7 +53,14 @@ let localToolType = 'select'
 let localLayerObject
 let curSelectShape
 
-stage.on('mousedown touchstart', function (e) {
+stage.on('mousedown touchstart', async (e) => {
+  // prevent drawing
+  const isDrawAble = (await userAuth()).data.is_drawable
+
+  if (!isDrawAble) {
+    return
+  }
+
   if (localToolType === 'select') {
     isPaint = false
     return
@@ -414,6 +421,15 @@ cavasWrapper.addEventListener('mouseout', (e) => {
 })
 
 addCanvasBtn.addEventListener('click', async (e) => {
+  // add image to canvas
+
+  // prevent drawing
+  const isDrawAble = (await userAuth()).data.is_drawable
+
+  if (!isDrawAble) {
+    return
+  }
+
   const curStockInfo = document.querySelector('.carousel-item.active')
   const canvas = await html2canvas(curStockInfo)
   let canvasImg = canvas.toDataURL('image/jpeg')
@@ -427,15 +443,22 @@ addCanvasBtn.addEventListener('click', async (e) => {
       height: window.innerHeight - 150
     },
     toolType: 'image',
-    canvasImg                                                                                                                                                                                                                                                                                                                                         
+    canvasImg
   }
 
   socket.emit('add image', cavasInfo)
 })
 
-window.addEventListener('keydown', (e) => {
+window.addEventListener('keydown', async (e) => {
   // delete selected object
   if (e.code === 'Delete') {
+    // prevent drawing
+    const isDrawAble = (await userAuth()).data.is_drawable
+
+    if (!isDrawAble) {
+      return
+    }
+
     if (curSelectShape) {
       curSelectShape.destroy()
       socket.emit('delete drawing', curSelectShape.attrs.id)
