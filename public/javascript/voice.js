@@ -20,7 +20,7 @@ socket.on('user-disconnected', (userId) => {
 // function
 async function initPeer() {
   const peerId = (await userAuth()).data.id
-  const myPeer = new Peer({
+  const myPeer = new Peer(peerId, {
     host: '/' + window.location.hostname,
     port: window.location.hostname === 'localhost' ? '3000' : '443',
     path: '/peerjs',
@@ -114,7 +114,7 @@ async function initPeer() {
               stream.getAudioTracks()[0].enabled = false
               console.log(stream.getAudioTracks()[0])
 
-              await updateUserMic(false, 13)
+              await updateUserMic(false, banUserId)
 
               const banAudioIcon = document.querySelector(
                 `img[peer_user_id="${banUserId}"]`
@@ -128,7 +128,7 @@ async function initPeer() {
               stream.getAudioTracks()[0].enabled = true
               console.log(stream.getAudioTracks()[0])
 
-              await updateUserMic(true, 13)
+              await updateUserMic(true, banUserId)
 
               const banAudioIcon = document.querySelector(
                 `img[peer_user_id="${banUserId}"]`
