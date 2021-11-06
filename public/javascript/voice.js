@@ -90,8 +90,6 @@ async function initPeer() {
             videoGrid.append(audioIcon)
           }
 
-          
-
           call.on('stream', (userVideoStream) => {
             addVideoStream(video, userVideoStream)
           })
@@ -148,11 +146,21 @@ async function initPeer() {
             return
           }
 
-          if (e.target.classList.contains('audio-icon')) {
+          const audioIcon = e.target
+          if (audioIcon.classList.contains('audio-icon')) {
             socket.emit('ban audio', e.target.getAttribute('peer_user_id'))
+
+            if (audioIcon.nextElementSibling.classList.contains('mic-icon')) {
+              audioIcon.nextElementSibling.src = '/img/mute.png'
+              audioIcon.nextElementSibling.classList.remove('mic-icon')
+              audioIcon.nextElementSibling.classList.add('mute-icon')
+            } else if (audioIcon.nextElementSibling.classList.contains('mute-icon')){
+              audioIcon.nextElementSibling.src = '/img/mic.png'
+              audioIcon.nextElementSibling.classList.remove('mute-icon')
+              audioIcon.nextElementSibling.classList.add('mic-icon')
+            }
           }
-
-
+          
         })
         // setTimeout(() => {
         //   stream.getAudioTracks()[0].enabled = false
