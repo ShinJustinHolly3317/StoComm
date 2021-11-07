@@ -94,6 +94,7 @@ async function initPeer() {
             addVideoStream(video, userVideoStream)
           })
         })
+
         socket.emit('ready', isMicOnInit ? peerId : null)
         socket.on('myself-connected', (hostId) => {
           // define hostId

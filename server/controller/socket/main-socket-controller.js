@@ -78,24 +78,26 @@ async function socketController(io) {
           )
       })
 
-      socket.on('add image', (cavasInfo) => {
+      socket.on('add image', (canvasInfo) => {
         let topLayerId = Object.keys(drawHistory[roomId]).length
-        drawHistory[roomId][topLayerId] = cavasInfo
-
+        
+        canvasInfo.drawLayerCounter = topLayerId
+        drawHistory[roomId][topLayerId] = canvasInfo
+        console.log('image zindex', topLayerId)
         socket
           .to(roomId)
           .emit(
             'update add image',
             topLayerId,
-            cavasInfo.canvasImg,
-            cavasInfo.location
+            canvasInfo.canvasImg,
+            canvasInfo.location
           )
 
         socket.emit(
           'update my image',
           topLayerId,
-          cavasInfo.canvasImg,
-          cavasInfo.location
+          canvasInfo.canvasImg,
+          canvasInfo.location
         )
       })
 
@@ -206,7 +208,7 @@ async function socketController(io) {
         console.log('Peer user: ', userId)
         // socket.to(roomId).emit('user-connected', userId)
         socket.on('ready', (hostId) => {
-          if(!hostId) {
+          if(hostId) {
             onlineClients[roomId].host = hostId
           }
           socket.emit('myself-connected', onlineClients[roomId].host)

@@ -84,6 +84,7 @@ stage.on('mousedown touchstart', async (e) => {
 stage.on('mouseup touchend', function () {
   isPaint = false
   localLayerObject = null // clear local drawing layer
+  console.log(drawHistory);
 })
 
 // and core function - drawing
@@ -119,6 +120,9 @@ stage.on('mousemove touchmove', function (e) {
     drawHistory[localLayerCounter].location = drawHistory[
       localLayerCounter
     ].location.concat([pos.x, pos.y])
+  } else if (localToolType === 'line') {
+    drawHistory[localLayerCounter].location[2] = pos.x
+    drawHistory[localLayerCounter].location[3] = pos.y
   }
 
   socket.emit('drawing', localLayerCounter, [pos.x, pos.y])
@@ -126,8 +130,12 @@ stage.on('mousemove touchmove', function (e) {
 
 // clicks should select/deselect shapes
 stage.on('click tap', function (e) {
-  // if click on empty area - remove all selections
+  // if user us drawing 
+  if(isPaint){
+    return
+  }
 
+  // if click on empty area - remove all selections
   if (e.target === stage) {
     tr.nodes([])
     // console.log('curSelectShape', curSelectShape)
