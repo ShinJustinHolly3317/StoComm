@@ -55,7 +55,7 @@
 
 .title-2 {
   font-size: 16px;
-  line-height: 1;
+  line-height: 1.5;
 }
 
 h2.welcome-msg {
@@ -86,4 +86,9 @@ h3 {
 #enter-email {
   background-color: rgba(0, 0, 0, 0);
   border: none;
+}
+
+#enter-btn{
+  border: none;
+  background-color: white;
 }

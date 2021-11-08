@@ -14,3 +14,7 @@ a {
   color: black;
   cursor: pointer;
 }
+
+.hidden{
+  display: none;
+}

@@ -119,10 +119,13 @@ div#war-room-check label {
 }
 
 .user-name {
-  display: flex;
   align-items: center;
 
   margin-top: auto;
+}
+
+.date {
+  font-size: 6px;
 }
 
 .stock-situation {
@@ -140,4 +143,17 @@ div#war-room-check label {
 
 .stock-situation h3 {
   margin: 0 10px;
+}
+
+.social-btn.liked{
+  width: 15px;
+  height: 15px;
+}
+
+.liked-num {
+  font-size: 8px;
+  font-weight: 600;
+  margin: 0 5px;
+
+  color: rgb(20, 201, 186);
 }

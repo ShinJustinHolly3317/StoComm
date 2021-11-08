@@ -1,6 +1,7 @@
 const View = {
   submitBtn: document.querySelector('#enter-btn'),
   loginForm: document.querySelector('#js-login-form'),
+  enterEmail: document.querySelector('#enter-email'),
 
   welcomeLogIn: document.querySelector('.js-login-msg'),
   welcomeSignUp: document.querySelector('.js-signup-msg'),
@@ -13,6 +14,7 @@ const View = {
   signUpModal: document.querySelector('#signup-modal'),
 
   signUpData: document.querySelector('.signup-data'),
+  signUpEmail: document.querySelector('#signup-user-mail'),
 
   navBarBtns: document.querySelector('.functional-part'),
   homeLoginBtns: document.querySelector('.home-login-btns')
@@ -28,7 +30,8 @@ const Controller = {
   }
 }
 
-View.submitBtn.addEventListener('click', async (e) => {
+View.loginForm.addEventListener('submit', async (e) => {
+  e.preventDefault()
   const response = await fetch('/api/1.0/user/check_user_exist', {
     method: 'POST',
     body: new FormData(View.loginForm)
@@ -49,6 +52,7 @@ View.submitBtn.addEventListener('click', async (e) => {
   } else {
     signUpModal.show()
     View.welcomeSignUp.innerText = `你還沒有加入會員喔，快點加入吧`
+    View.signUpEmail.value = View.enterEmail.value
   }
 })
 
@@ -72,7 +76,11 @@ View.loginBtn.addEventListener('click', async (e) => {
   switch (response.status) {
     case 500:
     case 403:
-      alert(result.error)
+      await Swal.fire({
+        icon: 'error',
+        title: result.error,
+        confirmButtonColor: '#315375'
+      })
       break
     case 200:
       localStorage.setItem('access_token', result.data.access_token)
@@ -85,7 +93,10 @@ View.loginBtn.addEventListener('click', async (e) => {
       }
       localStorage.setItem('user', JSON.stringify(user))
 
-      alert('登入成功 !!')
+      await Swal.fire({
+        title: '登入成功!',
+        confirmButtonColor: '#315375'
+      })
       window.location.href = '/hot-rooms'
   }
 })
@@ -102,10 +113,17 @@ View.signUpBtn.addEventListener('click', async (e) => {
     case 500:
     case 403:
     case 400:
-      alert(result.error)
+      await Swal.fire({
+        icon: 'error',
+        title: result.error,
+        confirmButtonColor: '#315375'
+      })
       break
     case 200:
-      alert('註冊成功 !!')
+      await Swal.fire({
+        title: '註冊成功!',
+        confirmButtonColor: '#315375'
+      })
       localStorage.setItem('access_token', result.data.access_token)
 
       const user = {

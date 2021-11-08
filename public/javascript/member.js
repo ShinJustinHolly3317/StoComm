@@ -16,49 +16,50 @@ const View = {
 
 const Controller = {
   init: async () => {
-    // const email = JSON.parse(localStorage.getItem('user')).email
-    const email = (await userAuth()).data.email
-    console.log('email', email);
-    const userResponse = await fetch(`/api/1.0/user/user_data?email=${email}`)
+    const userData = (await userAuth()).data
+    let ideasUrl = `/api/1.0/ideas/all?userId=${userData.id}`
+    const pathname = window.location.pathname
+    if(pathname.includes('following')){
+      ideasUrl = `/api/1.0/ideas/hot_ideas?filter=byFollowing&userId=${userData.id}&page=0`
+    }
+    
+    View.memberNameEle.innerText = userData.name
+    View.followingInfoEle[0].innerText = userData.followers
+    View.followingInfoEle[1].innerText = userData.following
 
-    if (userResponse.status === 200) {
-      const result = await userResponse.json()
-      const userData = result.data[0]
+    const ideasResponse = await fetch(ideasUrl)
+    const ideasResult = await ideasResponse.json()
 
-      View.memberNameEle.innerText = userData.name
-      View.followingInfoEle[0].innerText = userData.following
-      View.followingInfoEle[1].innerText = userData.followers
-
-      const ideasResponse = await fetch(
-        `/api/1.0/ideas/all?userId=${userData.id}`
-      )
-      const ideasResult = await ideasResponse.json()
-
-      if (!ideasResult.data.length) {
-        View.ideasListEle.innerHTML = `
-        <h5 class="mt-5 text-center">目前還沒有發表任何觀點喔!</h5>
+    if (!ideasResult.data.length) {
+      View.ideasListEle.innerHTML = `
+        <h5 class="mt-5 text-center">目前還沒有追蹤任何觀點喔!</h5>
         `
-      }
+    }
 
-      for (let item of ideasResult.data) {
-        View.ideasListEle.innerHTML += `
+    for (let item of ideasResult.data) {
+      View.ideasListEle.innerHTML += `
           <a href='/ideas-details?id=${item.id}'>
             <div class='ideas-card shadow'>
               <h3>${item.title}</h3>
-              <p>${item.company_name} (${item.stock_code})</p>
+              <p class="badge bg-secondary">${item.company_name} (${
+        item.stock_code
+      })</p>
 
               <div id="ideas-card-img">
                 <img src="${item.image}" class="img-fluid">
               </div>
               
-              <div class="user-name">
+              <div class="user-name d-flex justify-content-around">
                 <h3>${item.user_name}</h3>
-                <p>${item.date}</p>
+                <div class="d-flex">
+                  <img src='/img/liked.png' class='social-btn liked' />
+                  <div class="liked-num">${item.total_likes || 0}</div>
+                </div>
+                <p class="date">${item.date}</p>
               </div>
             </div>
           </a>
         `
-      }
     }
   }
 }
@@ -83,7 +84,12 @@ View.createBtn.addEventListener('click', async (e) => {
   console.log(result)
 
   if (response.status !== 200) {
-    return alert(result.error)
+    await Swal.fire({
+      icon: 'error',
+      title: result.error,
+      confirmButtonColor: '#315375'
+    })
+    return 
   }
   const roomId = result.data.insertId
   const stockCode = result.data.stock_code

@@ -20,7 +20,7 @@ socket.on('user-disconnected', (userId) => {
 // function
 async function initPeer() {
   const peerId = (await userAuth()).data.id
-  const myPeer = new Peer(peerId, {
+  const myPeer = new Peer({
     host: '/' + window.location.hostname,
     port: window.location.hostname === 'localhost' ? '3000' : '443',
     path: '/peerjs',

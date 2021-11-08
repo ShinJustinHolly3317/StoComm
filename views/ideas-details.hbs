@@ -22,15 +22,20 @@
     <hr />
 
     <div class='footer-area'>
-      <div class="user-area">
-        <img src="{{ideaData.user_picture}}" alt="" id="user-img">
-        <p>{{ideaData.user_name}}</p>
-      </div>
+      <a href="/personal-articles/{{ideaData.user_id}}">
+        <div class="user-area">
+          <img src="{{ideaData.user_picture}}" alt="" id="user-img">
+          <p>{{ideaData.user_name}}</p>
+        </div>
+      </a>
+      
+      <div class="social-btn-area d-flex align-items-center">
+        <img src='/img/like.png' class='social-btn no-like' />
+        <img src='/img/liked.png' class='social-btn hidden liked' />
+        <div class="liked-num hidden">1</div>
+        {{!-- <img src='/img/bookmark.png' class='social-btn' />
+        <img src='/img/share.png' class='social-btn' /> --}}
 
-      <div>
-        <img src='/img/like.png' class='social-btn' />
-        <img src='/img/bookmark.png' class='social-btn' />
-        <img src='/img/share.png' class='social-btn' />
       </div>
     </div>
 

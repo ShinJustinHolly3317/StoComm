@@ -18,6 +18,23 @@ textarea {
   display: none;
 }
 
-#analysis-img{
-  width: 70%;
+.img-area{
+  width: 50%;
+  margin: 0 0 0 auto;
 }
+
+#analysis-img{
+  width: 100%;
+  
+}
+
+.nav-link {
+  font-size: 12px;
+  color: rgb(143, 143, 143);
+}
+
+.nav-link.active {
+  color: rgb(20, 201, 186) !important;
+  font-weight: 600;
+}
+

@@ -13,7 +13,12 @@ async function userAuth() {
 
   const result = await response.json()
   if(result.error){
-    alert('你沒有權限進來!!')
+    await Swal.fire({
+      icon: 'error',
+      title: '你沒有權限進來!!',
+      confirmButtonColor: '#315375'
+    })
+    
     window.location.href = '/'
   } else {
     document.querySelector('body').style.display = 'block'

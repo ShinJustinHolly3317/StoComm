@@ -1,6 +1,3 @@
-body {
-  background-color: rgb(255, 249, 249);
-}
 
 .nav-area {
   display: flex;
@@ -12,6 +9,16 @@ body {
 
 .nav-area * {
   margin: 0 10px;
+}
+
+.nav-link {
+  letter-spacing: 5px;
+  font-weight: 800;
+}
+
+.nav-link.active{
+  font-size: 18px;
+  color: rgb(20, 201, 186) !important;
 }
 
 #hot-room-title {
@@ -124,4 +131,78 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
 .war-room-code {
   font-size: 5px;
   color: #c2c2c2;
+}
+
+/* ideas */
+.ideas-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+}
+
+.ideas-card {
+  background-color: white;
+  border-radius: 20px;
+  width: 100%;
+  height: 300px;
+  margin: 20px auto;
+  padding: 25px 25px;
+  cursor: pointer;
+
+  display: flex;
+  flex-direction: column;
+}
+
+#ideas-card-img {
+  display: flex;
+  justify-content: center;
+
+  height: 50%;
+  margin: 0 auto;
+}
+
+.ideas-card h3,
+.ideas-card p {
+  margin: 0 10px;
+}
+
+.user-name {
+  display: flex;
+  align-items: center;
+
+  margin-top: auto;
+}
+
+.stock-situation {
+  background-color: white;
+  border-radius: 20px;
+  width: 80%;
+  height: 100px;
+  margin: 20px auto;
+  padding: 25px 25px;
+  cursor: pointer;
+
+  display: flex;
+  align-items: center;
+}
+
+.stock-situation h3 {
+  margin: 0 10px;
+}
+
+.date{
+  font-size: 6px;
+}
+
+.social-btn.liked{
+  width: 15px;
+  height: 15px;
+}
+
+.liked-num {
+  font-size: 8px;
+  font-weight: 600;
+  margin: 0 5px;
+
+  color: rgb(20, 201, 186);
 }

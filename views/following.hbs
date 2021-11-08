@@ -3,10 +3,10 @@
     <div id='profile-img'>
       <img src='/img/profile-icon.png' alt='' id='profile-icon' />
       <div class='self-info'>
-        <h1 id='member-name'>Justin Holly</h1>
+        <h1 id='member-name'></h1>
         <div class='following-info'>
-          <p><span>100</span> 位追蹤者</p>
-          <p>正在追蹤 <span>999</span> 人</p>
+          <p><span></span> 位追蹤者</p>
+          <p>正在追蹤 <span></span> 人</p>
         </div>
       </div>
       <button type="button" class="btn btn-outline-secondary rounded-pill logout-btn js-logout-btn">登出</button>
@@ -29,4 +29,67 @@
   </div>
 
   <div class='ideas-list'></div>
+
+  {{! modal }}
+  <div
+    class='modal fade'
+    id='war-room-check'
+    tabindex='-1'
+    aria-labelledby='exampleModalLabel'
+    aria-hidden='true'
+  >
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <h5 class='modal-title' id='war-room-check-title'>開啟我的研究室</h5>
+          <button
+            type='button'
+            class='btn-close'
+            data-bs-dismiss='modal'
+            aria-label='Close'
+          ></button>
+        </div>
+        <div class='modal-body'>
+          <h2 class="welcome-msg js-signup-msg"></h3>
+            <form class="war-room-check-data">
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+                >研究室名稱</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-mail"
+                value=""
+                name="war_room_title"
+              />
+
+              <label for="staticEmail" class="col-sm-2 col-form-label"
+              >姓名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="user-name"
+                value=""
+              />
+
+              <label for="inputPassword" class="col-sm-2 col-form-label"
+              >股票名稱或代碼</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-password"
+                placeholder="請輸入股票名稱或代碼"
+                name="stock_name_code"/>
+
+              <input type="hidden" id="user_id" name="user_id">
+              <button type="submit" class="btn btn-primary mb-2" id="js-create-war-room-btn">送出</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+{{!-- JS --}}
+<script src="/javascript/page-load-auth.js"></script>
+<script src="/javascript/member.js"></script>

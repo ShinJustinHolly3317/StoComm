@@ -8,8 +8,9 @@ const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
 
 async function checkUserExist(req, res) {
+  // For home page login welcom message
   const inputEmail = req.body.email
-  const searchResult = await User.findUserData(inputEmail)
+  const searchResult = await User.findUserDataByEmail(inputEmail)
 
   if (searchResult.length) {
     res.send({
@@ -55,7 +56,7 @@ async function authentication(req, res, next) {
 
   try {
     const user = jwt.verify(accessToken, TOKEN_SECRET)
-    let userDetail = await User.getUserDetail(user.email)
+    let userDetail = await User.getUserDetail(user.id)
 
     if (!userDetail) {
       res.status(403).send({ error: 'Your token is not valid!' })
@@ -68,8 +69,8 @@ async function authentication(req, res, next) {
       }
     }
     return
-  } catch (err) {
-    console.log(err)
+  } catch (error) {
+    console.log(error)
     res.status(403).send({ error: 'Forbidden' })
     return
   }

@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const Ideas = require('../../model/ideas-model')
+const User = require('../../model/user-model')
 const moment = require('moment')
 
 router.get('/', (req, res) => {
@@ -8,7 +9,7 @@ router.get('/', (req, res) => {
 })
 
 router.get('/explore', (req, res) => {
-  res.render('explore', { style: 'explore.css' })
+  res.render('explore', { style: 'hot-rooms.css' })
 })
 
 router.get('/following', (req, res) => {
@@ -19,28 +20,22 @@ router.get('/hot-rooms', (req, res) => {
   res.render('hot-rooms', { style: 'hot-rooms.css' })
 })
 
-router.get('/industry', (req, res) => {
-  res.render('industry', { style: 'industry.css' })
-})
-
 router.get('/member', (req, res) => {
   res.render('member', { style: 'member.css' })
 })
 
-router.get('/personal-articles', (req, res) => {
-  res.render('personal-articles', { style: 'member.css' })
+router.get('/personal-articles/:id', (req, res) => {
+  const followId = req.params.id
+  res.render('personal-articles', { style: 'member.css', followId })
 })
 
-router.get('/stock-rooms', (req, res) => {
-  res.render('stock-rooms', { style: 'stock-rooms.css' })
+router.get('/personal-following/:id', (req, res) => {
+  const followId = req.params.id
+  res.render('personal-following', { style: 'member.css', followId })
 })
 
 router.get('/war-room', (req, res) => {
   res.render('war-room', { style: 'war-room.css' })
-})
-
-router.get('/watchlist', (req, res) => {
-  res.render('watchlist', { style: 'member.css' })
 })
 
 router.get('/post', (req, res) => {

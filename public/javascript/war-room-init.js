@@ -15,7 +15,11 @@ const WarRoomView = {
 }
 
 if (!ROOM_ID) {
-  alert('無效的房間!')
+  await Swal.fire({
+    icon: 'error',
+    title: '無效的房間!',
+    confirmButtonColor: '#315375'
+  })
   window.location.href = '/'
 }
 const socket = io()
@@ -50,7 +54,12 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   if (response.status === 200) {
     window.location.href = `/post?stockCode=${STOCK_CODE}`
   } else {
-    alert('錯誤的操作')
+    await Swal.fire({
+      icon: 'error',
+      title: '錯誤的操作',
+      confirmButtonColor: '#315375'
+    })
+    return
   }
 })
 
@@ -83,7 +92,12 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
       WarRoomView.denyBtn.style.display = 'block'
       WarRoomView.allowBtn.style.display = 'none'
     } else {
-      alert('錯誤的操作')
+      await Swal.fire({
+        icon: 'error',
+        title: '錯誤的操作',
+        confirmButtonColor: '#315375'
+      })
+      return
     }
   })
   socket.emit('get all room clients')
@@ -118,7 +132,12 @@ WarRoomView.denyBtn.addEventListener('click', async (e) => {
       WarRoomView.denyBtn.style.display = 'none'
       WarRoomView.allowBtn.style.display = 'block'
     } else {
-      alert('錯誤的操作')
+      await Swal.fire({
+        icon: 'error',
+        title: '錯誤的操作',
+        confirmButtonColor: '#315375'
+      })
+      return
     }
   })
   socket.emit('get all room clients')
@@ -139,7 +158,11 @@ document.querySelector('.navbar').addEventListener('click', (e) => {
 // Functions
 async function roleAuth() {
   if (!accessToken) {
-    alert('你沒有權限進來!!')
+    await Swal.fire({
+      icon: 'error',
+      title: '你沒有權限進來!!',
+      confirmButtonColor: '#315375'
+    })
     window.location.href = '/hot-rooms'
   }
 
@@ -153,7 +176,11 @@ async function roleAuth() {
   // const result = await response.json()
   const result = await userAuth()
   if (result.error) {
-    alert('你沒有權限進來!!')
+    await Swal.fire({
+      icon: 'error',
+      title: '你沒有權限進來!!',
+      confirmButtonColor: '#315375'
+    })
     window.location.href = '/hot-rooms'
   } else {
     if (result.data.role === 'streamer') {
@@ -207,6 +234,7 @@ async function userAuth() {
 
   if(response.status !== 200){
     console.log(response.status)
+    return 
   }
 
   const result = await response.json()

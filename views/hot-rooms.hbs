@@ -1,11 +1,20 @@
 <div class='container'>
   <div class='nav-area'>
-    <h1 id='hot-room-title'>熱門研究室</h1>
+    {{!-- <h1 id='hot-room-title'>熱門研究室</h1>
     <a
       href='/explore'
       id='explore-btn'
       class='rounded-pill shadow-lg'
-    >Explore</a>
+    >Explore</a> --}}
+
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link active member-tab" aria-current="page" href="/hot-rooms">熱門研究室</a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link text-secondary" href="/explore">熱門觀點</a>
+      </li>
+    </ul>
   </div>
 
   <div class='war-rooms'></div>

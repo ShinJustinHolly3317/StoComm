@@ -11,7 +11,10 @@ const {
   login,
   signUp,
   userData,
-  setUserPermisstion
+  setUserPermisstion,
+  followUser,
+  unfollowUser,
+  checkFollowState
 } = require('../../controller/user-controller')
 
 router.get('/user_auth', authentication)
@@ -22,5 +25,7 @@ router.post('/log_in', login)
 router.post('/sign_up', upload.array(), signUp)
 
 router.patch('/user_permission', setUserPermisstion)
-
+router.patch('/follow_user', authentication, followUser)
+router.patch('/unfollow_user', authentication, unfollowUser)
+router.get('/check_follow', authentication, checkFollowState)
 module.exports = router

@@ -49,3 +49,23 @@
   width: 25px;
   margin: 0 10px;
 }
+
+.hit-like {
+  animation: pop 0.3s linear 1;
+}
+
+@keyframes pop{
+  50%  {transform: scale(1.2);}
+}
+
+.social-btn:hover {
+  cursor: pointer;
+}
+
+.liked-num {
+  margin-top: 5px;
+  font-size: 20px;
+  font-weight: 600;
+
+  color: rgb(20, 201, 186);
+}

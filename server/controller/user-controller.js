@@ -1,3 +1,4 @@
+const { RssHandler } = require('htmlparser2')
 const validator = require('validator')
 const User = require('../model/user-model')
 
@@ -90,8 +91,8 @@ async function signUp(req, res) {
 }
 
 async function userData(req, res) {
-  const { email } = req.query
-  const result = await User.findUserData(email)
+  const { userId } = req.query
+  const result = await User.getUserDetail(userId)
 
   if (result.error) {
     res.status(500).send({ error: result.error })
@@ -135,4 +136,54 @@ async function setUserPermisstion(req, res) {
   }
 }
 
-module.exports = { login, signUp, userData, setUserPermisstion }
+async function followUser(req, res) {
+  const { userId, followId } = req.query
+
+  const result = await User.followUser(userId, followId)
+  if (result.error) {
+    if (result.error === 'duplicate') {
+      res.status(409).send({ error: result.error })
+      return
+    }
+    res.status(500).send({ error: result.error })
+    return
+  }
+
+  res.status(200).send({ message: 'update follow data successfully'})
+}
+
+async function unfollowUser(req, res) {
+  const { userId, followId } = req.query
+
+  const result = await User.unFollowUser(userId, followId)
+  if (result.error) {
+console.log(result.error)    
+    res.status(500).send({ error: result.error })
+    return
+  }
+
+  res.status(200).send({ message: 'update follow data successfully' })
+}
+
+async function checkFollowState(req, res) {
+  const { userId, followId } = req.query
+
+  const result = await User.checkFollowState(userId, followId) 
+  if(result.length) {
+    res.status(200).send({ data: result })
+    return 
+  } else {
+    res.status(404).send({ message: 'No followed records'})
+    return
+  }
+}
+
+module.exports = {
+  login,
+  signUp,
+  userData,
+  setUserPermisstion,
+  followUser,
+  unfollowUser,
+  checkFollowState
+}

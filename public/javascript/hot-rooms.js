@@ -9,12 +9,15 @@ async function fetchOnlineRooms(onlineClients) {
   const result = await response.json()
   const onlineRooms = result.data
 
-  let warRoomHtml = ''
-  onlineRooms.forEach((item) => {
-    const clients = onlineClients[item.id]
-      ? Object.keys(onlineClients[item.id]).length
-      : 0
-    warRoomHtml += `
+  if (!onlineRooms.length) {
+    View.warRooms.innerHTML = `<h5 class="text-center">目前沒有人開討論室喔!</h5>`
+  } else {
+    let warRoomHtml = ''
+    onlineRooms.forEach((item) => {
+      const clients = onlineClients[item.id]
+        ? Object.keys(onlineClients[item.id]).length
+        : 0
+      warRoomHtml += `
     <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
       <div class='war-room shadow-lg'>
         <div>
@@ -36,12 +39,15 @@ async function fetchOnlineRooms(onlineClients) {
       </div>
     </a>
     `
-  })
-  View.warRooms.innerHTML += warRoomHtml
+    })
+    View.warRooms.innerHTML += warRoomHtml
 
-  onlineRooms.forEach((item) => {
-    renderRealPriceChart(item.stock_code, item.id)
-  })
+    onlineRooms.forEach((item) => {
+      renderRealPriceChart(item.stock_code, item.id)
+    })
+  }
+
+  
 }
 
 async function renderRealPriceChart(stockCode, id) {

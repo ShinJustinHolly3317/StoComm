@@ -1,28 +1,39 @@
 const PostView = {
-  toggleBtns: document.querySelector('.toggle-btns-area'),
+  toggleBtns: document.querySelector('.analysis-tab'),
   closeBtn: document.querySelector('#close-icon'),
   closeModal: new bootstrap.Modal(document.querySelector('#leaving-modal'), {
     keyboard: false
   }),
   publishBtn: document.querySelector('#js-publish-btn'),
   analysisImg: document.querySelector('#analysis-img'),
-  init: function() {
+  init: function () {
     canvas = localStorage.getItem('canvas')
     this.analysisImg.src = canvas
   }
 }
 
 PostView.toggleBtns.addEventListener('click', (e) => {
-  if(!e.target.tagName === 'BUTTON') return
+  if(e.target.tagName !== 'A') return
+  
+  // Handle textarea
   let toggleTyps = e.target.attributes['toggle-type'].value
-  document.querySelector(`#${toggleTyps}`).classList.toggle('hidden')
-
-  if(document.querySelectorAll('.hidden.analysis').length < 5) {
-    // if any textarea displayed
-    PostView.publishBtn.classList.remove('hidden')
-  } else {
-    PostView.publishBtn.classList.add('hidden')
+  document.querySelector(`#${toggleTyps}`).classList.remove('hidden')
+  if (document.querySelector(`.cur-show`)) {
+    document.querySelector(`.cur-show`).classList.add('hidden')
+    document.querySelector(`.cur-show`).classList.remove('cur-show')
   }
+  document.querySelector(`#${toggleTyps}`).classList.add('cur-show')
+
+  // Handle tab
+  document.querySelector('.nav-link.active').classList.toggle('active')
+  e.target.classList.toggle('active')
+
+  // if(document.querySelectorAll('.hidden.analysis').length < 5) {
+  //   // if any textarea displayed
+  //   PostView.publishBtn.classList.remove('hidden')
+  // } else {
+  //   PostView.publishBtn.classList.add('hidden')
+  // }
 })
 
 PostView.closeBtn.addEventListener('click', (e) => {
@@ -37,15 +48,24 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   // manage data into json
   textData.title = document.querySelector('#idea-title-input').value
   textData.image = document.querySelector('#analysis-img').src
+
+  if (!textData.title) {
+    await Swal.fire({
+      icon: 'error',
+      title: '請至少輸入標題!',
+      confirmButtonColor: '#315375'
+    })
+    return
+  }
+
   for (let item of textDataEle) {
     let analysisType = item.id
     console.log(analysisType)
     textData.content[analysisType] = item.value
   }
   textData.content = JSON.stringify(textData.content)
-  console.log();
   textData.stock_code = getQueryObject().stockCode
-  textData.user_id = JSON.parse(localStorage.getItem('userRole')).id
+  textData.user_id = JSON.parse(localStorage.getItem('user')).id
 
   const response = await fetch('/api/1.0/ideas', {
     method: 'POST',
@@ -56,14 +76,18 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   })
   
   if (response.status === 200) {
-    alert('發表成功!')
-    const userRole = JSON.parse(localStorage.getItem('userRole'))
-    userRole.role = 'visitor'
-    localStorage.setItem('userRole', JSON.stringify(userRole))
+    await Swal.fire({
+      title: '發表成功!',
+      confirmButtonColor: '#315375'
+    })
     
     window.location.href = '/member'
   } else {
-    alert('伺服器出錯了，請重新發送')
+    await Swal.fire({
+      icon: 'error',
+      title: '伺服器出錯了，請重新發送',
+      confirmButtonColor: '#315375'
+    })
   }
 })
 

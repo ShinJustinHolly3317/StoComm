@@ -8,19 +8,24 @@
 
   <hr />
 
-  <div class='mb-3 mx-3'>
-    <label for='idea-title-input' class='idea-title'>
-      <h5>標題</h5>
-    </label>
-    <input
-      type='text'
-      class='form-control'
-      id='idea-title-input'
-      placeholder='簡短敘述你的想法或概念'
-    />
+  <div class='mb-5 mx-3 d-flex'>
+    <div class="w-50">
+      <label for='idea-title-input' class='idea-title'>
+        <h5>標題</h5>
+      </label>
+      <input
+        type='text'
+        class='form-control'
+        id='idea-title-input'
+        placeholder='簡短敘述你的想法或概念'
+      />
+    </div>
+    
+
+    <button type="button" class="btn btn-outline-primary mt-auto ms-auto me-3 h-25" id="js-publish-btn">發表我的觀點</button>
   </div>
 
-  <div class='toggle-btns-area d-flex justify-content-center my-5'>
+  {{!-- <div class='toggle-btns-area d-flex justify-content-center my-5'>
     <button
       type='button'
       class='btn btn-outline-secondary mx-3'
@@ -46,38 +51,61 @@
       class='btn btn-outline-secondary mx-3'
       toggle-type='your-idea'
     >添加你的獨特觀點</button>
-  </div>
+  </div> --}}
 
   <hr />
 
-  <img src="/img/revsample.png" class="rounded mx-auto d-block" id="analysis-img" alt="analysis-img">
+  <div class="d-flex mt-5">
+    <div class="analysis-tab">
+      <ul class="nav nav-tabs">
+        <li class="nav-item">
+          <a class="nav-link active" toggle-type='fundamental-analysis'>基本分析</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " toggle-type='financial-analysis'>財務分析</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " toggle-type='chips-analysis'>籌碼分析</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " toggle-type='technical-analysis'>技術分析</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link " toggle-type='your-idea'>獨特觀點</a>
+        </li>
+      </ul>
+      
+      <div class='my-5 mx-3 analysis cur-show' id='fundamental-analysis'>
+        {{!-- <label for='fundamental-analysis' class='form-label'>基本分析</label> --}}
+        <textarea class='form-control analysis-text' id='fundamental-analysis-input'></textarea>
+      </div>
 
-  <div class='my-5 mx-3 hidden analysis' id='fundamental-analysis'>
-    <label for='fundamental-analysis' class='form-label'>基本分析</label>
-    <textarea class='form-control analysis-text' id='fundamental-analysis-input'></textarea>
+      <div class='my-5 mx-3 hidden analysis' id='financial-analysis'>
+        {{!-- <label for='financial-analysis' class='form-label'>財務分析</label> --}}
+        <textarea class='form-control analysis-text' id='financial-analysis-input'></textarea>
+      </div>
+
+      <div class='my-5 mx-3 hidden analysis' id='chips-analysis'>
+        {{!-- <label for='chips-analysis' class='form-label'>籌碼分析</label> --}}
+        <textarea class='form-control analysis-text' id='chips-analysis-input'></textarea>
+      </div>
+
+      <div class='my-5 mx-3 hidden analysis' id='technical-analysis'>
+        {{!-- <label for='technical-analysis' class='form-label'>技術分析</label> --}}
+        <textarea class='form-control analysis-text' id='technical-analysis-input'></textarea>
+      </div>
+
+      <div class='my-5 mx-3 hidden analysis' id='your-idea'>
+        {{!-- <label for='your-idea' class='form-label'>你的獨特觀點</label> --}}
+        <textarea class='form-control analysis-text' id='your-idea-input'></textarea>
+      </div>
+    </div>
+
+    <div class="img-area">
+      <img src="/img/revsample.png" class="rounded d-block" id="analysis-img" alt="analysis-img">
+    </div>
+    
   </div>
-
-  <div class='my-5 mx-3 hidden analysis' id='financial-analysis'>
-    <label for='financial-analysis' class='form-label'>財務分析</label>
-    <textarea class='form-control analysis-text' id='financial-analysis-input'></textarea>
-  </div>
-
-  <div class='my-5 mx-3 hidden analysis' id='chips-analysis'>
-    <label for='chips-analysis' class='form-label'>籌碼分析</label>
-    <textarea class='form-control analysis-text' id='chips-analysis-input'></textarea>
-  </div>
-
-  <div class='my-5 mx-3 hidden analysis' id='technical-analysis'>
-    <label for='technical-analysis' class='form-label'>技術分析</label>
-    <textarea class='form-control analysis-text' id='technical-analysis-input'></textarea>
-  </div>
-
-  <div class='my-5 mx-3 hidden analysis' id='your-idea'>
-    <label for='your-idea' class='form-label'>你的獨特觀點</label>
-    <textarea class='form-control analysis-text' id='your-idea-input'></textarea>
-  </div>
-
-  <button type="button" class="btn btn-outline-primary hidden mx-3" id="js-publish-btn">發表我的觀點</button>
 
   {{! leaving notification }}
   <div class="modal fade" id="leaving-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
