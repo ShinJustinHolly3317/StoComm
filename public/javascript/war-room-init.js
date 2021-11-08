@@ -11,16 +11,19 @@ const WarRoomView = {
   visitorLeaveBtn: document.querySelector('#leave-icon'),
   canvasEle: document.querySelector('#canvas'),
   confirmLeaveBtn: document.querySelector('#confirm-leave-btn'),
-  modalBody: document.querySelector('.modal-body')
+  modalBody: document.querySelector('.modal-body'),
+  drawTool: document.querySelector('.draw-tool-area')
 }
 
 if (!ROOM_ID) {
-  await Swal.fire({
+  Swal.fire({
     icon: 'error',
     title: '無效的房間!',
     confirmButtonColor: '#315375'
+  }).then(() => {
+    window.location.href = '/'
   })
-  window.location.href = '/'
+  
 }
 const socket = io()
 let socketId
@@ -29,6 +32,13 @@ socket.on('connect', async () => {
   await roleAuth()
   socket.emit('join room', ROOM_ID, USER.id)
   initPeer()
+})
+
+socket.on('update turn on draw', () => {
+  WarRoomView.drawTool.classList.remove('hidden')
+})
+socket.on('update turn off draw', () => {
+  WarRoomView.drawTool.classList.add('hidden')
 })
 
 // listener
@@ -54,16 +64,16 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
   if (response.status === 200) {
     window.location.href = `/post?stockCode=${STOCK_CODE}`
   } else {
-    await Swal.fire({
+    Swal.fire({
       icon: 'error',
       title: '錯誤的操作',
       confirmButtonColor: '#315375'
     })
-    return
   }
 })
 
 WarRoomView.allowBtn.addEventListener('click', async (e) => {
+  socket.emit('turn on draw')
   const clientsId = []
   const userResult = await userAuth()
 
@@ -92,18 +102,18 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
       WarRoomView.denyBtn.style.display = 'block'
       WarRoomView.allowBtn.style.display = 'none'
     } else {
-      await Swal.fire({
+      Swal.fire({
         icon: 'error',
         title: '錯誤的操作',
         confirmButtonColor: '#315375'
       })
-      return
     }
   })
   socket.emit('get all room clients')
 })
 
 WarRoomView.denyBtn.addEventListener('click', async (e) => {
+  socket.emit('turn off draw')
   const clientsId = []
   const userResult = await userAuth()
 
@@ -132,12 +142,11 @@ WarRoomView.denyBtn.addEventListener('click', async (e) => {
       WarRoomView.denyBtn.style.display = 'none'
       WarRoomView.allowBtn.style.display = 'block'
     } else {
-      await Swal.fire({
+      Swal.fire({
         icon: 'error',
         title: '錯誤的操作',
         confirmButtonColor: '#315375'
       })
-      return
     }
   })
   socket.emit('get all room clients')
@@ -158,12 +167,13 @@ document.querySelector('.navbar').addEventListener('click', (e) => {
 // Functions
 async function roleAuth() {
   if (!accessToken) {
-    await Swal.fire({
+    Swal.fire({
       icon: 'error',
       title: '你沒有權限進來!!',
       confirmButtonColor: '#315375'
+    }).then(() => {
+      window.location.href = '/hot-rooms'
     })
-    window.location.href = '/hot-rooms'
   }
 
   // const response = await fetch('/api/1.0/user/user_auth', {
@@ -176,12 +186,14 @@ async function roleAuth() {
   // const result = await response.json()
   const result = await userAuth()
   if (result.error) {
-    await Swal.fire({
+    Swal.fire({
       icon: 'error',
       title: '你沒有權限進來!!',
       confirmButtonColor: '#315375'
+    }).then(() => {
+      window.location.href = '/hot-rooms'
     })
-    window.location.href = '/hot-rooms'
+    
   } else {
     if (result.data.role === 'streamer') {
       WarRoomView.postBtn.style.display = 'block'
@@ -189,6 +201,7 @@ async function roleAuth() {
       WarRoomView.confirmLeaveBtn.innerHTML = '確定'
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)
+      WarRoomView.drawTool.classList.remove('hidden')
 
       // closing room btn
       document

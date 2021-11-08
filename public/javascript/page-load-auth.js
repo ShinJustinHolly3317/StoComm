@@ -11,6 +11,16 @@ async function userAuth() {
     }
   })
 
+  if (response.status !== 200){
+    await Swal.fire({
+      icon: 'error',
+      title: '你沒有權限進來!!',
+      confirmButtonColor: '#315375'
+    })
+
+    window.location.href = '/'
+  }
+
   const result = await response.json()
   if(result.error){
     await Swal.fire({

@@ -20,7 +20,7 @@ socket.on('user-disconnected', (userId) => {
 // function
 async function initPeer() {
   const peerId = (await userAuth()).data.id
-  const myPeer = new Peer({
+  const myPeer = new Peer(peerId, {
     host: '/' + window.location.hostname,
     port: window.location.hostname === 'localhost' ? '3000' : '443',
     path: '/peerjs',
@@ -94,7 +94,6 @@ async function initPeer() {
             addVideoStream(video, userVideoStream)
           })
         })
-
         socket.emit('ready', isMicOnInit ? peerId : null)
         socket.on('myself-connected', (hostId) => {
           // define hostId

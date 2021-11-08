@@ -131,7 +131,7 @@ stage.on('mousemove touchmove', function (e) {
 // clicks should select/deselect shapes
 stage.on('click tap', function (e) {
   // if user us drawing 
-  if(isPaint){
+  if (localToolType !== 'select') {
     return
   }
 
@@ -246,6 +246,7 @@ toolArea.addEventListener('click', (e) => {
 
 // socket listener
 socket.on('update my draw', (id, remoteDrawHistory) => {
+  console.log(remoteDrawHistory)
   latestLayerId = id
   localLayerCounter = id
 
@@ -271,7 +272,7 @@ socket.on('update my draw', (id, remoteDrawHistory) => {
 
   // push into conmmand history
   commandHistory.push({ command: 'create', drawObj: drawHistory[id] })
-  console.log(drawHistory)
+  // console.log(drawHistory)
 
   // clear undo history
   undoHistory.length = 0

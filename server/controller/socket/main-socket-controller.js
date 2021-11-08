@@ -57,10 +57,12 @@ async function socketController(io) {
 
       // recieve real time draw history
       socket.on('start draw', (initDrawInfo) => {
+        let start = new Date()
         // defining last incoming id
         let topLayerId = Object.keys(drawHistory[roomId]).length - 1
         initDrawInfo.drawLayerCounter = topLayerId + 1
         drawHistory[roomId][initDrawInfo.drawLayerCounter] = initDrawInfo
+        console.log('time lapse',(new Date() - start) / 1000);
         socket.emit(
           'update my draw',
           initDrawInfo.drawLayerCounter,
@@ -76,6 +78,14 @@ async function socketController(io) {
             initDrawInfo.drawLayerCounter,
             drawHistory[roomId]
           )
+      })
+
+      socket.on('turn on draw', () => {
+        socket.to(roomId).emit('update turn on draw')
+      })
+
+      socket.on('turn off draw', () => {
+        socket.to(roomId).emit('update turn off draw')
       })
 
       socket.on('add image', (canvasInfo) => {
