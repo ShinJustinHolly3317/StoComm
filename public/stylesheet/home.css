@@ -67,6 +67,11 @@ h3 {
   letter-spacing: 10px;
 } */
 
+.login-form:focus {
+  background-color: white;
+  outline: none;
+}
+
 .hint-login{
   font-size: 8px;
 }

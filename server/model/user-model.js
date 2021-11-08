@@ -34,11 +34,18 @@ async function nativeSignIn(email, password) {
     const [result] = await conn.query('SELECT * FROM user WHERE email = ?', [
       email
     ])
+
+    if(!result.length){
+      await conn.query('COMMIT')
+      return { error: '你還沒有註冊過喔!' }
+    }
+
     const user = result[0]
+
 
     if (!bcrypt.compareSync(password, user.password)) {
       await conn.query('COMMIT')
-      return { error: 'Wrong password' }
+      return { error: '密碼錯誤喔!' }
     }
 
     const loginAt = new Date()

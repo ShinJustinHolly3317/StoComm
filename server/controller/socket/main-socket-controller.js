@@ -5,6 +5,7 @@ let clientList
 const Canvas = require('../../model/canvas-model')
 const Chat = require('../../model/chat-model')
 const moment = require('moment')
+let drawToolTurnOn = false
 
 async function socketController(io) {
   io.on('connection', mainSocketController)
@@ -80,11 +81,17 @@ async function socketController(io) {
           )
       })
 
+      socket.on('init draw tool', () => {
+        socket.emit('update init draw tool', drawToolTurnOn)
+      })
+
       socket.on('turn on draw', () => {
+        drawToolTurnOn = true
         socket.to(roomId).emit('update turn on draw')
       })
 
       socket.on('turn off draw', () => {
+        drawToolTurnOn = false
         socket.to(roomId).emit('update turn off draw')
       })
 

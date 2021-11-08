@@ -31,13 +31,30 @@ socket.on('connect', async () => {
   socketId = socket.id
   await roleAuth()
   socket.emit('join room', ROOM_ID, USER.id)
-  initPeer()
+  await initPeer()
+  socket.emit('init draw tool')
+})
+
+socket.on('update init draw tool', (drawToolTurnOn) => {
+  if (drawToolTurnOn) {
+    WarRoomView.drawTool.classList.remove('hidden')
+  }
 })
 
 socket.on('update turn on draw', () => {
+  Swal.fire({
+    title: '繪圖工具打開囉!',
+    showConfirmButton: false,
+    timer: 1500
+  })
   WarRoomView.drawTool.classList.remove('hidden')
 })
 socket.on('update turn off draw', () => {
+  Swal.fire({
+    title: '繪圖工具已關閉!',
+    showConfirmButton: false,
+    timer: 1500
+  })
   WarRoomView.drawTool.classList.add('hidden')
 })
 

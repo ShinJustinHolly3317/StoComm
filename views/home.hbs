@@ -9,17 +9,17 @@
 
     <div class="d-flex flex-column login-area">
       <div class="login-btn-area">
-        <form id="js-login-form">
+        <form id="js-login-form" class="w-100 d-flex justify-content-around">
           <input
             type="text"
             id="enter-email"
             name="email"
             placeholder="請輸入你的email..."
             value=""
+            class="login-form"
           />
           <button type="submit" id="enter-btn" class="fw-bold">進入</button>
         </form>
-        
       </div>
       <p class="mt-2 hint-login">還沒註冊嗎? <a class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#signup-modal">快來吧</a>，或是先來<a class="text-primary fw-bold">參觀</a></p>
     </div>
@@ -49,34 +49,37 @@
             <form>
               <h3 class="welcome-msg js-login-msg">歡迎回來!</h3>
 
-              <div class="form-group row">
+              <div class="form-group mt-3">
                 <label for="staticEmail" class="col-sm-2 col-form-label"
                   >Email</label
                 >
-                <div class="col-sm-10">
+                <div class="col-sm-12">
                   <input
                     type="text"
-                    class="form-control-plaintext"
+                    class="form-control"
+                    name="email"
                     id="user-email"
+                    placeholder="請輸入email..."
                     value=""
                   />
                 </div>
               </div>
               
-              <div class="form-group row">
+              <div class="form-group mt-3">
                 <label for="inputPassword" class="col-sm-2 col-form-label"
-                  >Password</label
+                  >密碼</label
                 >
-                <div class="col-sm-10">
+                <div class="col-sm-12">
                   <input
                     type="password"
                     class="form-control"
+                    name="password"
                     id="user-password"
-                    placeholder="Password"
+                    placeholder="請輸入密碼..."
                   />
                 </div>
               </div>
-              <button type="submit" class="btn btn-primary mb-2" id="js-login-btn">送出</button>
+              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-login-btn">送出</button>
             </form>
           </div>
 
@@ -114,7 +117,7 @@
           <div class="modal-body">
             <h3 class="welcome-msg js-signup-msg">你還沒有加入會員喔，快點加入吧</h3>
             <form class="signup-data">
-              <label for="signup-user-mail" class="col-sm-2 col-form-label"
+              <label for="signup-user-mail" class="col-sm-2 col-form-label mt-3"
                 >Email</label
               >
               <input
@@ -122,29 +125,31 @@
                 class="form-control"
                 id="signup-user-mail"
                 value=""
+                placeholder="請輸入email..."
                 name="email"
               />
 
-              <label for="signup-user-name" class="col-sm-2 col-form-label"
+              <label for="signup-user-name" class="col-sm-2 col-form-label mt-3"
               >綽號</label>
               <input
                 type="text"
                 class="form-control"
                 id="signup-user-name"
                 value=""
+                placeholder="請輸入綽號..."
                 name="name"
               />
 
-              <label for="signup-user-password" class="col-sm-2 col-form-label"
-              >Password</label>
+              <label for="signup-user-password" class="col-sm-2 col-form-label mt-3"
+              >密碼</label>
               <input
                 type="password"
                 class="form-control"
                 id="signup-user-password"
-                placeholder="Password"
+                placeholder="請輸入密碼..."
                 name="password"/>
 
-              <button type="submit" class="btn btn-primary mb-2" id="js-signup-btn">送出</button>
+              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-signup-btn">送出</button>
             </form>
             
           </div>
