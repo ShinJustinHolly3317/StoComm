@@ -106,11 +106,13 @@ async function getHotIdeas(filter, page, condition = {}) {
       }
       case 'byFollowing': {
         qryString = `
-        SELECT ideas.*, user.name as user_name, stock.stock_code as stock_code, stock.company_name as company_name
+        SELECT ideas.*, user.name as user_name, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
         FROM ideas
         INNER JOIN stock ON stock.stock_id = ideas.stock_id
-        inner join (select follow_status.following_id as following_id from follow_status where follow_status.user_id = ?) as follow_status on follow_status.following_id = ideas.user_id
+        INNER JOIN (select follow_status.following_id as following_id from follow_status where follow_status.user_id = ?) as follow_status on follow_status.following_id = ideas.user_id
         INNER JOIN user ON user.id = ideas.user_id
+        LEFT JOIN idea_likes ON idea_likes.idea_id = ideas.id
+        GROUP BY ideas.id
         ORDER BY ideas.date DESC
         `
         break
