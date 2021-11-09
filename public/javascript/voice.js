@@ -1,7 +1,7 @@
 const videoGrid = document.querySelector('#video-grid')
 const myVideo = document.createElement('video')
 const peers = {}
-let roomHostId
+
 // const peerId = USER.id
 myVideo.muted = true
 
@@ -94,14 +94,15 @@ async function initPeer() {
             addVideoStream(video, userVideoStream)
           })
         })
-        socket.emit('ready', isMicOnInit ? peerId : null)
-        socket.on('myself-connected', (hostId) => {
-          // define hostId
-          if (hostId) {
-            roomHostId = hostId
-            console.log('hostId', hostId)
-          }
-        })
+        // socket.emit('ready', isMicOnInit ? peerId : null)
+        socket.emit('ready')
+        // socket.on('myself-connected', (hostId) => {
+        //   // define hostId
+        //   if (hostId) {
+        //     roomHostId = hostId
+        //     console.log('hostId', hostId)
+        //   }
+        // })
 
         socket.on('update ban audio', async (banUserId) => {
           if (banUserId === id) {

@@ -90,7 +90,6 @@ async function getIdeaLikes(req, res) {
   res.status(200).send({ data: result })
 }
  
-
 module.exports = {
   createIdeas,
   getIdeas,

@@ -18,3 +18,8 @@ a {
 .hidden{
   display: none;
 }
+
+.disable-link {
+  pointer-events: none;
+  cursor: default;
+}

@@ -15,29 +15,29 @@ async function fetchOnlineRooms(onlineClients) {
     let warRoomHtml = ''
     onlineRooms.forEach((item) => {
       const clients = onlineClients[item.id]
-        ? Object.keys(onlineClients[item.id]).length
+        ? Object.keys(onlineClients[item.id]).length - 1
         : 0
       warRoomHtml += `
-    <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
-      <div class='war-room shadow-lg'>
-        <div>
-          <div class="d-flex align-items-center">
-            <h3>${item.name} 開台中</h3>
-            <img src="/img/live.png" class="live-icon">
-            <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:<span room="${item.id}">${clients}</span></span>
+      <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
+        <div class='war-room shadow-lg'>
+          <div>
+            <div class="d-flex align-items-center">
+              <h3>${item.name} 開台中</h3>
+              <img src="/img/live.png" class="live-icon">
+              <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:<span room="${item.id}">${clients}</span></span>
+            </div>
+            <h4 id="war_room_title">${item.war_room_title}</h4>
           </div>
-          <h4 id="war_room_title">${item.war_room_title}</h4>
-        </div>
-        
-        <div class="war-room-preview">
-          <div class="d-flex stock-code-title rounded-pill">
-            <p>${item.company_name}</p>
-            <span class="war-room-code">${item.stock_code}</span>
+          
+          <div class="war-room-preview">
+            <div class="d-flex stock-code-title rounded-pill">
+              <p>${item.company_name}</p>
+              <span class="war-room-code">${item.stock_code}</span>
+            </div>
+            <div id="stock-preview-${item.id}" class="stock-preview"></div>
           </div>
-          <div id="stock-preview-${item.id}" class="stock-preview"></div>
         </div>
-      </div>
-    </a>
+      </a>
     `
     })
     View.warRooms.innerHTML += warRoomHtml

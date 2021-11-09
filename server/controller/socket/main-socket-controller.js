@@ -21,10 +21,10 @@ async function socketController(io) {
       if (!onlineClients[roomId]) {
         onlineClients[roomId] = {}
         onlineClients[roomId][socket.id] = {}
-        onlineClients[roomId][socket.id].socketConn = true // add new client id
+        onlineClients[roomId][socket.id].userId = userId // add new client id
       } else {
         onlineClients[roomId][socket.id] = {}
-        onlineClients[roomId][socket.id].socketConn = true // add new client id
+        onlineClients[roomId][socket.id].userId = userId // add new client id
       }
 
       // drawing canvas
@@ -58,27 +58,35 @@ async function socketController(io) {
 
       // recieve real time draw history
       socket.on('start draw', (initDrawInfo) => {
-        let start = new Date()
         // defining last incoming id
-        let topLayerId = Object.keys(drawHistory[roomId]).length - 1
-        initDrawInfo.drawLayerCounter = topLayerId + 1
+        const layerIds = Object.keys(drawHistory[roomId])
+        
+        // define the last id, which is the last element
+        let topLayerId = layerIds.length ? Number(layerIds[layerIds.length - 1]) : 0
+        initDrawInfo.drawLayerCounter = !layerIds.length ? 0 : topLayerId + 1
         drawHistory[roomId][initDrawInfo.drawLayerCounter] = initDrawInfo
-        console.log('time lapse',(new Date() - start) / 1000);
+
         socket.emit(
           'update my draw',
           initDrawInfo.drawLayerCounter,
           drawHistory[roomId]
         )
         // socket.broadcast.emit('get latest id', initDrawInfo.drawLayerCounter)
+        console.log('draw history', layerIds)
         console.log(initDrawInfo.drawLayerCounter)
         // send drawing loction to others
-        socket
-          .to(roomId)
-          .emit(
-            'update start draw',
-            initDrawInfo.drawLayerCounter,
-            drawHistory[roomId]
-          )
+        // socket
+        //   .to(roomId)
+        //   .emit(
+        //     'update start draw',
+        //     initDrawInfo.drawLayerCounter,
+        //     drawHistory[roomId]
+        //   )
+      })
+
+      socket.on('delete all', () => {
+        drawHistory[roomId] = {}
+        io.to(roomId).emit('update delete all')
       })
 
       socket.on('init draw tool', () => {
@@ -96,57 +104,77 @@ async function socketController(io) {
       })
 
       socket.on('add image', (canvasInfo) => {
-        let topLayerId = Object.keys(drawHistory[roomId]).length
+        // defining last incoming id
+        const layerIds = Object.keys(drawHistory[roomId])
         
-        canvasInfo.drawLayerCounter = topLayerId
-        drawHistory[roomId][topLayerId] = canvasInfo
-        console.log('image zindex', topLayerId)
+
+        // define the last id, which is the last element
+        let topLayerId = layerIds.length
+          ? Number(layerIds[layerIds.length - 1])
+          : 0
+        canvasInfo.drawLayerCounter = !layerIds.length ? 0 : topLayerId + 1
+        drawHistory[roomId][canvasInfo.drawLayerCounter] = canvasInfo
+        console.log('image history', layerIds)
+        console.log('image zindex', canvasInfo.drawLayerCounter)
         socket
           .to(roomId)
           .emit(
             'update add image',
-            topLayerId,
+            canvasInfo.drawLayerCounter,
             canvasInfo.canvasImg,
             canvasInfo.location
           )
 
         socket.emit(
           'update my image',
-          topLayerId,
+          canvasInfo.drawLayerCounter,
           canvasInfo.canvasImg,
           canvasInfo.location
         )
       })
 
-      socket.on('drawing', (localLayerId, location) => {
-        drawHistory[roomId][localLayerId].location =
-          drawHistory[roomId][localLayerId].location.concat(location)
-        // console.log(drawHistory)
-        socket.to(roomId).emit('update drawing', localLayerId, location)
+      // socket.on('drawing', (localLayerId, location) => {
+      //   drawHistory[roomId][localLayerId].location =
+      //     drawHistory[roomId][localLayerId].location.concat(location)
+      //   // console.log(drawHistory)
+      //   socket.to(roomId).emit('update drawing', localLayerId, location)
 
-        // clean additional location of line layer
-        const thisLocation = drawHistory[roomId][localLayerId].location
-        if (drawHistory[roomId][localLayerId].toolType === 'line') {
-          drawHistory[roomId][localLayerId].location = [
-            thisLocation[0],
-            thisLocation[1],
-            thisLocation[thisLocation.length - 2],
-            thisLocation[thisLocation.length - 1]
-          ]
-        }
+      //   // clean additional location of line layer
+      //   const thisLocation = drawHistory[roomId][localLayerId].location
+      //   if (drawHistory[roomId][localLayerId].toolType === 'line') {
+      //     drawHistory[roomId][localLayerId].location = [
+      //       thisLocation[0],
+      //       thisLocation[1],
+      //       thisLocation[thisLocation.length - 2],
+      //       thisLocation[thisLocation.length - 1]
+      //     ]
+      //   }
 
-        // console.log(drawHistory[roomId]);
-        // console.log(drawHistory)
-      })
+      //   // console.log(drawHistory[roomId]);
+      //   // console.log(drawHistory)
+      // })
 
       // socket.on('update drawing', (curSelectShape) => {
       //   console.log(JSON.parse(curSelectShape).attrs)
       // })
 
+      socket.on('finish layer', (localLayerObject) => {
+        const curLayerObj = JSON.parse(localLayerObject)
+        drawHistory[roomId][curLayerObj.attrs.id].location =
+          curLayerObj.attrs.points
+        // console.log(drawHistory)
+        socket
+          .to(roomId)
+          .emit(
+            'update finish layer',
+            drawHistory[roomId][curLayerObj.attrs.id]
+          )
+      })
+
       socket.on('delete drawing', (drawingId) => {
         console.log('drawingId', drawingId)
         delete drawHistory[roomId][drawingId]
-        console.log(Object.keys(drawHistory[roomId]))
+        console.log('delete drawing', Object.keys(drawHistory[roomId]))
 
         socket.to(roomId).emit('update delete drawing', drawingId)
       })
@@ -224,11 +252,14 @@ async function socketController(io) {
       socket.on('start calling', (userId) => {
         console.log('Peer user: ', userId)
         // socket.to(roomId).emit('user-connected', userId)
-        socket.on('ready', (hostId) => {
-          if(hostId) {
-            onlineClients[roomId].host = hostId
-          }
-          socket.emit('myself-connected', onlineClients[roomId].host)
+        // socket.on('ready', (hostId) => {
+        //   if(hostId) {
+        //     onlineClients[roomId].host = hostId
+        //   }
+        //   // socket.emit('myself-connected', onlineClients[roomId].host)
+        //   socket.to(roomId).emit('user-connected', userId)
+        // })
+        socket.on('ready', () => {
           socket.to(roomId).emit('user-connected', userId)
         })
 
@@ -236,18 +267,27 @@ async function socketController(io) {
           socket.to(roomId).emit('update ban audio', banUserId)
         })
 
-        onlineClients[roomId][socket.id].peerId = userId
+        // onlineClients[roomId][socket.id].peerId = userId
       })
 
       socket.on('disconnect', async () => {
+        // console.log(
+        //   `${
+        //     onlineClients[roomId][socket.id].peerId
+        //   } left this room(${roomId})!`
+        // )
+
         console.log(
           `${
-            onlineClients[roomId][socket.id].peerId
+            onlineClients[roomId][socket.id].userId
           } left this room(${roomId})!`
         )
+        // socket
+        //   .to(roomId)
+        //   .emit('user-disconnected', onlineClients[roomId][socket.id].peerId)
         socket
           .to(roomId)
-          .emit('user-disconnected', onlineClients[roomId][socket.id].peerId)
+          .emit('user-disconnected', onlineClients[roomId][socket.id].userId)
         console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
 

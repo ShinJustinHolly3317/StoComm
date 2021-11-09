@@ -33,4 +33,30 @@ async function endWarRoom(req, res) {
   }
 }
 
-module.exports = { createWarRoom, showOnlineRooms, endWarRoom }
+async function getRoomInfo(req, res) {
+  const { roomId } = req.query
+  const result = await WarRoom.getRoomInfo(roomId)
+
+  res.status(200).send({ data: result })
+}
+
+async function updateRoomRights(req, res) {
+  const { roomId, draw_on } = req.query
+
+  const result = await WarRoom.updateRoomRights(roomId, draw_on)
+  if (result.error) {
+    res.status(500).send({ error: result })
+  } else if (!result.affectedRows) {
+    res.status(200).send({ message: 'nothing changed' })
+  } else {
+    res.status(200).send({ message: 'update successfully' })
+  }
+}
+
+module.exports = {
+  createWarRoom,
+  showOnlineRooms,
+  endWarRoom,
+  getRoomInfo,
+  updateRoomRights
+}

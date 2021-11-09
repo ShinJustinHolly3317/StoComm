@@ -4,13 +4,15 @@ const commandHistory = []
 const undoHistory = []
 let localLayerCounter = 0
 let width = window.innerWidth
-let height = window.innerHeight - 150
+let height = window.innerHeight - 118
 
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')
 const addCanvasBtn = document.querySelector('.add-canvas')
 const undoBtn = document.querySelector('#undo-btn')
 const redoBtn = document.querySelector('#redo-btn')
+const delBtn = document.querySelector('.draw-tool-icon[value="delete"]')
+const selectBtn = document.querySelector('.draw-tool-icon[value="select"]')
 
 // tool controller
 const toolController = {
@@ -19,7 +21,9 @@ const toolController = {
     layerObject.points(newPoints)
   },
   straightLine: function (layerCounter, location, layerObject) {
-    let newPoints = drawHistory[layerCounter].location.concat(location)
+    let newPoints = drawHistory[layerCounter].location
+      .slice(0, 2)
+      .concat(location)
     layerObject.points(newPoints)
   }
 }
@@ -35,7 +39,7 @@ const layer = new Konva.Layer()
 stage.add(layer)
 
 // transformer
-const tr = new Konva.Transformer()
+let tr = new Konva.Transformer()
 tr.rotateEnabled(false)
 tr.resizeEnabled(false)
 tr.padding(10)
@@ -54,18 +58,22 @@ let localLayerObject
 let curSelectShape
 
 stage.on('mousedown touchstart', async (e) => {
+  localLayerObject = null // clear local drawing layer
+
   // prevent drawing
-  // const isDrawAble = (await userAuth()).data.is_drawable
+  const role = (await userAuth()).data.role
+  if (role !== 'streamer') {
+    const drawOpen = await roomAuth()
+    if (!drawOpen) {
+      return
+    }
+  }
 
-  // if (!isDrawAble) {
-  //   return
-  // }
-
-  if (localToolType === 'select') {
+  if (localToolType !== 'brush' && localToolType !== 'line') {
     isPaint = false
     return
   }
-  isPaint = true
+  // isPaint = true
 
   let latestLayerId
   const pos = stage.getPointerPosition()
@@ -83,8 +91,14 @@ stage.on('mousedown touchstart', async (e) => {
 
 stage.on('mouseup touchend', function () {
   isPaint = false
-  localLayerObject = null // clear local drawing layer
-  console.log(drawHistory);
+
+  if (!localLayerObject) {
+    return
+  }
+  console.log(localLayerObject)
+  socket.emit('finish layer', localLayerObject)
+  
+  // console.log(drawHistory);
 })
 
 // and core function - drawing
@@ -124,13 +138,35 @@ stage.on('mousemove touchmove', function (e) {
     drawHistory[localLayerCounter].location[2] = pos.x
     drawHistory[localLayerCounter].location[3] = pos.y
   }
+  // socket.emit('drawing', localLayerCounter, [pos.x, pos.y])
+})
 
-  socket.emit('drawing', localLayerCounter, [pos.x, pos.y])
+socket.on('update finish layer', (curLayerObj) => {
+  console.log('update finish layer', drawHistory)
+  let newLine = new Konva.Line({
+    stroke: '#df4b26',
+    strokeWidth: 5,
+    globalCompositeOperation:
+      curLayerObj.toolType === 'eraser' ? 'destination-out' : 'source-over',
+    // round cap for smoother lines
+    lineCap: 'round',
+    // add point twice, so we have some drawings even on a simple click
+    points: curLayerObj.location,
+    name: 'select',
+    id: curLayerObj.drawLayerCounter.toString() // use string for consistancy
+  })
+  drawHistory[curLayerObj.drawLayerCounter] = curLayerObj
+  // drawHistory[curLayerObj.drawLayerCounter].layerObject = newLine
+
+  layer.add(newLine)
+
+  // reset z index
+  newLine.zIndex(curLayerObj.drawLayerCounter)
 })
 
 // clicks should select/deselect shapes
 stage.on('click tap', function (e) {
-  // if user us drawing 
+  // if user us drawing
   if (localToolType !== 'select') {
     return
   }
@@ -167,7 +203,7 @@ stage.on('click tap', function (e) {
     // select just one
     tr.nodes([e.target])
     curSelectShape = e.target
-
+    tr.moveToTop()
     // e.target.draggable(true)
   } else if (metaPressed && isSelected) {
     // if we pressed keys and node was selected
@@ -187,6 +223,21 @@ stage.on('click tap', function (e) {
 const toolArea = document.querySelector('.draw-tool-area')
 toolArea.addEventListener('click', (e) => {
   if (e.target.tagName === 'IMG') {
+    if (
+      e.target.getAttribute('value') === 'undo' ||
+      e.target.getAttribute('value') === 'redo'
+    ) {
+      setTimeout(()=>{
+        undoBtn.classList.remove('tool-active')
+        redoBtn.classList.remove('tool-active')
+        if (document.querySelector('.tool-active')) {
+          document.querySelector('.tool-active').classList.remove('tool-active')
+          selectBtn.classList.add('tool-active')
+        }
+      }, 100)
+      localToolType = 'select'
+      return
+    }
     if (document.querySelector('.tool-active')) {
       document.querySelector('.tool-active').classList.toggle('tool-active')
     }
@@ -246,9 +297,13 @@ toolArea.addEventListener('click', (e) => {
 
 // socket listener
 socket.on('update my draw', (id, remoteDrawHistory) => {
+  console.log(id)
   console.log(remoteDrawHistory)
   latestLayerId = id
   localLayerCounter = id
+
+  // to prevent network latency
+  isPaint = true
 
   // create new kayer
   localLayerObject = new Konva.Line({
@@ -276,11 +331,12 @@ socket.on('update my draw', (id, remoteDrawHistory) => {
 
   // clear undo history
   undoHistory.length = 0
-
+  console.log('localLayerObject', localLayerObject)
   // attach to layer
   layer.add(localLayerObject)
 
   // setting correct z index
+  console.log('zindex', id)
   localLayerObject.zIndex(id)
 })
 
@@ -308,9 +364,9 @@ socket.on('update start draw', (remoteLatestLayerId, remoteDrawHistory) => {
   newLine.zIndex(remoteLatestLayerId)
 })
 
-socket.on('update drawing', (id, location) => {
-  tracking(id, drawHistory[id].layerObject, location)
-})
+// socket.on('update drawing', (id, location) => {
+//   tracking(id, drawHistory[id].layerObject, location)
+// })
 
 socket.on('init load data', (drawHistory) => {
   if (!Object.keys(drawHistory).length) {
@@ -416,11 +472,26 @@ socket.on('update my image', (topLayerId, canvasImg, location) => {
 })
 
 socket.on('update undo', (commandLayer) => {
+  console.log('this is update', commandLayer)
   undoLayer(commandLayer)
 })
 
 socket.on('update redo', (commandLayer) => {
   redoLayer(commandLayer)
+})
+
+socket.on('update delete all', () => {
+  layer.destroyChildren()
+
+  // transformer
+  tr = new Konva.Transformer()
+  tr.rotateEnabled(false)
+  tr.resizeEnabled(false)
+  tr.padding(10)
+  layer.add(tr)
+  for (let key in drawHistory) {
+    delete drawHistory[key]
+  }
 })
 
 /* window listener */
@@ -431,13 +502,15 @@ cavasWrapper.addEventListener('mouseout', (e) => {
 
 addCanvasBtn.addEventListener('click', async (e) => {
   // add image to canvas
-
   // prevent drawing
-  // const isDrawAble = (await userAuth()).data.is_drawable
+  const role = (await userAuth()).data.role
 
-  // if (!isDrawAble) {
-  //   return
-  // }
+  if (role !== 'streamer') {
+    const drawOpen = await roomAuth()
+    if (!drawOpen) {
+      return
+    }
+  }
 
   const curStockInfo = document.querySelector('.carousel-item.active')
   const canvas = await html2canvas(curStockInfo)
@@ -462,11 +535,14 @@ window.addEventListener('keydown', async (e) => {
   // delete selected object
   if (e.code === 'Delete') {
     // prevent drawing
-    // const isDrawAble = (await userAuth()).data.is_drawable
+    const role = (await userAuth()).data.role
 
-    // if (!isDrawAble) {
-    //   return
-    // }
+    if (role !== 'streamer') {
+      const drawOpen = await roomAuth()
+      if (!drawOpen) {
+        return
+      }
+    }
 
     if (curSelectShape) {
       curSelectShape.destroy()
@@ -477,6 +553,9 @@ window.addEventListener('keydown', async (e) => {
       })
       delete drawHistory[curSelectShape.attrs.id]
 
+      // clear undo history
+      undoHistory.length = 0
+
       curSelectShape = null // reset curSelectShape
       tr.nodes([])
     }
@@ -484,8 +563,9 @@ window.addEventListener('keydown', async (e) => {
 })
 
 undoBtn.addEventListener('click', (e) => {
-  console.log(commandHistory)
-  console.log(drawHistory)
+  console.log('commandHistory', commandHistory)
+  console.log('drawHistory', drawHistory)
+  undoBtn.classList.add('tool-active')
   if (!commandHistory.length) {
     return
   }
@@ -499,6 +579,7 @@ undoBtn.addEventListener('click', (e) => {
 redoBtn.addEventListener('click', (e) => {
   console.log(undoHistory)
   console.log(drawHistory)
+  redoBtn.classList.add('tool-active')
   if (!undoHistory.length) {
     return
   }
@@ -507,6 +588,16 @@ redoBtn.addEventListener('click', (e) => {
   socket.emit('redo', undoHistory[undoHistory.length - 1])
   const redoCommandObj = undoHistory.pop()
   commandHistory.push(redoCommandObj)
+})
+
+delBtn.addEventListener('click', async (e) => {
+  const result = await Swal.fire({
+    title: '確定要刪除所有圖層嗎?',
+    confirmButtonColor: '#315375'
+  })
+  if (result.isConfirmed) {
+    socket.emit('delete all')
+  }
 })
 
 /* function */
@@ -628,8 +719,12 @@ function undoLayer(commandLayer) {
   // check delete or create
   if (commandLayer.command === 'create') {
     // undo create
+    if (!stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0]) {
+      return
+    }
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
+    console.log(`${commandLayer.drawObj.drawLayerCounter} is deleted`)
   } else {
     // undo delete
     if (commandLayer.drawObj.toolType === 'image') {
@@ -666,6 +761,9 @@ function redoLayer(commandLayer) {
   // check delete or create
   if (commandLayer.command === 'delete') {
     // undo create
+    if (!stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0]) {
+      return
+    }
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
   } else {

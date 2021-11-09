@@ -109,11 +109,11 @@ video {
   display: none;
 }
 
-div[peer_user_id]{
+div[peer_user_id] {
   position: relative;
 }
 
-.audio-icon{
+.audio-icon {
   width: 60px;
   height: 60px;
   border-radius: 50%;
@@ -123,7 +123,8 @@ div[peer_user_id]{
   /* background-color: violet; */
 }
 
-.mute-icon, .mic-icon {
+.mute-icon,
+.mic-icon {
   position: absolute;
   bottom: 0;
   right: 16px;
@@ -184,11 +185,11 @@ div[peer_user_id]{
   padding: 10px 0;
 }
 
-.add-canvas{
+.add-canvas {
   margin-top: 40px;
 }
 
-.analysis-card{
+.analysis-card {
   width: 400px;
   height: 400px;
 }
@@ -200,7 +201,7 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
 
 /* canvas */
 #canvas {
-  height: calc(100vh - 150px);
+  height: calc(100vh - 118px);
   z-index: 1;
 }
 
@@ -225,29 +226,35 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   border-radius: 3px;
 }
 
-#leave-icon{
-  margin-left: 40px
+.allow-draw {
+  height: 50px;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.allow-draw:hover {
+  background-color: rgb(0, 0, 0);
+  cursor: pointer;
+}
+
+#leave-icon {
+  margin-left: 40px;
 }
 
 .draw-tool-icon:hover {
-  background-color:rgb(0, 0, 0);
-  cursor: pointer
+  background-color: rgb(0, 0, 0);
+  cursor: pointer;
 }
 
 .tool-active {
-  background-color:#14c9ba;
+  background-color: #14c9ba;
 }
 
 .tool-active:hover {
-  background-color:#0e726a;
+  background-color: #0e726a;
 }
 
 #tool {
   font-size: 30px;
   width: 200px;
 }
-
-button.streamer {
-  display: none;
-}
-

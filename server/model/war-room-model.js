@@ -105,4 +105,35 @@ async function endWarRoom(roomId, userId) {
   }
 }
 
-module.exports = { createWarRoom, showOnlineRooms, endWarRoom }
+async function getRoomInfo(roomId) {
+  const qryString = `
+  SELECT * FROM war_room WHERE id = ?
+  `
+
+  const [result] = await db.query(qryString, [roomId])
+  return result
+}
+
+async function updateRoomRights(roomId, draw_on) {
+  const qryString = `
+  UPDATE war_room SET open_draw = ?
+  WHERE id = ?
+  `
+
+  try {
+    const [result] = await db.query(qryString, [Number(draw_on), roomId])
+    return result.insertId
+  } catch (error) {
+    console.error(error)
+    return {error}
+  }
+}
+
+
+module.exports = {
+  createWarRoom,
+  showOnlineRooms,
+  endWarRoom,
+  getRoomInfo,
+  updateRoomRights
+}

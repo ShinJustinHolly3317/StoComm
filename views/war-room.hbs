@@ -132,17 +132,17 @@
 
       <div class="tool-area d-flex">
         <div class="functional-area">
-          <img src="/img/draw-tool/chat.png" alt="" class="draw-tool-icon" id="js-chat-enlarge-btn">
-          <img src="/img/draw-tool/stock.png" alt="" class="draw-tool-icon" id="js-stock-enlarge-btn">
+          <img src="/img/draw-tool/chat.png" alt="" class="draw-tool-icon" data-bs-toggle="tooltip" data-bs-placement="top" title="開啟聊天室" id="js-chat-enlarge-btn">
+          <img src="/img/draw-tool/stock.png" alt="" class="draw-tool-icon" id="js-stock-enlarge-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="開啟個股資訊">
         </div>
         <div class="draw-tool-area hidden">
-          <img src="/img/draw-tool/select.png" alt="" class="draw-tool-icon tool-active" value="select">
-          <img src="/img/draw-tool/line.png" alt="" class="draw-tool-icon" value="line">
-          <img src="/img/draw-tool/brush.png" alt="" class="draw-tool-icon" value="brush">
-          <img src="/img/draw-tool/eraser.png" alt="" class="draw-tool-icon" value="eraser">
-          <img src="/img/draw-tool/delete.png" alt="" class="draw-tool-icon" value="delete">
-          <img src="/img/draw-tool/undo.png" alt="" class="draw-tool-icon" value="undo" id="undo-btn">
-          <img src="/img/draw-tool/redo.png" alt="" class="draw-tool-icon" value="redo" id="redo-btn">
+          <img src="/img/draw-tool/select.png" alt="" class="draw-tool-icon tool-active" value="select" data-bs-toggle="tooltip" data-bs-placement="top" title="選取">
+          <img src="/img/draw-tool/line.png" alt="" class="draw-tool-icon" value="line" data-bs-toggle="tooltip" data-bs-placement="top" title="直線工具">
+          <img src="/img/draw-tool/brush.png" alt="" class="draw-tool-icon" value="brush" data-bs-toggle="tooltip" data-bs-placement="top" title="筆刷工具">
+          {{!-- <img src="/img/draw-tool/eraser.png" alt="" class="draw-tool-icon" value="eraser"> --}}
+          <img src="/img/draw-tool/delete.png" alt="" class="draw-tool-icon" value="delete" data-bs-toggle="tooltip" data-bs-placement="top" title="刪除全部">
+          <img src="/img/draw-tool/undo.png" alt="" class="draw-tool-icon" value="undo" id="undo-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="上一步">
+          <img src="/img/draw-tool/redo.png" alt="" class="draw-tool-icon" value="redo" id="redo-btn" data-bs-toggle="tooltip" data-bs-placement="top" title="取消上一步">
         </div>
         <img src="/img/draw-tool/leave.png" alt="" class="draw-tool-icon" value="leave" id="leave-icon" data-bs-toggle='modal'
         data-bs-target='#visitor-leaving-modal'>
@@ -154,21 +154,25 @@
         data-bs-toggle='modal'
         data-bs-target='#visitor-leaving-modal'
       >離開研究室</button> --}}
+      
+      {{!-- <button
+        type='button'
+        class='btn btn-light ms-3 streamer hidden'
+        id='js-allow-draw'
+      >開放訪客畫圖</button> --}}
+      <img src="/img/draw-tool/allow-draw.png" alt="" class='ms-3 streamer hidden allow-draw' id='js-allow-draw' data-bs-toggle="tooltip" data-bs-placement="top" title="打開所有人畫圖權限">
+      <img src="/img/draw-tool/deny-draw.png" alt="" class='ms-3 streamer hidden allow-draw'
+        id='js-deny-draw' data-bs-toggle="tooltip" data-bs-placement="top" title="關閉所有人畫圖權限">
+      {{!-- <button
+        type='button'
+        class='btn btn-light ms-3 streamer hidden'
+        id='js-deny-draw'
+      >禁止訪客畫圖</button> --}}
       <button
         type='button'
-        class='btn btn-light ms-3 streamer'
+        class='btn btn-light ms-3 streamer hidden'
         id='js-post-war-room'
       >發文</button>
-      <button
-        type='button'
-        class='btn btn-light ms-3 streamer'
-        id='js-allow-draw'
-      >開放訪客畫圖</button>
-      <button
-        type='button'
-        class='btn btn-light ms-3 streamer'
-        id='js-deny-draw'
-      >禁止訪客畫圖</button>
     </div>
   </div>
 

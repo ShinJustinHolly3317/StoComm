@@ -2,6 +2,7 @@ const ROOM_ID = getQueryObject().roomId
 const STOCK_CODE = getQueryObject().stockCode
 let USER = JSON.parse(localStorage.getItem('user'))
 let company_name
+let roomHostId
 const accessToken = localStorage.getItem('access_token')
 
 const WarRoomView = {
@@ -23,35 +24,38 @@ if (!ROOM_ID) {
   }).then(() => {
     window.location.href = '/'
   })
-  
 }
 const socket = io()
 let socketId
 socket.on('connect', async () => {
   socketId = socket.id
+  await roomAuth()
   await roleAuth()
   socket.emit('join room', ROOM_ID, USER.id)
   await initPeer()
-  socket.emit('init draw tool')
+  // preventNavbar()
+  // socket.emit('init draw tool')
 })
 
-socket.on('update init draw tool', (drawToolTurnOn) => {
-  if (drawToolTurnOn) {
-    WarRoomView.drawTool.classList.remove('hidden')
-  }
-})
+// socket.on('update init draw tool', (drawToolTurnOn) => {
+//   console.log('drawToolTurnOn', drawToolTurnOn)
+//   if (drawToolTurnOn) {
+//     WarRoomView.drawTool.classList.remove('hidden')
+//   }
+// })
 
 socket.on('update turn on draw', () => {
   Swal.fire({
-    title: '繪圖工具打開囉!',
+    title: '繪圖工具權限打開囉!',
     showConfirmButton: false,
     timer: 1500
   })
   WarRoomView.drawTool.classList.remove('hidden')
 })
+
 socket.on('update turn off draw', () => {
   Swal.fire({
-    title: '繪圖工具已關閉!',
+    title: '繪圖工具權限已關閉!',
     showConfirmButton: false,
     timer: 1500
   })
@@ -60,126 +64,213 @@ socket.on('update turn off draw', () => {
 
 // listener
 WarRoomView.postBtn.addEventListener('click', async (e) => {
-  // if (USER.role !== 'streamer') {
-  //   return
-  // } else {
-  //   USER.roomId = ROOM_ID
-  // }
-
-  const response = await fetch(`/api/1.0/war_room/end_war_room/${ROOM_ID}`, {
-    method: 'PATCH',
-    headers: {
-      Authorization: 'Bearer ' + accessToken
-    }
+  const swalResult = await Swal.fire({
+    title: '即將關閉房間',
+    text: '發文後即將關閉研究室，確定離開嗎?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    confirmButtonText: '沒錯，我要發文了',
+    cancelButtonText: '沒事，我按錯了'
   })
-  const result = await response.json()
 
-  const canvas = await html2canvas(WarRoomView.canvasEle)
-  let canvasImg = canvas.toDataURL('image/jpeg')
-  localStorage.setItem('canvas', canvasImg)
+  if (swalResult.isConfirmed) {
+    const response = await fetch(`/api/1.0/war_room/end_war_room/${ROOM_ID}`, {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      }
+    })
+    const result = await response.json()
 
-  if (response.status === 200) {
-    window.location.href = `/post?stockCode=${STOCK_CODE}`
-  } else {
+    const canvas = await html2canvas(WarRoomView.canvasEle)
+    let canvasImg = canvas.toDataURL('image/jpeg')
+    localStorage.setItem('canvas', canvasImg)
+
+    if (response.status === 200) {
+      window.location.href = `/post?stockCode=${STOCK_CODE}`
+    } else {
+      Swal.fire({
+        icon: 'error',
+        title: '錯誤的操作',
+        confirmButtonColor: '#315375'
+      })
+    }
+  }
+})
+
+WarRoomView.allowBtn.addEventListener('click', async (e) => {
+  const clientsId = []
+  const userResult = await userAuth()
+
+  if (userResult.data.role !== 'streamer') return
+  socket.emit('turn on draw')
+  await Swal.fire({
+    title: '繪圖工具權限打開囉!',
+    showConfirmButton: false,
+    timer: 1500
+  })
+
+  // socket.once('recieve all room clients', async (onlineClients) => {
+  //   const hostId = onlineClients[ROOM_ID].host
+  //   for (let key in onlineClients[ROOM_ID]) {
+  //     if (
+  //       onlineClients[ROOM_ID][key].userId &&
+  //       onlineClients[ROOM_ID][key].userId !== hostId
+  //     ) {
+  //       // clientsId.push(onlineClients[ROOM_ID][key].peerId)
+  //       clientsId.push(onlineClients[ROOM_ID][key].userId)
+  //     }
+  //   }
+  //   console.log('clientsId', clientsId)
+
+  //   const response = await fetch('/api/1.0/user/user_permission', {
+  //     method: 'PATCH',
+  //     body: JSON.stringify({
+  //       type: 'is_allDrawable',
+  //       isAllow: true,
+  //       usersId: clientsId
+  //     }),
+  //     headers: {
+  //       'Content-type': 'application/json'
+  //     }
+  //   })
+  //   const result = await response.json()
+
+  //   if (response.status === 200) {
+  //     WarRoomView.denyBtn.classList.remove('hidden')
+  //     WarRoomView.allowBtn.classList.add('hidden')
+  //   } else {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: '錯誤的操作',
+  //       confirmButtonColor: '#315375'
+  //     })
+  //   }
+  // })
+  // socket.emit('get all room clients')
+
+  const response = await fetch(
+    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&draw_on=1`,
+    {
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      }
+    }
+  )
+
+  if (response.status !== 200) {
     Swal.fire({
       icon: 'error',
       title: '錯誤的操作',
       confirmButtonColor: '#315375'
     })
-  }
-})
-
-WarRoomView.allowBtn.addEventListener('click', async (e) => {
-  socket.emit('turn on draw')
-  const clientsId = []
-  const userResult = await userAuth()
-
-  if (userResult.data.role !== 'streamer') return
-
-  socket.once('recieve all room clients', async (onlineClients) => {
-    for (let key in onlineClients[ROOM_ID]) {
-      clientsId.push(onlineClients[ROOM_ID][key].peerId)
-    }
-    console.log(clientsId)
-
-    const response = await fetch('/api/1.0/user/user_permission', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        type: 'is_allDrawable',
-        isAllow: true,
-        usersId: clientsId
-      }),
-      headers: {
-        'Content-type': 'application/json'
-      }
-    })
     const result = await response.json()
-
-    if (response.status === 200) {
-      WarRoomView.denyBtn.style.display = 'block'
-      WarRoomView.allowBtn.style.display = 'none'
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: '錯誤的操作',
-        confirmButtonColor: '#315375'
-      })
-    }
-  })
-  socket.emit('get all room clients')
+    console.log(result)
+  } else {
+    WarRoomView.denyBtn.classList.remove('hidden')
+    WarRoomView.allowBtn.classList.add('hidden')
+  }
 })
 
 WarRoomView.denyBtn.addEventListener('click', async (e) => {
-  socket.emit('turn off draw')
   const clientsId = []
   const userResult = await userAuth()
 
   if (userResult.data.role !== 'streamer') return
+  socket.emit('turn off draw')
+  await Swal.fire({
+    title: '繪圖工具權限關閉囉!',
+    showConfirmButton: false,
+    timer: 1500
+  })
 
-  socket.once('recieve all room clients', async (onlineClients) => {
-    for (let key in onlineClients[ROOM_ID]) {
-      clientsId.push(onlineClients[ROOM_ID][key].peerId)
-    }
-    console.log(clientsId)
+  // socket.once('recieve all room clients', async (onlineClients) => {
+  //   const hostId = onlineClients[ROOM_ID].host
+  //   for (let key in onlineClients[ROOM_ID]) {
+  //     if (
+  //       onlineClients[ROOM_ID][key].userId &&
+  //       onlineClients[ROOM_ID][key].userId !== hostId
+  //     ) {
+  //       // clientsId.push(onlineClients[ROOM_ID][key].peerId)
+  //       clientsId.push(onlineClients[ROOM_ID][key].userId)
+  //     }
+  //   }
+  //   console.log('clientsId', clientsId)
 
-    const response = await fetch('/api/1.0/user/user_permission', {
+  //   if (!clientsId.length) {
+  //     // no people
+  //     return
+  //   }
+
+  //   const response = await fetch('/api/1.0/user/user_permission', {
+  //     method: 'PATCH',
+  //     body: JSON.stringify({
+  //       type: 'is_allDrawable',
+  //       isAllow: false,
+  //       usersId: clientsId
+  //     }),
+  //     headers: {
+  //       'Content-type': 'application/json'
+  //     }
+  //   })
+  //   const result = await response.json()
+
+  //   if (response.status === 200) {
+  //     WarRoomView.denyBtn.classList.add('hidden')
+  //     WarRoomView.allowBtn.classList.move('hidden')
+  //   } else {
+  //     Swal.fire({
+  //       icon: 'error',
+  //       title: '錯誤的操作',
+  //       confirmButtonColor: '#315375'
+  //     })
+  //   }
+  // })
+  // socket.emit('get all room clients')
+
+  const response = await fetch(
+    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&draw_on=0`,
+    {
       method: 'PATCH',
-      body: JSON.stringify({
-        type: 'is_allDrawable',
-        isAllow: false,
-        usersId: clientsId
-      }),
       headers: {
-        'Content-type': 'application/json'
+        Authorization: 'Bearer ' + accessToken
       }
+    }
+  )
+
+  if (response.status !== 200) {
+    Swal.fire({
+      icon: 'error',
+      title: '錯誤的操作',
+      confirmButtonColor: '#315375'
     })
     const result = await response.json()
-
-    if (response.status === 200) {
-      WarRoomView.denyBtn.style.display = 'none'
-      WarRoomView.allowBtn.style.display = 'block'
-    } else {
-      Swal.fire({
-        icon: 'error',
-        title: '錯誤的操作',
-        confirmButtonColor: '#315375'
-      })
-    }
-  })
-  socket.emit('get all room clients')
-})
-
-document.querySelector('.navbar').addEventListener('click', (e) => {
-  console.log(e.target.tagName)
-  if (e.target.parentElement.tagName === 'A') {
-    window.addEventListener('beforeunload', function (e) {
-      // Cancel the event
-      e.preventDefault() // If you prevent default behavior in Mozilla Firefox prompt will always be shown
-      // Chrome requires returnValue to be set
-      e.returnValue = ''
-    })
+    console.log(result)
+  } else {
+    WarRoomView.denyBtn.classList.add('hidden')
+    WarRoomView.allowBtn.classList.remove('hidden')
   }
 })
+
+// document.querySelector('.navbar').addEventListener('click', async (e) => {
+//   console.log(e.target.parentElement.tagName)
+//   if (e.target.parentElement.tagName === 'A') {
+//     e.preventDefault()
+//     const swalResult = await Swal.fire({
+//       title: '即將關閉房間',
+//       text: '確定離開嗎?',
+//       icon: 'warning',
+//       showCancelButton: true,
+//       confirmButtonColor: '#e6e6e6',
+//       cancelButtonColor: '#14c9ba',
+//       confirmButtonText: '沒錯，我要走了',
+//       cancelButtonText: '沒事，我按錯了'
+//     })
+//   }
+// })
 
 // Functions
 async function roleAuth() {
@@ -193,14 +284,6 @@ async function roleAuth() {
     })
   }
 
-  // const response = await fetch('/api/1.0/user/user_auth', {
-  //   method: 'GET',
-  //   headers: {
-  //     Authorization: 'Bearer ' + accessToken
-  //   }
-  // })
-
-  // const result = await response.json()
   const result = await userAuth()
   if (result.error) {
     Swal.fire({
@@ -210,15 +293,22 @@ async function roleAuth() {
     }).then(() => {
       window.location.href = '/hot-rooms'
     })
-    
   } else {
     if (result.data.role === 'streamer') {
-      WarRoomView.postBtn.style.display = 'block'
-      WarRoomView.allowBtn.style.display = 'block'
+      roomHostId = result.data.id
+      console.log('im streamer')
+      WarRoomView.postBtn.classList.remove('hidden')
       WarRoomView.confirmLeaveBtn.innerHTML = '確定'
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)
       WarRoomView.drawTool.classList.remove('hidden')
+
+      const openDraw = await roomAuth()
+      if(openDraw){
+        WarRoomView.denyBtn.classList.remove('hidden')
+      }else {
+        WarRoomView.allowBtn.classList.remove('hidden')
+      }
 
       // closing room btn
       document
@@ -238,8 +328,16 @@ async function roleAuth() {
             window.location.href = '/hot-rooms'
           }
         })
-    } else if (!result.data.is_drawable) {
-      document.querySelector('.add-canvas').style.display = 'none'
+    } else if (result.data.role !== 'streamer') {
+      document.querySelector('.add-canvas').classList.add('hidden')
+
+      const openDraw = await roomAuth()
+      if(openDraw) {
+        WarRoomView.drawTool.classList.remove('hidden')
+      }
+      // if (result.data.is_drawable) {
+      //   WarRoomView.drawTool.classList.remove('hidden')
+      // }
     }
     // USER = {
     //   id: result.data.id,
@@ -252,6 +350,27 @@ async function roleAuth() {
 
 async function roomAuth() {
   // check this room exist or not
+  const response = await fetch(
+    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}`,
+    {
+      method: 'GET',
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      }
+    }
+  )
+  const result = await response.json()
+
+  if (response.status !== 200 || !result.data.length) {
+    Swal.fire({
+      icon: 'error',
+      title: '你沒有權限進來!!',
+      confirmButtonColor: '#315375'
+    }).then(() => {
+      window.location.href = '/hot-rooms'
+    })
+  } 
+  return result.data[0].open_draw
 }
 
 async function userAuth() {
@@ -262,11 +381,18 @@ async function userAuth() {
     }
   })
 
-  if(response.status !== 200){
+  if (response.status !== 200) {
     console.log(response.status)
-    return 
+    return
   }
 
   const result = await response.json()
   return result
 }
+
+// async function preventNavbar() {
+//   const linkTags = document.querySelectorAll('.navbar a')
+//   for (let item of linkTags){
+//     item.classList.add('disable-link')
+//   }
+// }

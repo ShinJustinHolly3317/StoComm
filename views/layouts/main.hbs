@@ -23,15 +23,19 @@
         <img src='/img/logo.png' alt='' id='logo' />
       </a>
       <div class='functional-part'>
-        <a>
-          <img
+        <a class="quick-start text-secondary rounded" href="/explore">
+          瀏覽熱門觀點
+        </a>
+        <a class="quick-start text-secondary rounded" data-bs-toggle="modal" data-bs-target="#war-room-check">
+          {{!-- <img
             src='/img/warroom.png'
             alt=''
             id='war-room-link'
             data-toggle='tooltip'
             data-placement='bottom'
             title='打開研究室'
-          />
+          /> --}}
+          快速開啟研究室
         </a>
         <div class='dropdown'>
           <a
@@ -68,6 +72,65 @@
         >註冊</button>
       </div>
     </div>
+
+    {{! modal }}
+  <div
+    class='modal fade'
+    id='war-room-check'
+    tabindex='-1'
+    aria-labelledby='exampleModalLabel'
+    aria-hidden='true'
+  >
+    <div class='modal-dialog'>
+      <div class='modal-content'>
+        <div class='modal-header'>
+          <h5 class='modal-title' id='war-room-check-title'>開啟我的研究室</h5>
+          <button
+            type='button'
+            class='btn-close'
+            data-bs-dismiss='modal'
+            aria-label='Close'
+          ></button>
+        </div>
+        <div class='modal-body'>
+          <h2 class="welcome-msg js-signup-msg"></h3>
+            <form class="war-room-check-data">
+              <label for="staticEmail" class="col-sm-12 col-form-label mt-3"
+                >研究室名稱</label
+              >
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-mail"
+                value=""
+                name="war_room_title"
+              />
+
+              <label for="staticEmail" class="col-sm-12 col-form-label mt-3"
+              >姓名</label>
+              <input
+                type="text"
+                class="form-control"
+                id="user-name"
+                value=""
+              />
+
+              <label for="inputPassword" class="col-sm-12 col-form-label mt-3"
+              >股票名稱或代碼</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-password"
+                placeholder="請輸入股票名稱或代碼"
+                name="stock_name_code"/>
+
+              <input type="hidden" id="user_id" name="user_id">
+              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-create-war-room-btn">送出</button>
+            </form>
+        </div>
+      </div>
+    </div>
+  </div>
 
     <!-- JS -->
     <script
