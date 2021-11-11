@@ -75,7 +75,7 @@ async function initPeer() {
 
         // default visitor mic is off
         const isMicOnInit = (await roomAuth()).open_mic
-        if (!isMicOnInit) {
+        if (!isMicOnInit && userData !== 'streamer') {
           stream.getAudioTracks()[0].enabled = false
         }
 
