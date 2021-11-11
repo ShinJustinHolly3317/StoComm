@@ -4,6 +4,7 @@ const onlineClients = {}
 let clientList
 const Canvas = require('../../model/canvas-model')
 const Chat = require('../../model/chat-model')
+const WarRoom = require('../../model/war-room-model')
 const moment = require('moment')
 let drawToolTurnOn = false
 
@@ -15,9 +16,10 @@ async function socketController(io) {
       socket.emit('recieve all room clients', onlineClients)
     })
 
-    socket.on('join room', async (roomId, userId) => {
+    socket.on('join room', async (roomId, userId, userName, userRole) => {
       socket.join(roomId)
 
+      // Handle clients list
       if (!onlineClients[roomId]) {
         onlineClients[roomId] = {}
         onlineClients[roomId][socket.id] = {}
@@ -25,6 +27,11 @@ async function socketController(io) {
       } else {
         onlineClients[roomId][socket.id] = {}
         onlineClients[roomId][socket.id].userId = userId // add new client id
+      }
+
+      // Handle clients
+      if (userRole === 'streamer') {
+        onlineClients[roomId].hostId = userId
       }
 
       // drawing canvas
@@ -60,9 +67,11 @@ async function socketController(io) {
       socket.on('start draw', (initDrawInfo) => {
         // defining last incoming id
         const layerIds = Object.keys(drawHistory[roomId])
-        
+
         // define the last id, which is the last element
-        let topLayerId = layerIds.length ? Number(layerIds[layerIds.length - 1]) : 0
+        let topLayerId = layerIds.length
+          ? Number(layerIds[layerIds.length - 1])
+          : 0
         initDrawInfo.drawLayerCounter = !layerIds.length ? 0 : topLayerId + 1
         drawHistory[roomId][initDrawInfo.drawLayerCounter] = initDrawInfo
 
@@ -106,7 +115,6 @@ async function socketController(io) {
       socket.on('add image', (canvasInfo) => {
         // defining last incoming id
         const layerIds = Object.keys(drawHistory[roomId])
-        
 
         // define the last id, which is the last element
         let topLayerId = layerIds.length
@@ -227,6 +235,12 @@ async function socketController(io) {
       }
       socket.emit('all messages', chatHistory[roomId])
 
+      // Send enter notification to everyone
+      socket.emit('send my msg', `${userName} 加入研究室囉`, userName, true)
+      socket
+        .to(roomId)
+        .emit('sendback', `${userName} 加入研究室囉`, userName, true)
+
       // socket.on('get all messages', () => {
       //   console.log('sending all messages', chatHistory[roomId])
       //   socket.emit('all messages', chatHistory[roomId])
@@ -243,51 +257,61 @@ async function socketController(io) {
           moment().format('YYYY-MM-DD hh:mm:ss')
         ])
 
-        socket.to(roomId).emit('sendback', msg, name)
+        socket.to(roomId).emit('sendback', msg, name, false)
         // send my msg
-        socket.emit('send my msg', msg, name)
+        socket.emit('send my msg', msg, name, false)
       })
 
       // peerjs
       socket.on('start calling', (userId) => {
         console.log('Peer user: ', userId)
-        // socket.to(roomId).emit('user-connected', userId)
-        // socket.on('ready', (hostId) => {
-        //   if(hostId) {
-        //     onlineClients[roomId].host = hostId
-        //   }
-        //   // socket.emit('myself-connected', onlineClients[roomId].host)
-        //   socket.to(roomId).emit('user-connected', userId)
-        // })
+        socket.to(roomId).emit('user-connected', userId)
+
         socket.on('ready', () => {
           socket.to(roomId).emit('user-connected', userId)
         })
 
-        socket.on('ban audio', (banUserId) => {
-          socket.to(roomId).emit('update ban audio', banUserId)
+        /* mute person specifically */
+        // socket.on('ban audio', (banUserId) => {
+        //   socket.to(roomId).emit('update ban audio', banUserId)
+        // })
+
+        socket.on('mute all', async () => {
+          try {
+            console.log('mute all')
+            await WarRoom.updateRoomRights(roomId, undefined, false)
+            io.to(roomId).emit('update mute all')
+          } catch (error) {
+            return
+          }
         })
 
-        // onlineClients[roomId][socket.id].peerId = userId
+        socket.on('unmute all', async () => {
+          try {
+            console.log('unmute all')
+            await WarRoom.updateRoomRights(roomId, undefined, true)
+            io.to(roomId).emit('update unmute all')
+          } catch (error) {
+            return
+          }
+        })
       })
 
       socket.on('disconnect', async () => {
-        // console.log(
-        //   `${
-        //     onlineClients[roomId][socket.id].peerId
-        //   } left this room(${roomId})!`
-        // )
-
         console.log(
           `${
             onlineClients[roomId][socket.id].userId
           } left this room(${roomId})!`
         )
-        // socket
-        //   .to(roomId)
-        //   .emit('user-disconnected', onlineClients[roomId][socket.id].peerId)
+
+        // delete left user
         socket
           .to(roomId)
           .emit('user-disconnected', onlineClients[roomId][socket.id].userId)
+
+        // user left notification
+        socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
+
         console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
 

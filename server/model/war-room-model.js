@@ -48,8 +48,7 @@ async function createWarRoom(createData) {
     await conn.query('BEGIN')
     const [roomResult] = await conn.query(qryString, createData)
     await conn.query(
-      `UPDATE user SET role = 'streamer', is_drawable=1, is_mic_on=1 
-      WHERE id = ?`,
+      `UPDATE user SET role = 'streamer' WHERE id = ?`,
       [createData.user_id]
     )
     console.log(roomResult)
@@ -114,21 +113,30 @@ async function getRoomInfo(roomId) {
   return result
 }
 
-async function updateRoomRights(roomId, draw_on) {
-  const qryString = `
-  UPDATE war_room SET open_draw = ?
-  WHERE id = ?
-  `
+async function updateRoomRights(roomId, open_draw, open_mic) {
+  let qryString
 
+  if (open_mic === undefined) {
+    qryString = `
+    UPDATE war_room SET open_draw = ?
+    WHERE id = ?
+    `
+  } else if (open_draw === undefined) {
+    qryString = `
+    UPDATE war_room SET open_mic = ?
+    WHERE id = ?
+    `
+  }
+  
+  console.log('open_draw',open_draw, 'open_mic', open_mic)
   try {
-    const [result] = await db.query(qryString, [Number(draw_on), roomId])
+    const [result] = await db.query(qryString, [Number(open_draw || open_mic), roomId])
     return result.insertId
   } catch (error) {
     console.error(error)
-    return {error}
+    return { error }
   }
 }
-
 
 module.exports = {
   createWarRoom,

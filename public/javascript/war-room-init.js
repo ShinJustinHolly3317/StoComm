@@ -12,8 +12,15 @@ const WarRoomView = {
   visitorLeaveBtn: document.querySelector('#leave-icon'),
   canvasEle: document.querySelector('#canvas'),
   confirmLeaveBtn: document.querySelector('#confirm-leave-btn'),
-  modalBody: document.querySelector('.modal-body'),
-  drawTool: document.querySelector('.draw-tool-area')
+  modalBody: document.querySelector('.leaving-modal-body'),
+  drawTool: document.querySelector('.draw-tool-area'),
+  voiceCtrlBtn: document.querySelector('#group-btn'),
+  voiceCtrlModal: new bootstrap.Modal(
+    document.querySelector('#voice-control-modal'),
+    { keyboard: false }
+  ),
+  groupMuteBtn: document.querySelector('.group-mute-btn'),
+  groupMicBtn: document.querySelector('.group-mic-btn')
 }
 
 if (!ROOM_ID) {
@@ -29,9 +36,12 @@ const socket = io()
 let socketId
 socket.on('connect', async () => {
   socketId = socket.id
-  await roomAuth()
-  await roleAuth()
-  socket.emit('join room', ROOM_ID, USER.id)
+  roomHostId = (await roomAuth()).user_id
+
+  console.log('roomHostId', roomHostId)
+  
+  const userRole = await roleAuth()
+  socket.emit('join room', ROOM_ID, USER.id, USER.name, userRole)
   await initPeer()
   // preventNavbar()
   // socket.emit('init draw tool')
@@ -272,6 +282,10 @@ WarRoomView.denyBtn.addEventListener('click', async (e) => {
 //   }
 // })
 
+WarRoomView.voiceCtrlBtn.addEventListener('click',(e) => {
+  WarRoomView.voiceCtrlModal.show()
+})
+
 // Functions
 async function roleAuth() {
   if (!accessToken) {
@@ -295,15 +309,15 @@ async function roleAuth() {
     })
   } else {
     if (result.data.role === 'streamer') {
-      roomHostId = result.data.id
       console.log('im streamer')
       WarRoomView.postBtn.classList.remove('hidden')
       WarRoomView.confirmLeaveBtn.innerHTML = '確定'
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)
       WarRoomView.drawTool.classList.remove('hidden')
+      WarRoomView.groupMicBtn.classList.remove('hidden')
 
-      const openDraw = await roomAuth()
+      const openDraw = (await roomAuth()).open_draw
       if(openDraw){
         WarRoomView.denyBtn.classList.remove('hidden')
       }else {
@@ -331,7 +345,7 @@ async function roleAuth() {
     } else if (result.data.role !== 'streamer') {
       document.querySelector('.add-canvas').classList.add('hidden')
 
-      const openDraw = await roomAuth()
+      const openDraw = (await roomAuth()).open_draw
       if(openDraw) {
         WarRoomView.drawTool.classList.remove('hidden')
       }
@@ -345,6 +359,8 @@ async function roleAuth() {
     //   email: result.data.email,
     //   piture: result.data.picture
     // }
+
+    return result.data.role
   }
 }
 
@@ -370,7 +386,7 @@ async function roomAuth() {
       window.location.href = '/hot-rooms'
     })
   } 
-  return result.data[0].open_draw
+  return result.data[0]
 }
 
 async function userAuth() {

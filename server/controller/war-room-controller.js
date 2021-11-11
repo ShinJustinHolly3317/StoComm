@@ -41,9 +41,9 @@ async function getRoomInfo(req, res) {
 }
 
 async function updateRoomRights(req, res) {
-  const { roomId, draw_on } = req.query
+  const { roomId, open_draw, open_mic } = req.query
 
-  const result = await WarRoom.updateRoomRights(roomId, draw_on)
+  const result = await WarRoom.updateRoomRights(roomId, open_draw, open_mic)
   if (result.error) {
     res.status(500).send({ error: result })
   } else if (!result.affectedRows) {

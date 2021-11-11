@@ -13,10 +13,18 @@ async function fetchOnlineRooms(onlineClients) {
     View.warRooms.innerHTML = `<h5 class="text-center">目前沒有人開討論室喔!</h5>`
   } else {
     let warRoomHtml = ''
+    console.log(onlineClients)
+    console.log(onlineRooms)
     onlineRooms.forEach((item) => {
-      const clients = onlineClients[item.id]
-        ? Object.keys(onlineClients[item.id]).length - 1
-        : 0
+      let clients
+      if (onlineClients[item.id].hostId) {
+        clients = Object.keys(onlineClients[item.id]).length - 1
+      } else {
+        clients = Object.keys(onlineClients[item.id]).length
+      }
+      // const clients = onlineClients[item.id]
+      //   ? Object.keys(onlineClients[item.id]).length - 1
+      //   : 0
       warRoomHtml += `
       <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
         <div class='war-room shadow-lg'>

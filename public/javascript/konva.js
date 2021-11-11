@@ -59,11 +59,12 @@ let curSelectShape
 
 stage.on('mousedown touchstart', async (e) => {
   localLayerObject = null // clear local drawing layer
+  isPaint = true
 
   // prevent drawing
   const role = (await userAuth()).data.role
   if (role !== 'streamer') {
-    const drawOpen = await roomAuth()
+    const drawOpen = (await roomAuth()).open_draw
     if (!drawOpen) {
       return
     }
@@ -73,7 +74,6 @@ stage.on('mousedown touchstart', async (e) => {
     isPaint = false
     return
   }
-  // isPaint = true
 
   let latestLayerId
   const pos = stage.getPointerPosition()
@@ -97,7 +97,7 @@ stage.on('mouseup touchend', function () {
   }
   console.log(localLayerObject)
   socket.emit('finish layer', localLayerObject)
-  
+
   // console.log(drawHistory);
 })
 
@@ -227,7 +227,7 @@ toolArea.addEventListener('click', (e) => {
       e.target.getAttribute('value') === 'undo' ||
       e.target.getAttribute('value') === 'redo'
     ) {
-      setTimeout(()=>{
+      setTimeout(() => {
         undoBtn.classList.remove('tool-active')
         redoBtn.classList.remove('tool-active')
         if (document.querySelector('.tool-active')) {
@@ -301,9 +301,6 @@ socket.on('update my draw', (id, remoteDrawHistory) => {
   console.log(remoteDrawHistory)
   latestLayerId = id
   localLayerCounter = id
-
-  // to prevent network latency
-  isPaint = true
 
   // create new kayer
   localLayerObject = new Konva.Line({
@@ -506,7 +503,7 @@ addCanvasBtn.addEventListener('click', async (e) => {
   const role = (await userAuth()).data.role
 
   if (role !== 'streamer') {
-    const drawOpen = await roomAuth()
+    const drawOpen = (await roomAuth()).open_draw
     if (!drawOpen) {
       return
     }
@@ -538,7 +535,7 @@ window.addEventListener('keydown', async (e) => {
     const role = (await userAuth()).data.role
 
     if (role !== 'streamer') {
-      const drawOpen = await roomAuth()
+      const drawOpen = (await roomAuth()).open_draw
       if (!drawOpen) {
         return
       }

@@ -19,6 +19,7 @@ async function stockNews(req, res) {
   const titleList = []
 
   const newsResult = await getNews(stockCode)
+
   if (newsResult.length) {
     for (let item of newsResult) {
       titleList.push({
@@ -52,11 +53,20 @@ async function stockNews(req, res) {
     for (let key in rawTitleData) {
       if (typeof rawTimeData[key].children === 'object') {
         console.log(rawTimeData[key].children[0].data.trim().split(' ')[0])
+        // let cleanDate = rawTimeData[key].children[0].data
+        //   .trim()
+        //   .split(' ')[0]
+        //   .split(`\u00a0`)[1]
+        //   .replace('/', '-')
+          
         let cleanDate = rawTimeData[key].children[0].data
           .trim()
           .split(' ')[0]
-          .split(`\u00a0`)[1]
-          .replace('/', '-')
+          .match(/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])/)
+        
+        cleanDate = cleanDate
+          ? cleanDate[0].replace('/', '-')
+          : moment().format('MM-DD')
 
         titleList.push({
           title: rawTitleData[key].children[0].data,

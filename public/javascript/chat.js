@@ -6,11 +6,12 @@ const chatHistoryEle = document.querySelector('.chat-history')
 const minChatRoomEle = document.querySelector('.min-chat-room')
 const chatShrinkBtn = document.querySelector('#js-chat-shrink-btn')
 const chatEnlargeBtn = document.querySelector('#js-chat-enlarge-btn')
+const chatNotification = document.querySelector('.chat-notification')
 
 form.addEventListener('submit', function (e) {
   e.preventDefault()
   if (input.value) {
-    console.log(USER);
+    console.log(USER)
     socket.emit('chat message', input.value, USER.name, USER.id)
     input.value = ''
   }
@@ -23,7 +24,9 @@ chatShrinkBtn.addEventListener('click', () => {
 })
 
 chatEnlargeBtn.addEventListener('click', () => {
-  if (chatRoomEle.style.display === 'flex'){
+  chatNotification.classList.add('hidden')
+
+  if (chatRoomEle.style.display === 'flex') {
     chatRoomEle.style.display = 'none'
   } else {
     chatRoomEle.style.display = 'flex'
@@ -31,11 +34,14 @@ chatEnlargeBtn.addEventListener('click', () => {
   }
 })
 
-socket.on('all messages', (chatHistory)=>{
+socket.on('all messages', (chatHistory) => {
   if (!chatHistory || !chatHistory.length) return
+
+  // add notification mark
+  chatNotification.classList.remove('hidden')
+
   console.log(chatHistory)
   for (let item of chatHistory) {
-    console.log('userid', Number(USER.id))
     if (item[0] === Number(USER.id)) {
       const otherChat = document.createElement('li')
       otherChat.textContent = `${item[1]}: ${item[2]}`
@@ -56,25 +62,51 @@ socket.on('all messages', (chatHistory)=>{
   chatHistoryEle.scrollTo(0, chatHistoryEle.scrollHeight)
 })
 
-
-
-socket.on('sendback', (msg, name) => {
+socket.on('sendback', (msg, name, enterMsg) => {
   const myChat = document.createElement('li')
-  myChat.textContent = `${name}: ${msg}`
-  myChat.classList.add('list-group-item', 'rounded-pill')
+
+  // add notification mark when other send messages
+  chatNotification.classList.remove('hidden')
+
+  if (enterMsg) {
+    myChat.textContent = `${msg}`
+    myChat.classList.add('list-group-item', 'rounded-pill', 'enter-msg')
+  } else {
+    myChat.textContent = `${name}: ${msg}`
+    myChat.classList.add('list-group-item', 'rounded-pill')
+  }
+
   messages.appendChild(myChat)
   chatHistoryEle.scrollTo(0, chatHistoryEle.scrollHeight)
 })
 
-socket.on('send my msg', (msg, name) => {
+socket.on('send my msg', (msg, name, enterMsg) => {
   const otherChat = document.createElement('li')
-  otherChat.textContent = `${name}: ${msg}`
-  otherChat.classList.add(
-    'list-group-item',
-    'rounded-pill',
-    'my-msg',
-    'border-0'
-  )
+
+  if (enterMsg) {
+    otherChat.textContent = `${msg}`
+    otherChat.classList.add('list-group-item', 'rounded-pill', 'enter-msg')
+  } else {
+    otherChat.textContent = `${name}: ${msg}`
+    otherChat.classList.add(
+      'list-group-item',
+      'rounded-pill',
+      'my-msg',
+      'border-0'
+    )
+  }
+
+  messages.appendChild(otherChat)
+  chatHistoryEle.scrollTo(0, chatHistoryEle.scrollHeight)
+})
+
+socket.on('user left msg', (msg) => {
+  // add notification mark when other send messages
+  chatNotification.classList.remove('hidden')
+
+  const otherChat = document.createElement('li')
+  otherChat.textContent = `${msg}`
+  otherChat.classList.add('list-group-item', 'rounded-pill', 'enter-msg')
   messages.appendChild(otherChat)
   chatHistoryEle.scrollTo(0, chatHistoryEle.scrollHeight)
 })

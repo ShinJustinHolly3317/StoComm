@@ -147,6 +147,47 @@
     </script>
 
     {{{body}}}
+
+    <script>
+      document.querySelector('#js-create-war-room-btn').addEventListener('click', async (e) => {
+        e.preventDefault()
+        const accessToken = localStorage.getItem('access_token')
+        
+        const response = await fetch('/api/1.0/user/user_auth', {
+          method: 'GET',
+          headers: {
+            Authorization: 'Bearer ' + accessToken
+          }
+        })
+        const userResult = await response.json()
+        const userData = userResult.data
+
+        document.querySelector('#user_id').value = userData.id
+        const createData = new FormData(document.querySelector('.war-room-check-data'))
+        const roomResponse = await fetch('/api/1.0/war_room/create_war_room', {
+          method: 'POST',
+          Authorization: 'Bearer ' + accessToken,
+          body: createData
+        })
+        const roomresult = await roomResponse.json()
+        console.log(roomresult)
+
+        if (roomResponse.status !== 200) {
+          await Swal.fire({
+            icon: 'error',
+            title: roomresult.error,
+            confirmButtonColor: '#315375'
+          })
+          return 
+        }
+
+        const roomId = roomresult.data.insertId
+        const stockCode = roomresult.data.stock_code
+        window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
+      })
+
+      
+    </script>
   </body>
 
 </html>
