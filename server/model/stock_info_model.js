@@ -2,22 +2,21 @@
 const db = require('./config/mysqlConnection')
 const moment = require('moment')
 
-async function insertRevenue(revenueData, stock_code) {
+async function insertRevenue(revenueData) {
   try {
-    const [res_stock_id] = await db.query(
-      'SELECT stock_id, company_name FROM stock WHERE stock_code = ?',
-      [stock_code]
-    )
+    const qryString = `INSERT INTO revenue(stock_id, revenue, quarter, year) VALUES ?`
+    const [result] = await db.query(qryString, [revenueData])
+    return result
+  } catch (err) {
+    return console.log(err)
+  }
+}
 
-    const stock_id = res_stock_id[0].stock_id
-    const company_name = res_stock_id[0].company_name
-    const qryString = `INSERT INTO revenue(stock_id, revenue, month) VALUES ?`
-    const updateRevenueData = revenueData.map((item) => {
-      return [stock_id, item[1], moment(item[2]).format('YYYY-MM-DD')]
-    })
-
-    const [result] = await db.query(qryString, [updateRevenueData])
-    return { stock_id, company_name }
+async function insertGross(grossData) {
+  try {
+    const qryString = `INSERT INTO gross(stock_id, gross, quarter, year) VALUES ?`
+    const [result] = await db.query(qryString, [grossData])
+    return result
   } catch (err) {
     return console.log(err)
   }
@@ -49,14 +48,10 @@ async function getNews(stock_code) {
   }
 }
 
-async function insertNews(newsData, stock_code) {
-  const [res_stock_id] = await db.query(
-    'SELECT stock_id FROM stock WHERE stock_code = ?',
-    stock_code
-  )
+async function insertNews(newsData, stockId) {
   const qryString = `INSERT INTO news(stock_id, title, date, link) VALUES ?`
   const updateNewsData = newsData.map((item) => {
-    return [res_stock_id[0].stock_id, item.title, item.date, item.link]
+    return [stockId, item.title, item.date, item.link]
   })
 
   try {
@@ -99,11 +94,23 @@ async function getChip(stock_code) {
   }
 }
 
+async function getStockList(){
+  const stockList = await db.query('SELECT * FROM stock')
+  
+  return stockList[0].map((item) => {
+    if (item.stock_code) {
+      return [item.stock_id, item.stock_code, item.company_name]
+    }
+  })
+}
+
 module.exports = {
   insertRevenue,
   getRevenue,
   getNews,
   insertNews,
   insertChip,
-  getChip
+  getChip,
+  getStockList,
+  insertGross
 }

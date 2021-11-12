@@ -67,7 +67,7 @@ const Controller = {
 Controller.init()
 
 View.warRoomBtn.addEventListener('click', (e) => {
-  View.nameInput.value = userData.name
+  // View.nameInput.value = userData.name
   View.warRoomModal.show()
 })
 

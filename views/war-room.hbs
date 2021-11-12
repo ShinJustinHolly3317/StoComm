@@ -5,7 +5,7 @@
 <div class='war-room-container'>
   <div id='stock-real-price-wrapper' class='shadow-lg'>
     <div class='stock-real-price-navbar'><img
-        src='./img/shrink.png'
+        src='./img/close.png'
         alt='shrink'
         class='shrink-icon'
         id='js-stock-shrink-btn'
@@ -81,7 +81,7 @@
         <div class='carousel-item'>
           <div class='card news-card overflow-auto analysis-card'>
             <ul class='list-group list-group-flush'>
-              <li class='list-group-item'><h4>個股新聞</h4></li>
+              <li class='list-group-item'><h4 class="m-0">個股新聞</h4></li>
             </ul>
           </div>
         </div>
@@ -112,14 +112,6 @@
       class='btn btn-outline-secondary add-canvas'
     >加入畫布</button>
   </div>
-
-  <!-- minimize stock-real-price -->
-  {{! <div class='min-stock-real-price'>個股訊息<img
-      src='./img/enlarge.png'
-      alt='shrink'
-      class='enlarge-icon'
-      id='js-stock-enlarge-btn'
-    /></div> }}
 
   <!-- paiting canvas -->
   <div id='canvas-wrapper'>
@@ -247,7 +239,7 @@
       <img
         src='/img/draw-tool/group.png'
         alt=''
-        class='ms-3 group draw-tool-icon'
+        class='group draw-tool-icon'
         id='group-btn'
         data-bs-toggle='tooltip'
         data-bs-placement='top'
@@ -255,7 +247,7 @@
       />
       <button
         type='button'
-        class='btn btn-light ms-3 streamer hidden'
+        class='btn btn-light ms-2 streamer hidden'
         id='js-post-war-room'
       >發文</button>
 
@@ -274,7 +266,7 @@
   <!-- normal size chat-room  -->
   <div class='chat-room'>
     <div class='chat-room-navbar'><img
-        src='./img/shrink.png'
+        src='./img/close.png'
         alt='shrink'
         class='shrink-icon'
         id='js-chat-shrink-btn'

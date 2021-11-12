@@ -146,11 +146,12 @@ async function initPeer() {
             WarRoomView.groupMicBtn.classList.remove('hidden')
             WarRoomView.groupMuteBtn.classList.add('hidden')
           }
-          
         })
 
         socket.on('update unmute all', async () => {
-          const mutedPeople = document.querySelectorAll('#video-grid .mute-icon')
+          const mutedPeople = document.querySelectorAll(
+            '#video-grid .mute-icon'
+          )
           console.log(mutedPeople)
           for (let item of mutedPeople) {
             item.src = '/img/mic.png'
@@ -227,6 +228,18 @@ async function initPeer() {
         })
 
         // console.log('init stream', stream.getAudioTracks())
+      })
+      .catch((error) => {
+        if (error.message === 'Permission denied') {
+
+          document.querySelector(
+            '#voice-control-modal .modal-body'
+          ).innerHTML = `
+          <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
+          `
+          document.querySelector('#voice-control-modal .modal-body').classList.add('d-flex', 'align-items-center', 'justify-content-center')
+        }
+        console.log('You got an error:' + error)
       })
   })
 

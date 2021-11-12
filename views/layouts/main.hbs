@@ -106,15 +106,6 @@
                 name="war_room_title"
               />
 
-              <label for="staticEmail" class="col-sm-12 col-form-label mt-3"
-              >姓名</label>
-              <input
-                type="text"
-                class="form-control"
-                id="user-name"
-                value=""
-              />
-
               <label for="inputPassword" class="col-sm-12 col-form-label mt-3"
               >股票名稱或代碼</label>
               <input
@@ -153,13 +144,23 @@
         e.preventDefault()
         const accessToken = localStorage.getItem('access_token')
         
-        const response = await fetch('/api/1.0/user/user_auth', {
+        const userResponse = await fetch('/api/1.0/user/user_auth', {
           method: 'GET',
           headers: {
             Authorization: 'Bearer ' + accessToken
           }
         })
-        const userResult = await response.json()
+
+        if (userResponse.status !== 200) {
+          await Swal.fire({
+            icon: 'error',
+            title: '請重新登入!',
+            confirmButtonColor: '#315375'
+          })
+          return 
+        }
+
+        const userResult = await userResponse.json()
         const userData = userResult.data
 
         document.querySelector('#user_id').value = userData.id

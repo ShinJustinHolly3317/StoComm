@@ -54,8 +54,6 @@ async function fetchOnlineRooms(onlineClients) {
       renderRealPriceChart(item.stock_code, item.id)
     })
   }
-
-  
 }
 
 async function renderRealPriceChart(stockCode, id) {
@@ -64,6 +62,9 @@ async function renderRealPriceChart(stockCode, id) {
 
   // create a chart
   const chart = anychart.line()
+
+  // disable tooltip
+  chart.tooltip(false)
 
   var ylabels = chart.yAxis().labels()
   ylabels.enabled(false)
@@ -76,6 +77,9 @@ async function renderRealPriceChart(stockCode, id) {
   // create a line series and set the data
   const series = chart.line(stockPrice)
   series.stroke(isBull ? '#f35350' : '#14c9ba')
+  
+  series.hovered().markers(false)
+  
 
   // set the container id
   chart.container(`stock-preview-${id}`)
@@ -90,15 +94,16 @@ async function fetchDayPrices(id) {
 
   // price info
   const stockPrice = []
+  const prevClosePrice = result.data[0].chart.meta.previousClose
 
   result.data[0].chart.indicators.quote[0].close.forEach((price, i) => {
     if (price) {
       stockPrice.push(price)
     } else {
       if (i === 0) {
-        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i + 1])
+        stockPrice.push(prevClosePrice)
       } else {
-        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i - 1])
+        stockPrice.push(stockPrice[i - 1])
       }
     }
   })
@@ -107,22 +112,20 @@ async function fetchDayPrices(id) {
   return { isBull, stockPrice }
 }
 
-async function updateRoomClients(roomId, clients){
-
-}
+async function updateRoomClients(roomId, clients) {}
 
 async function socketInit() {
   const socket = io()
   let socketId
 
   socket.on('connect', () => {
-    console.log('conennetc')
+    console.log('socket connected')
     socketId = socket.id
     socket.emit('get all room clients')
   })
 
   socket.on('recieve all room clients', (roomClients) => {
-    if(!View.warRooms.children.length){
+    if (!View.warRooms.children.length) {
       View.warRooms.innerHTML = ''
       fetchOnlineRooms(roomClients)
     }

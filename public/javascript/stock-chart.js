@@ -20,7 +20,7 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 // first load
 let chartIntervalId
 ;(async function () {
-  await renderRevenueChart(STOCK_CODE)
+  // await renderRevenueChart(STOCK_CODE)
   // await renderGrossChart(STOCK_CODE)
   await renderRealPriceChart(realTimePriceCtx)
   await renderNews(STOCK_CODE)
@@ -75,6 +75,13 @@ async function renderRealPriceChart(ctx) {
           text: `${company_name}(${STOCK_CODE}) 即時股價`,
           font: {
             size: 30
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function (contenxt) {
+              return '股價: ' + contenxt.parsed.y + '元'
+            }
           }
         }
       },
@@ -151,9 +158,9 @@ async function fetchDayPrices(id) {
       stockPrice.push(price)
     } else {
       if (i === 0) {
-        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i + 1])
+        stockPrice.push(prevClosePrice)
       } else {
-        stockPrice.push(result.data[0].chart.indicators.quote[0].close[i - 1])
+        stockPrice.push(stockPrice[i - 1])
       }
     }
   })
@@ -290,7 +297,7 @@ async function renderNews(id) {
       url = serachItem
     }
     titleHtml += `
-    <li class="list-group"><a href="${url}">${item.title}</a></li>
+    <li class="list-group py-2 px-2"><a href="${url}">${item.title}</a></li>
     `
   }
   newsCard.innerHTML += titleHtml

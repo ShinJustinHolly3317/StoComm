@@ -297,6 +297,11 @@ async function socketController(io) {
         })
       })
 
+      // host left
+      socket.on('host leaving', () => {
+        socket.to(roomId).emit('update host leaving')
+      })
+
       socket.on('disconnect', async () => {
         console.log(
           `${
@@ -304,7 +309,7 @@ async function socketController(io) {
           } left this room(${roomId})!`
         )
 
-        // delete left user
+        // delete left peer user
         socket
           .to(roomId)
           .emit('user-disconnected', onlineClients[roomId][socket.id].userId)

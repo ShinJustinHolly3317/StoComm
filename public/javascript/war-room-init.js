@@ -72,6 +72,31 @@ socket.on('update turn off draw', () => {
   WarRoomView.drawTool.classList.add('hidden')
 })
 
+socket.on('update host leaving', () => {
+  let timerInterval
+  Swal.fire({
+    title: '主持人要離開了!',
+    html: '即將在 <b></b> 秒關閉研究室',
+    timer: 3000,
+    timerProgressBar: true,
+    didOpen: () => {
+      Swal.showLoading()
+      const b = Swal.getHtmlContainer().querySelector('b')
+      timerInterval = setInterval(() => {
+        b.textContent = (Swal.getTimerLeft()) / 1000
+      }, 100)
+    },
+    willClose: () => {
+      clearInterval(timerInterval)
+    }
+  }).then((result) => {
+    /* Read more about handling dismissals below */
+    if (result.dismiss === Swal.DismissReason.timer) {
+      window.location.href = '/hot-rooms'
+    }
+  })
+})
+
 // listener
 WarRoomView.postBtn.addEventListener('click', async (e) => {
   const swalResult = await Swal.fire({
@@ -99,6 +124,7 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
     localStorage.setItem('canvas', canvasImg)
 
     if (response.status === 200) {
+      socket.emit('host leaving')
       window.location.href = `/post?stockCode=${STOCK_CODE}`
     } else {
       Swal.fire({
@@ -162,7 +188,7 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
   // socket.emit('get all room clients')
 
   const response = await fetch(
-    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&draw_on=1`,
+    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&open_draw=1`,
     {
       method: 'PATCH',
       headers: {
@@ -242,7 +268,7 @@ WarRoomView.denyBtn.addEventListener('click', async (e) => {
   // socket.emit('get all room clients')
 
   const response = await fetch(
-    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&draw_on=0`,
+    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&open_draw=0`,
     {
       method: 'PATCH',
       headers: {
@@ -315,13 +341,18 @@ async function roleAuth() {
       WarRoomView.modalBody.innerText = '確定要離開嗎?你的粉絲在等著你'
       WarRoomView.confirmLeaveBtn.setAttribute('streamer', true)
       WarRoomView.drawTool.classList.remove('hidden')
-      WarRoomView.groupMicBtn.classList.remove('hidden')
 
-      const openDraw = (await roomAuth()).open_draw
-      if(openDraw){
+      const roomPermission = (await roomAuth())
+      if (roomPermission.open_draw) {
         WarRoomView.denyBtn.classList.remove('hidden')
-      }else {
+      } else {
         WarRoomView.allowBtn.classList.remove('hidden')
+      }
+
+      if (roomPermission.open_mic) {
+        WarRoomView.groupMuteBtn.classList.remove('hidden')
+      } else {
+        WarRoomView.groupMicBtn.classList.remove('hidden')
       }
 
       // closing room btn
@@ -339,7 +370,29 @@ async function roleAuth() {
           )
 
           if (response.status === 200) {
-            window.location.href = '/hot-rooms'
+            socket.emit('host leaving')
+            let timerInterval
+            Swal.fire({
+              title: '您即將要離開了!',
+              html: '即將在 <b></b> 秒關閉研究室',
+              timer: 3000,
+              timerProgressBar: true,
+              didOpen: () => {
+                Swal.showLoading()
+                const b = Swal.getHtmlContainer().querySelector('b')
+                timerInterval = setInterval(() => {
+                  b.textContent = Swal.getTimerLeft() / 1000
+                }, 100)
+              },
+              willClose: () => {
+                clearInterval(timerInterval)
+              }
+            }).then((result) => {
+              /* Read more about handling dismissals below */
+              if (result.dismiss === Swal.DismissReason.timer) {
+                window.location.href = '/hot-rooms'
+              }
+            })
           }
         })
     } else if (result.data.role !== 'streamer') {

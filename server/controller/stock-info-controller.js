@@ -83,52 +83,48 @@ async function stockNews(req, res) {
 
 async function stockRevenue(req, res) {
   const { stockCode } = req.params
-  const url = `https://goodinfo.tw/StockInfo/ShowSaleMonChart.asp?STOCK_ID=${stockCode}`
-  const cssSelector = '#divSaleMonChartDetail table tr[align="center"] td'
-  const allRevenueList = {}
-  let stockInfo
-
+  
   let revenueData = await getRevenue(stockCode)
 
-  if (!revenueData.length) {
-    const result = await axios.get(url, {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
-        'content-type': 'text/html; charset=UTF-8',
-        'x-requested-with': 'XMLHttpRequest',
-        'Accept-Encoding': 'br, gzip, deflate',
-        'Accept-Language': 'en-gb',
-        Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
-      }
-    })
-    const $ = cheerio.load(result.data)
-    const rawData = $(cssSelector)
+  // if (!revenueData.length) {
+  //   const result = await axios.get(url, {
+  //     headers: {
+  //       'user-agent':
+  //         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+  //       'content-type': 'text/html; charset=UTF-8',
+  //       'x-requested-with': 'XMLHttpRequest',
+  //       'Accept-Encoding': 'br, gzip, deflate',
+  //       'Accept-Language': 'en-gb',
+  //       Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+  //     }
+  //   })
+  //   const $ = cheerio.load(result.data)
+  //   const rawData = $(cssSelector)
 
-    let thisMonth = ''
-    let counter = 0
-    for (let item of rawData) {
-      if (counter % 17 === 0) {
-        thisMonth = item.children[0].children[0].data
-        allRevenueList[thisMonth] = []
-      } else {
-        allRevenueList[thisMonth].push(item.children[0].children[0].data)
-      }
-      counter++
-    }
+  //   let thisMonth = ''
+  //   let counter = 0
+  //   for (let item of rawData) {
+  //     if (counter % 17 === 0) {
+  //       thisMonth = item.children[0].children[0].data
+  //       allRevenueList[thisMonth] = []
+  //     } else {
+  //       allRevenueList[thisMonth].push(item.children[0].children[0].data)
+  //     }
+  //     counter++
+  //   }
 
-    const sqlRevenueList = []
-    for (let key in allRevenueList) {
-      sqlRevenueList.push([
-        stockCode,
-        Number(allRevenueList[key][6].replace(',', '')),
-        key.replace('/', '-')
-      ])
-    }
+  //   const sqlRevenueList = []
+  //   for (let key in allRevenueList) {
+  //     sqlRevenueList.push([
+  //       stockCode,
+  //       Number(allRevenueList[key][6].replace(',', '')),
+  //       key.replace('/', '-')
+  //     ])
+  //   }
 
-    await insertRevenue(sqlRevenueList, stockCode)
-    revenueData = await getRevenue(stockCode)
-  }
+  //   await insertRevenue(sqlRevenueList, stockCode)
+  //   revenueData = await getRevenue(stockCode)
+  // }
 
   res.send({
     data: revenueData
