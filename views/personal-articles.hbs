@@ -1,14 +1,29 @@
 <div class='container'>
   <div class='profile-bar'>
     <div id='profile-img'>
-      <img src='/img/profile-icon.png' alt='' id='profile-icon' />
+
+      <div class='prfile-icon-area overflow-hidden rounded'>
+        <img src='' alt='' id='profile-icon' class='rounded' />
+      </div>
+
       <div class='self-info'>
-        <div class='d-flex align-items-center'>
+        <div class='d-flex align-items-center mt-5'>
           <h1 id='member-name'></h1>
-          <div>
+          <div class='d-flex align-items-center'>
             <span
               class='badge rounded-pill bg-success isFollowed hidden'
             >追蹤中</span>
+
+            <div>
+              <button
+                type='button'
+                class='btn btn-outline-secondary rounded-pill follow-btn js-follow-btn mx-3'
+              >追蹤</button>
+              <button
+                type='button'
+                class='btn btn-outline-secondary rounded-pill unfollow-btn js-unfollow-btn mx-3 hidden'
+              >取消追蹤</button>
+            </div>
           </div>
         </div>
 
@@ -19,14 +34,6 @@
 
       </div>
 
-      <button
-        type='button'
-        class='btn btn-outline-secondary rounded-pill follow-btn js-follow-btn mx-3'
-      >追蹤</button>
-      <button
-        type='button'
-        class='btn btn-outline-secondary rounded-pill unfollow-btn js-unfollow-btn mx-3 hidden'
-      >取消追蹤</button>
     </div>
   </div>
 
@@ -41,13 +48,23 @@
           >他的觀點</a>
         </li>
         <li class='nav-item'>
-          <a class='nav-link text-secondary' href='/personal-following/{{followId}}'>他的追蹤觀點</a>
+          <a
+            class='nav-link text-secondary'
+            href='/personal-following/{{followId}}'
+          >他的追蹤觀點</a>
         </li>
       </ul>
     </div>
   </div>
 
   <div class='ideas-list'></div>
+
+  <div class='mx-auto d-flex justify-content-center my-2'>
+    <nav aria-label='Page navigation example'>
+      <ul class='pagination'>
+      </ul>
+    </nav>
+  </div>
 
 </div>
 

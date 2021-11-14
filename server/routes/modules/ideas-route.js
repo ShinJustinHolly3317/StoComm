@@ -11,10 +11,12 @@ const {
   getIdea,
   getHotIdeas,
   addLikes,
-  getIdeaLikes
+  getIdeaLikes,
+  deleteIdea
 } = require('../../controller/ideas-controller')
 
 router.post('/', createIdeas)
+router.delete('/', authentication, deleteIdea)
 router.get('/all', getIdeas)
 router.get('/hot_ideas', getHotIdeas)
 router.get('/idea_like', getIdeaLikes)

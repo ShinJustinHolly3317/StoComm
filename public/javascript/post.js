@@ -9,16 +9,38 @@ const PostView = {
   init: function () {
     canvas = localStorage.getItem('canvas')
     this.analysisImg.src = canvas
-  }
+  },
+  futureBtn: document.querySelector('.choose-future'),
+  bullCheck: document.querySelector('#bullish'),
+  bearCheck: document.querySelector('#bearish')
 }
+
+PostView.futureBtn.addEventListener('click', (e) => {
+
+  if (e.target.classList.contains('bull-btn')) {
+    
+    PostView.bullCheck.classList.add('checked')
+    PostView.bearCheck.classList.remove('checked')
+    
+
+  } else if (e.target.classList.contains('bear-btn')) {
+    
+    PostView.bearCheck.classList.add('checked')
+    PostView.bullCheck.classList.remove('checked')
+
+  }
+})
 
 PostView.toggleBtns.addEventListener('click', (e) => {
   if(e.target.tagName !== 'A') return
-  
+
   // Handle textarea
   let toggleTyps = e.target.attributes['toggle-type'].value
   document.querySelector(`#${toggleTyps}`).classList.remove('hidden')
   if (document.querySelector(`.cur-show`)) {
+    if (e.target.classList.contains('active')) {
+      return
+    }
     document.querySelector(`.cur-show`).classList.add('hidden')
     document.querySelector(`.cur-show`).classList.remove('cur-show')
   }
@@ -65,7 +87,25 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   }
   textData.content = JSON.stringify(textData.content)
   textData.stock_code = getQueryObject().stockCode
+
+  if (!getQueryObject().stockCode) {
+    await Swal.fire({
+      icon: 'error',
+      title: '你網址怪怪的!',
+      confirmButtonColor: '#315375'
+    })
+    return
+  }
+
   textData.user_id = JSON.parse(localStorage.getItem('user')).id
+
+  // check bear or bull
+  const isBull = document.querySelector('.checked').getAttribute('id') === 'bullish'
+  if (isBull) {
+    textData.future = 'bull'
+  } else {
+    textData.future = 'bear'
+  }
 
   const response = await fetch('/api/1.0/ideas', {
     method: 'POST',

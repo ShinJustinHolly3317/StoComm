@@ -20,12 +20,11 @@ textarea {
 
 .img-area{
   width: 50%;
-  margin: 0 0 0 auto;
+  /* margin: 0 0 0 auto; */
 }
 
 #analysis-img{
-  width: 100%;
-  
+  width: 100%
 }
 
 .nav-link {
@@ -38,3 +37,33 @@ textarea {
   font-weight: 600;
 }
 
+/* future btn */
+.bull-btn{
+  border-color: #f35350;
+  color: #f35350;
+}
+
+#bullish.checked + label{
+  background-color: #f35350;
+  color: white;
+}
+
+.bear-btn{
+  border-color: rgb(20, 201, 186);
+  color: rgb(20, 201, 186);
+}
+
+#bearish.checked + label{
+  background-color: rgb(20, 201, 186);
+  color: white;
+}
+
+.bull-btn:hover{
+  background-color: #f35350;
+  color: white;
+}
+
+.bear-btn:hover{
+  background-color: rgb(20, 201, 186);
+  color: white;
+}

@@ -20,7 +20,8 @@ const carousel = new bootstrap.Carousel(myCarousel, {
 // first load
 let chartIntervalId
 ;(async function () {
-  // await renderRevenueChart(STOCK_CODE)
+  company_name = await getCompanyName(STOCK_CODE)
+  await renderRevenueChart(STOCK_CODE)
   // await renderGrossChart(STOCK_CODE)
   await renderRealPriceChart(realTimePriceCtx)
   await renderNews(STOCK_CODE)
@@ -119,6 +120,9 @@ async function renderRealPriceChart(ctx) {
       }
     }
   })
+
+  // disble loading img
+  document.querySelector('.stock-real-price-loading').classList.add('hidden')
 }
 
 function tradingDuration() {
@@ -176,11 +180,19 @@ async function renderRevenueChart(id) {
   const response = await fetch(`/stockRevenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
-  company_name = revenueData[0].company_name
+  console.log(revenueData)
+  if (!revenueData.length) {
+    document.querySelector('#revenue-chart').innerHTML = `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="m-auto">查無此公司財務資訊</h4>
+      </div>
+    `
+    return
+  }
 
   const revenueByMonth = []
   for (let item of revenueData) {
-    revenueByMonth.push([moment(item.month).format('YYYY-MM'), item.revenue])
+    revenueByMonth.push([item.year + item.quarter, item.revenue / 100000])
   }
 
   // create a chart
@@ -211,6 +223,9 @@ async function renderRevenueChart(id) {
 
   // initiate drawing the chart
   chart.draw()
+
+  // disble loading img
+  document.querySelector('.revenue-loading').classList.add('hidden')
 }
 
 async function renderGrossChart(id) {
@@ -253,54 +268,141 @@ async function renderGrossChart(id) {
   chart.draw()
 }
 
+// async function renderChips(stockCode) {
+//   // create data
+//   const response = await fetch(`/stockChip/${stockCode}`)
+//   const chipData = await response.json()
+//   const foreign = []
+//   const investmentTrust = []
+//   const dealer = []
+
+//   for (let item of chipData){
+//     foreign.push([item[0], item[1]])
+//     investmentTrust.push([item[0], item[2]])
+//     dealer.push([item[0], item[3]])
+//   }
+
+//   // create a chart
+//   const chart = anychart.line()
+//   chart.title(`${company_name}(${STOCK_CODE})三大法人買賣超`)
+
+//   // create a line series and set the data
+//   const series1 = chart.line(foreign)
+//   const series2 = chart.line(investmentTrust)
+//   const series3 = chart.line(dealer)
+
+//   // set the container id
+//   chart.container('chip-chart')
+
+//   // initiate drawing the chart
+//   chart.draw()
+// }
+
 async function renderChips(stockCode) {
-  // create data
   const response = await fetch(`/stockChip/${stockCode}`)
   const chipData = await response.json()
   const foreign = []
   const investmentTrust = []
   const dealer = []
 
-  for (let item of chipData){
-    foreign.push([item[0], item[1]])
-    investmentTrust.push([item[0], item[2]])
-    dealer.push([item[0], item[3]])
+  if (!chipData.length) {
+    document.querySelector('#chip-chart').innerHTML = `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="m-auto">查無此公司籌碼資訊</h4>
+      </div>
+    `
+    return
+  }
+
+  for (let index in chipData) {
+    if (index > 10) {
+      break
+    }
+    foreign.push([chipData[index][0], chipData[index][1]])
+    investmentTrust.push([chipData[index][0], chipData[index][2]])
+    dealer.push([chipData[index][0], chipData[index][3]])
   }
 
   // create a chart
-  const chart = anychart.line()
+  const chart = anychart.column()
+
+  // set chart title text settings
   chart.title(`${company_name}(${STOCK_CODE})三大法人買賣超`)
 
-  // create a line series and set the data
-  const series1 = chart.line(foreign)
-  const series2 = chart.line(investmentTrust)
-  const series3 = chart.line(dealer)
+  // create a column series and set the data
+  var series1 = chart.column(foreign)
+  var series2 = chart.column(investmentTrust)
+  var series3 = chart.column(dealer)
+
+  // set series tooltip settings
+  series1.tooltip().titleFormat('{%X}')
+  series1
+    .tooltip()
+    .position('center-top')
+    .anchor('center-bottom')
+    .offsetX(0)
+    .offsetY(5)
+    .format('外資{%Value}(張)')
+  series2.tooltip().titleFormat('{%X}')
+  series2
+    .tooltip()
+    .position('center-top')
+    .anchor('center-bottom')
+    .offsetX(0)
+    .offsetY(5)
+    .format('投信{%Value}(張)')
+  series3.tooltip().titleFormat('{%X}')
+  series3
+    .tooltip()
+    .position('center-top')
+    .anchor('center-bottom')
+    .offsetX(0)
+    .offsetY(5)
+    .format('自營商{%Value}(張)')
+
+  // set yAxis labels formatter
+  chart.yAxis().labels().format('${%Value}(張)')
+  chart.xAxis().labels().rotation(-90)
 
   // set the container id
   chart.container('chip-chart')
 
   // initiate drawing the chart
   chart.draw()
+
+  // disble loading img
+  document.querySelector('.chip-loading').classList.add('hidden')
 }
 
 async function renderNews(id) {
   const response = await fetch(`/stockNews/${id}`)
-  const result = await response.json()
-  const newsData = result.data
-  const newsCard = document.querySelector('.news-card')
+  if (response.status === 404) {
+    document.querySelector('.news-card').innerHTML = `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="m-auto">查無此公司新聞資訊</h4>
+      </div>
+    `
+  } else {
+    const result = await response.json()
+    const newsData = result.data
+    const newsCard = document.querySelector('.news-card')
 
-  let titleHtml = ``
-  for (let item of newsData) {
-    let searchUrl = new URLSearchParams(item.link.split('LINK=')[1])
-    let url
-    for (let serachItem of searchUrl) {
-      url = serachItem
-    }
-    titleHtml += `
+    let titleHtml = ``
+    for (let item of newsData) {
+      let searchUrl = new URLSearchParams(item.link.split('LINK=')[1])
+      let url
+      for (let serachItem of searchUrl) {
+        url = serachItem
+      }
+      titleHtml += `
     <li class="list-group py-2 px-2"><a href="${url}">${item.title}</a></li>
     `
+    }
+    newsCard.innerHTML += titleHtml
   }
-  newsCard.innerHTML += titleHtml
+
+  // disable loading image
+  document.querySelector('.news-loading').classList.add('hidden')
 }
 
 async function yearPriceHistory() {
@@ -359,6 +461,21 @@ async function yearPriceHistory() {
   // display the chart
   chart.container('year-history')
   chart.draw()
+
+  // disble loading img
+  document.querySelector('.year-history-loading').classList.add('hidden')
+}
+
+async function getCompanyName(stockCode) {
+  const response = await fetch(`/companyName/${stockCode}`)
+
+  if (response.status !== 200) {
+    company_name = '無法取得'
+    return
+  }
+
+  const result = await response.json()
+  return result.data
 }
 
 // Listener

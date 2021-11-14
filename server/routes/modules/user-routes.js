@@ -1,6 +1,7 @@
 const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
+const uploadS3 = require('../../../utils/aws-s3')
 
 const {
   wrapAsync,
@@ -14,7 +15,8 @@ const {
   setUserPermisstion,
   followUser,
   unfollowUser,
-  checkFollowState
+  checkFollowState,
+  editProfile
 } = require('../../controller/user-controller')
 
 router.get('/user_auth', authentication)
@@ -28,4 +30,11 @@ router.patch('/user_permission', setUserPermisstion)
 router.patch('/follow_user', authentication, followUser)
 router.patch('/unfollow_user', authentication, unfollowUser)
 router.get('/check_follow', authentication, checkFollowState)
+router.put(
+  '/edit_user',
+  uploadS3.userPictureUploadS3,
+  authentication,
+  editProfile
+)
+
 module.exports = router

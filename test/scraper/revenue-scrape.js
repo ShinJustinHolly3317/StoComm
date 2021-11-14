@@ -36,7 +36,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 24; i < 1000; i++) {
+  for (let i = 1623; i < stockList.length; i++) {
     let company = stockList[i][2].split('-')[0] // company name
     console.log(`stock_id:${i}, ${stockList[i][1]}, ${company}`)
 

@@ -224,6 +224,18 @@ div[peer_user_id] {
   height: 400px;
 }
 
+.carousel-item{
+  position: relative;
+}
+
+.loading {
+  position: absolute;
+  top: calc(50% - 1rem);
+  left: calc(50% - 1rem);
+  
+  z-index: 3;
+}
+
 /* anychart watermark */
 a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8.10.0.1933'] {
   display: none;

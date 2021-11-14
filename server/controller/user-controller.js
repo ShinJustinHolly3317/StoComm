@@ -157,7 +157,7 @@ async function unfollowUser(req, res) {
 
   const result = await User.unFollowUser(userId, followId)
   if (result.error) {
-console.log(result.error)    
+    console.log(result.error)    
     res.status(500).send({ error: result.error })
     return
   }
@@ -178,6 +178,23 @@ async function checkFollowState(req, res) {
   }
 }
 
+async function editProfile (req, res){
+  const userData = {}
+  const { user_name, user_id, user_email } = req.body
+  
+  userData.name = user_name || ''
+  userData.email = user_email || ''
+  userData.id = Number(user_id)
+  userData.picture = req.file ? req.file.location : ''
+  const result = await User.editProfile(userData)
+  
+  if(result.error) {
+    res.status(500).send({ error: 'Server Problem'})
+  } else {
+    res.status(200).send({ data: result.insertId })
+  }
+}
+
 module.exports = {
   login,
   signUp,
@@ -185,5 +202,6 @@ module.exports = {
   setUserPermisstion,
   followUser,
   unfollowUser,
-  checkFollowState
+  checkFollowState,
+  editProfile
 }

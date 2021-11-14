@@ -4,21 +4,14 @@ const cheerio = require('cheerio')
 const moment = require('moment')
 
 // model
-const {
-  insertRevenue,
-  getRevenue,
-  getNews,
-  insertNews,
-  insertChip,
-  getChip
-} = require('../model/stock_info_model')
+const Stock = require('../model/stock_info_model')
 
 // functions
 async function stockNews(req, res) {
   const { stockCode } = req.params
   const titleList = []
 
-  const newsResult = await getNews(stockCode)
+  const newsResult = await Stock.getNews(stockCode)
 
   if (newsResult.length) {
     for (let item of newsResult) {
@@ -31,100 +24,14 @@ async function stockNews(req, res) {
 
     return res.status(200).send({ data: titleList })
   } else {
-    const url = `https://goodinfo.tw/StockInfo/StockDetail.asp?STOCK_ID=${stockCode}`
-
-    const result = await axios.get(url, {
-      headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/94.0.4606.81 Safari/537.36',
-        'content-type': 'text/html; charset=UTF-8'
-      }
-    })
-
-    const $ = cheerio.load(result.data)
-
-    const rawTitleData = $(
-      'table.b0.row_bg_2n.row_mouse_over tr[valign="top"] a.link_black'
-    )
-    const rawTimeData = $(
-      'table.b0.row_bg_2n.row_mouse_over tr[valign="top"] span'
-    )
-
-    for (let key in rawTitleData) {
-      if (typeof rawTimeData[key].children === 'object') {
-        console.log(rawTimeData[key].children[0].data.trim().split(' ')[0])
-        // let cleanDate = rawTimeData[key].children[0].data
-        //   .trim()
-        //   .split(' ')[0]
-        //   .split(`\u00a0`)[1]
-        //   .replace('/', '-')
-          
-        let cleanDate = rawTimeData[key].children[0].data
-          .trim()
-          .split(' ')[0]
-          .match(/(0[1-9]|1[0-2])\/(0[1-9]|[12][0-9]|3[01])/)
-        
-        cleanDate = cleanDate
-          ? cleanDate[0].replace('/', '-')
-          : moment().format('MM-DD')
-
-        titleList.push({
-          title: rawTitleData[key].children[0].data,
-          date: moment().format('YYYY') + '-' + cleanDate,
-          link: URL + rawTitleData[key].attribs.href
-        })
-      }
-    }
-    const insertResult = await insertNews(titleList, stockCode)
-
-    res.send({ data: titleList })
+    return res.status(404).send({ data: '' })
   }
 }
 
 async function stockRevenue(req, res) {
   const { stockCode } = req.params
-  
-  let revenueData = await getRevenue(stockCode)
 
-  // if (!revenueData.length) {
-  //   const result = await axios.get(url, {
-  //     headers: {
-  //       'user-agent':
-  //         'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
-  //       'content-type': 'text/html; charset=UTF-8',
-  //       'x-requested-with': 'XMLHttpRequest',
-  //       'Accept-Encoding': 'br, gzip, deflate',
-  //       'Accept-Language': 'en-gb',
-  //       Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
-  //     }
-  //   })
-  //   const $ = cheerio.load(result.data)
-  //   const rawData = $(cssSelector)
-
-  //   let thisMonth = ''
-  //   let counter = 0
-  //   for (let item of rawData) {
-  //     if (counter % 17 === 0) {
-  //       thisMonth = item.children[0].children[0].data
-  //       allRevenueList[thisMonth] = []
-  //     } else {
-  //       allRevenueList[thisMonth].push(item.children[0].children[0].data)
-  //     }
-  //     counter++
-  //   }
-
-  //   const sqlRevenueList = []
-  //   for (let key in allRevenueList) {
-  //     sqlRevenueList.push([
-  //       stockCode,
-  //       Number(allRevenueList[key][6].replace(',', '')),
-  //       key.replace('/', '-')
-  //     ])
-  //   }
-
-  //   await insertRevenue(sqlRevenueList, stockCode)
-  //   revenueData = await getRevenue(stockCode)
-  // }
+  let revenueData = await Stock.getRevenue(stockCode)
 
   res.send({
     data: revenueData
@@ -215,7 +122,7 @@ async function stockChip(req, res) {
   const url = `https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=60;period=week;symbol=${stockCode}.TW?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=3pf2d09gnvivj&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true`
   const rawChipData = []
   let result
-  let chipData = await getChip(stockCode)
+  let chipData = await Stock.getChip(stockCode)
 
   if (!chipData.length) {
     try {
@@ -255,8 +162,8 @@ async function stockChip(req, res) {
           item.dealerDiffVolK
         ])
       }
-      await insertChip(rawChipData, stockCode)
-      chipData = await getChip(stockCode)
+      await Stock.insertChip(rawChipData, stockCode)
+      chipData = await Stock.getChip(stockCode)
     }
   }
 
@@ -272,11 +179,23 @@ async function stockChip(req, res) {
   res.send(updateChipData)
 }
 
+async function getCompanyName(req, res) {
+  const { stockCode } = req.params
+  const companyName = await Stock.getCompanyName(stockCode)
+
+  if (companyName) {
+    res.status(200).send({ data: companyName })
+  } else {
+    res.status(404).send({ error: 'nothing found' })
+  }
+}
+
 module.exports = {
   stockNews,
   stockRevenue,
   stockGross,
   getDayPrices,
   getYearPrice,
-  stockChip
+  stockChip,
+  getCompanyName
 }

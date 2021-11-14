@@ -1,26 +1,48 @@
 <div class='container'>
   <div class='profile-bar'>
     <div id='profile-img'>
-      <img src='/img/profile-icon.png' alt='' id='profile-icon' />
+
+      <div class="prfile-icon-area overflow-hidden rounded">
+        <img src='' alt='' id='profile-icon' class="rounded"/>
+      </div>
+      
+      
       <div class='self-info'>
-        <h1 id='member-name'>Justin Holly</h1>
+        <h1 id='member-name' class='mt-5'></h1>
+
         <div class='following-info'>
           <p><span>100</span> 位追蹤者</p>
           <p>正在追蹤 <span>999</span> 人</p>
         </div>
       </div>
-      <button type="button" class="btn btn-outline-secondary rounded-pill logout-btn js-logout-btn">登出</button>
+
+      <div class='d-flex ms-auto mb-3'>
+        <button
+          type='button'
+          class='btn btn-outline-secondary rounded-pill mx-2 mt-auto js-edit-btn'
+          data-bs-toggle='modal'
+          data-bs-target='#staticBackdrop'
+        > 編輯資料</button>
+        <button
+          type='button'
+          class='btn btn-outline-secondary rounded-pill logout-btn mx-2 js-logout-btn'
+        >登出</button>
+      </div>
     </div>
   </div>
 
   <div class='function-select'>
     <div class='ideas-tabs'>
-      <ul class="nav nav-tabs">
-        <li class="nav-item">
-          <a class="nav-link active member-tab" aria-current="page" href="/member">我的觀點</a>
+      <ul class='nav nav-tabs'>
+        <li class='nav-item'>
+          <a
+            class='nav-link active member-tab'
+            aria-current='page'
+            href='/member'
+          >我的觀點</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link text-secondary" href="/following">追蹤觀點</a>
+        <li class='nav-item'>
+          <a class='nav-link text-secondary' href='/following'>追蹤觀點</a>
         </li>
       </ul>
     </div>
@@ -34,18 +56,27 @@
 
   <div class='ideas-list'></div>
 
-  {{! modal }}
+  <div class='mx-auto d-flex justify-content-center my-2'>
+    <nav aria-label='Page navigation example'>
+      <ul class='pagination'>
+      </ul>
+    </nav>
+  </div>
+
+  <!-- Modal -->
   <div
     class='modal fade'
-    id='war-room-check'
+    id='staticBackdrop'
+    data-bs-backdrop='static'
+    data-bs-keyboard='false'
     tabindex='-1'
-    aria-labelledby='exampleModalLabel'
+    aria-labelledby='staticBackdropLabel'
     aria-hidden='true'
   >
     <div class='modal-dialog'>
       <div class='modal-content'>
         <div class='modal-header'>
-          <h5 class='modal-title' id='war-room-check-title'>開啟我的研究室</h5>
+          <h5 class='modal-title' id='staticBackdropLabel'>編輯個人資料</h5>
           <button
             type='button'
             class='btn-close'
@@ -54,37 +85,58 @@
           ></button>
         </div>
         <div class='modal-body'>
-          <h2 class="welcome-msg js-signup-msg"></h3>
-            <form class="war-room-check-data">
-              <label for="staticEmail" class="col-sm-12 col-form-label mt-3"
-                >研究室名稱</label
-              >
-              <input
-                type="text"
-                class="form-control"
-                id="signup-user-mail"
-                value=""
-                name="war_room_title"
-              />
+          <form class="edit-user-data-form">
+            <div class='mb-3'>
+            <label for='edit-user-name' class='mx-1 col-form-label'>綽號</label>
+            <div class='col-sm-10'>
+                <input
+                  type='text'
+                  class='form-control'
+                  id='edit-user-name'
+                  placeholder='請輸入新的綽號...'
+                  name="user_name"
+                />
+              </div>
+            </div>
 
-              <label for="inputPassword" class="col-sm-12 col-form-label mt-3"
-              >股票名稱或代碼</label>
-              <input
-                type="text"
-                class="form-control"
-                id="signup-user-password"
-                placeholder="請輸入股票名稱或代碼"
-                name="stock_name_code"/>
+            <input type="hidden" id="edit-user-id" name="user_id">
 
-              <input type="hidden" id="user_id" name="user_id">
-              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-create-war-room-btn">送出</button>
-            </form>
+            <div class='mb-3'>
+              <label for='edit-user-email' class='mx-1 col-form-label'>Email</label>
+              <div class='col-sm-10'>
+                <input
+                  type='text'
+                  class='form-control'
+                  id='edit-user-email'
+                  placeholder='請輸入新的Email...'
+                  name="user_email"
+                />
+              </div>
+            </div>
+
+            <div class='mb-3'>
+              <label for='formFile' class='mx-1 form-label'>上傳大頭貼</label>
+              <input class='form-control' type='file' id='formFile' name="user-picture"/>
+            </div>
+          </div>
+        </form>
+          
+        <div class='modal-footer'>
+          <div class="d-flex justify-content-start me-auto">
+            <p class="m-0">如果資訊為空，將維持原本資訊。</p>
+          </div>
+          <button
+            type='button'
+            class='btn btn-secondary'
+            data-bs-dismiss='modal'
+          >取消</button>
+          <button type='button' class='btn btn-primary js-submit-edit'>確認送出</button>
         </div>
       </div>
     </div>
   </div>
 </div>
 
-{{!-- JS --}}
-<script src="/javascript/page-load-auth.js"></script>
-<script src="/javascript/member.js"></script>
+{{! JS }}
+<script src='/javascript/page-load-auth.js'></script>
+<script src='/javascript/member.js'></script>

@@ -41,7 +41,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 189; i < 1000; i++) {
+  for (let i = 0; i < stockList.length; i++) {
     console.log('gogogo', i)
 
     let company = stockList[i][2].split('-')[0] // company name
@@ -74,8 +74,13 @@ async function stockInfoInsert(stockId, stockCode, companyName) {
 
     console.log(stockCode, companyName)
 
+    const today = moment().format('YYYY-MM-DD')
     const rawNewsData = result.data.items.data
     for (let item of rawNewsData) {
+      if (today !== moment(item.publishAt * 1000).format('YYYY-MM-DD')) {
+        console.log('old news');
+        continue
+      }
       console.log(moment(item.publishAt * 1000).format('YYYY-MM-DD'))
       titleList.push({
         title: item.title,

@@ -144,7 +144,8 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   background-color: white;
   border-radius: 20px;
   width: 100%;
-  height: 300px;
+  height: 60vh;
+  max-height: 500px;
   margin: 20px auto;
   padding: 25px 25px;
   cursor: pointer;
@@ -153,12 +154,16 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   flex-direction: column;
 }
 
-#ideas-card-img {
+.ideas-card-img {
   display: flex;
   justify-content: center;
 
-  height: 50%;
+  width: 100%;
   margin: 0 auto;
+}
+
+.img-fluid{
+  width: 100%;
 }
 
 .ideas-card h3,
@@ -192,6 +197,7 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
 
 .date{
   font-size: 6px;
+  font-weight: 600;
 }
 
 .social-btn.liked{
@@ -199,10 +205,27 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   height: 15px;
 }
 
+.like-area{
+  height: 30px;
+  padding: 0 10px;
+}
+
 .liked-num {
   font-size: 8px;
   font-weight: 600;
   margin: 0 5px;
 
-  color: rgb(20, 201, 186);
+  color: #2E61B1;
 }
+
+.user-picture{
+  width: 30px;
+  height: 30px;
+}
+
+.bear-icon, .bull-icon{
+  width: 50px;
+  height: 30px;
+  padding: 0 10px;
+}
+

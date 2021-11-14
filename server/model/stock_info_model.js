@@ -35,6 +35,19 @@ async function getRevenue(stock_code) {
   }
 }
 
+async function getGross(stock_code) {
+  const qryString = `SELECT * FROM gross 
+  INNER JOIN stock ON revenue.stock_id=stock.stock_id
+  WHERE stock.stock_code = ?`
+
+  try {
+    const [result] = await db.query(qryString, [stock_code])
+    return result
+  } catch (err) {
+    return console.log(err)
+  }
+}
+
 async function getNews(stock_code) {
   const qryString = `SELECT * FROM news 
   INNER JOIN stock on stock.stock_id=news.stock_id
@@ -69,7 +82,7 @@ async function insertChip(chipData, stock_code) {
   )
   const qryString = `INSERT INTO chip_history(stock_id, date, foreigner, investment_trust, dealer) VALUES ?`
 
-  const updateChipData = chipData.map(item => {
+  const updateChipData = chipData.map((item) => {
     return [res_stock_id[0].stock_id, item[0], item[1], item[2], item[3]]
   })
 
@@ -94,14 +107,27 @@ async function getChip(stock_code) {
   }
 }
 
-async function getStockList(){
+async function getStockList() {
   const stockList = await db.query('SELECT * FROM stock')
-  
+
   return stockList[0].map((item) => {
     if (item.stock_code) {
       return [item.stock_id, item.stock_code, item.company_name]
     }
   })
+}
+
+async function getCompanyName(stockCode) {
+  try {
+    const companyName = await db.query('SELECT * FROM stock WHERE stock_code = ?', [
+      stockCode
+    ])
+
+    return companyName[0][0].company_name
+  } catch (error) {
+    console.log(error)
+    return { error }
+  }
 }
 
 module.exports = {
@@ -112,5 +138,6 @@ module.exports = {
   insertChip,
   getChip,
   getStockList,
-  insertGross
+  insertGross,
+  getCompanyName
 }

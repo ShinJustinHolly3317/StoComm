@@ -1,14 +1,16 @@
 <div class='container'>
   <div>
+    <div class="author hidden" authorId="{{ideaData.user_id}}"></div>
 
     <div class='title-area'>
       <div>
-        <h4>{{ideaData.title}}</h4>
-        <p>{{ideaData.company_name}} ({{ideaData.stock_code}})</p>
+        <h4 class="fw-bold title">{{ideaData.title}}</h4>
+        <p class="badge bg-secondary my-3 px-3 fs-6">{{ideaData.company_name}} ({{ideaData.stock_code}})</p>
+        <img src="/img/{{ideaData.future}}.png" class="{{ideaData.future}}-icon rounded-pill border mx-2">  
       </div>
 
-      <div>
-
+      <div class="text-secondary mt-auto d-flex flex-column">
+        <button class="btn btn-outline-danger rounded-pill mb-2 delete-idea-btn hidden">刪除</button>
         <p>{{ideaData.date}}</p>
       </div>
     </div>
@@ -24,12 +26,16 @@
     <div class='footer-area'>
       <a href="/personal-articles/{{ideaData.user_id}}">
         <div class="user-area">
-          <img src="{{ideaData.user_picture}}" alt="" id="user-img">
+
+          <div class="prfile-icon-area overflow-hidden rounded">
+            <img src="{{ideaData.user_picture}}" alt="" id="user-img">
+          </div>
+          
           <p>{{ideaData.user_name}}</p>
         </div>
       </a>
       
-      <div class="social-btn-area d-flex align-items-center">
+      <div class="social-btn-area d-flex align-items-center btn btn-outline-secondary border-0 rounded-pill">
         <img src='/img/like.png' class='social-btn no-like' />
         <img src='/img/liked.png' class='social-btn hidden liked' />
         <div class="liked-num hidden">1</div>

@@ -23,3 +23,9 @@ a {
   pointer-events: none;
   cursor: default;
 }
+
+.blocking-view{
+  width: 100vw;
+  height: 100vh;
+  background-color: white;
+}

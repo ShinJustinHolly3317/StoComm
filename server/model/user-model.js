@@ -94,7 +94,7 @@ async function signUp(name, email, password) {
     )
     if (emails[0].length > 0) {
       await conn.query('COMMIT')
-      return { error: 'This email has already existed!' }
+      return { error: '這個Email已經被註冊啦!' }
     }
 
     const user = {
@@ -286,6 +286,33 @@ async function checkFollowState(userId, followId) {
   }
 }
 
+async function editProfile(userData) {
+  console.log('userData', userData)
+  const qryString = `
+    UPDATE user 
+    SET 
+    email = IF(?, ?, email), 
+    name = IF(?, ?, name),
+    picture = IF(?, ?, picture)
+    WHERE id = ?
+  `
+  try {
+    const [result] = await db.query(qryString, [
+      userData.email.length,
+      userData.email,
+      userData.name.length,
+      userData.name,
+      userData.picture.length,
+      userData.picture,
+      userData.id
+    ])
+    return result
+  } catch(error) {
+    console.error(error);
+    return { error }
+  }
+}
+
 module.exports = {
   nativeSignIn,
   signUp,
@@ -300,5 +327,6 @@ module.exports = {
   followUser,
   unFollowUser,
   checkFollowState,
-  findUserDataByEmail
+  findUserDataByEmail,
+  editProfile
 }

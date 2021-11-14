@@ -105,7 +105,7 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#3085d6',
-    cancelButtonColor: '#d33',
+    cancelButtonColor: '#adb5bd',
     confirmButtonText: '沒錯，我要發文了',
     cancelButtonText: '沒事，我按錯了'
   })

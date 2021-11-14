@@ -4,23 +4,24 @@
   margin: 0 auto;
 }
 
-.self-info {
-  margin: 50px 0 0 0;
-}
-
 #profile-img {
   margin: 50px 0;
 
   display: flex;
-  align-items: center;
+  /* align-items: center; */
 }
 
 #member-name {
   margin: 0 20px;
 }
 
-#profile-icon {
+.prfile-icon-area{
   width: 150px;
+  height: 150px;
+  display: flex;
+}
+
+#profile-icon {
   height: 150px;
 }
 
@@ -96,7 +97,8 @@ div#war-room-check label {
   background-color: white;
   border-radius: 20px;
   width: 100%;
-  height: 300px;
+  height: 60vh;
+  max-height: 500px;
   margin: 20px auto;
   padding: 25px 25px;
   cursor: pointer;
@@ -118,14 +120,22 @@ div#war-room-check label {
   margin: 0 10px;
 }
 
+
+/* user */
 .user-name {
   align-items: center;
 
   margin-top: auto;
 }
 
+.user-picture{
+  width: 30px;
+  height: 30px;
+}
+
 .date {
   font-size: 6px;
+  font-weight: 600;
 }
 
 .stock-situation {
@@ -150,10 +160,21 @@ div#war-room-check label {
   height: 15px;
 }
 
+.like-area{
+  height: 30px;
+  padding: 0 10px;
+}
+
 .liked-num {
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 600;
   margin: 0 5px;
 
-  color: rgb(20, 201, 186);
+  color: #2E61B1;
+}
+
+.bear-icon, .bull-icon{
+  width: 50px;
+  height: 30px;
+  padding: 0 10px;
 }
