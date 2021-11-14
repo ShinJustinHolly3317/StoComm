@@ -220,21 +220,32 @@ async function deleteIdea(ideaId, userId){
   const checkAuthor = `
   SELECT user_id FROM ideas WHERE id = ?
   `
-  const dltQry = `
+  const dltIdeaQry = `
   DELETE FROM ideas WHERE id = ?
   `
+  const dltLikeQry = `
+  DELETE FROM idea_likes WHERE idea_id = ?
+  `
 
+  const conn = await db.getConnection()
   try{
-    const [checkResult] = await db.query(checkAuthor, [ideaId, userId])
+    await conn.query('BEGIN')
+
+    const [checkResult] = await conn.query(checkAuthor, [ideaId, userId])
     if(checkResult[0].user_id !== Number(userId)){
       return { forbidden: '你並不是作者，請勿亂刪別人文章!' }
     }
 
-    const [result] = await db.query(dltQry, [ideaId])
-    return result
+    const [dltLikeResult] = await conn.query(dltLikeQry, [ideaId])
+    const [dltIdearesult] = await conn.query(dltIdeaQry, [ideaId])
+    await conn.query('COMMIT')
+    return dltIdearesult
   } catch(error){
+    await conn.query('ROLLBACK')
     console.error(error)
     return { error }
+  } finally {
+    await conn.release()
   }
 }
 
