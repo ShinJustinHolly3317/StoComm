@@ -50,6 +50,7 @@ const Controller = {
       View.ideasListEle.innerHTML = `
         <h5 class="mt-5 text-center">目前還沒有任何觀點喔!</h5>
         `
+      return
     }
 
     let ideasListHtml = ''
@@ -95,6 +96,9 @@ const Controller = {
     View.ideasListEle.innerHTML = ideasListHtml
 
     const totalCount = Math.ceil(Number(ideasResult.totalCount) / 10)
+    if(!totalCount){
+      return
+    }
 
     let pageHtml = ''
     for (let i = 0; i < totalCount; i++) {

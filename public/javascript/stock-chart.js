@@ -187,6 +187,8 @@ async function renderRevenueChart(id) {
         <h4 class="m-auto">查無此公司財務資訊</h4>
       </div>
     `
+    // disble loading img
+    document.querySelector('.revenue-loading').classList.add('hidden')
     return
   }
 
@@ -268,36 +270,6 @@ async function renderGrossChart(id) {
   chart.draw()
 }
 
-// async function renderChips(stockCode) {
-//   // create data
-//   const response = await fetch(`/stockChip/${stockCode}`)
-//   const chipData = await response.json()
-//   const foreign = []
-//   const investmentTrust = []
-//   const dealer = []
-
-//   for (let item of chipData){
-//     foreign.push([item[0], item[1]])
-//     investmentTrust.push([item[0], item[2]])
-//     dealer.push([item[0], item[3]])
-//   }
-
-//   // create a chart
-//   const chart = anychart.line()
-//   chart.title(`${company_name}(${STOCK_CODE})三大法人買賣超`)
-
-//   // create a line series and set the data
-//   const series1 = chart.line(foreign)
-//   const series2 = chart.line(investmentTrust)
-//   const series3 = chart.line(dealer)
-
-//   // set the container id
-//   chart.container('chip-chart')
-
-//   // initiate drawing the chart
-//   chart.draw()
-// }
-
 async function renderChips(stockCode) {
   const response = await fetch(`/stockChip/${stockCode}`)
   const chipData = await response.json()
@@ -311,6 +283,8 @@ async function renderChips(stockCode) {
         <h4 class="m-auto">查無此公司籌碼資訊</h4>
       </div>
     `
+    // disble loading img
+    document.querySelector('.chip-loading').classList.add('hidden')
     return
   }
 
@@ -382,6 +356,9 @@ async function renderNews(id) {
         <h4 class="m-auto">查無此公司新聞資訊</h4>
       </div>
     `
+    // disable loading image
+    document.querySelector('.news-loading').classList.add('hidden')
+    return
   } else {
     const result = await response.json()
     const newsData = result.data
@@ -389,13 +366,11 @@ async function renderNews(id) {
 
     let titleHtml = ``
     for (let item of newsData) {
-      let searchUrl = new URLSearchParams(item.link.split('LINK=')[1])
-      let url
-      for (let serachItem of searchUrl) {
-        url = serachItem
-      }
       titleHtml += `
-    <li class="list-group py-2 px-2"><a href="${url}">${item.title}</a></li>
+    <li class="list-group py-2 px-2">
+      <p class="mb-0 text-secondary">${item.date}</p>
+      <a href="${item.link}">${item.title}</a>
+    </li>
     `
     }
     newsCard.innerHTML += titleHtml

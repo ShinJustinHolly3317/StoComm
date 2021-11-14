@@ -58,6 +58,7 @@ const Controller = {
       View.ideasListEle.innerHTML = `
         <h5 class="mt-5 text-center">目前還沒有任何觀點喔!</h5>
         `
+      return
     }
 
     let ideasListHtml = ''
@@ -104,6 +105,9 @@ const Controller = {
     View.ideasListEle.innerHTML = ideasListHtml
 
     const totalCount = Math.ceil(Number(ideasResult.totalCount) / 10)
+    if (!totalCount) {
+      return
+    }
 
     let pageHtml = ''
     for (let i = 0; i < totalCount; i++) {
@@ -168,6 +172,10 @@ Controller.init()
 
 // Listeners
 View.followBtn.addEventListener('click', async () => {
+  // check user logged in or not
+  const loginResult = await showLoginModal()
+  if(!loginResult) return
+
   const response = await fetch(
     `/api/1.0/user/follow_user?userId=${userId}&followId=${followId}`,
     {

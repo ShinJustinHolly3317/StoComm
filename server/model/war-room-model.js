@@ -93,7 +93,6 @@ async function endWarRoom(roomId, userId) {
       [userId]
     )
     await conn.query('COMMIT')
-    
     return result
   } catch (error) {
     conn.query('ROLLBACK')

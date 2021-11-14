@@ -116,6 +116,13 @@ async function signUp(name, email, password) {
     const [result] = await conn.query(queryStr, user)
     user.id = result.insertId
 
+    // update user picture url
+    const updatePicQry = 'UPDATE user SET picture = ? WHERE id = ?'
+    const defaultImg = `https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${result.insertId}-profile`
+    const [picResult] = await conn.query(updatePicQry, [
+      defaultImg, result.insertId
+    ])
+
     // add userid in access token
     const accessToken = jwt.sign(
       {

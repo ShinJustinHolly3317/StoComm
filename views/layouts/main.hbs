@@ -10,8 +10,8 @@
       integrity='sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3'
       crossorigin='anonymous'
     />
-
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.7.0/font/bootstrap-icons.css">
+    
     <link rel='stylesheet' href='/stylesheet/normalize.css' />
     <link rel='stylesheet' href='/stylesheet/navbar.css' />
     <link rel='stylesheet' href='/stylesheet/{{style}}' />
@@ -25,12 +25,16 @@
         <img src='/img/logo.png' alt='' id='logo' />
       </a>
       <div class='functional-part'>
-        <a class="quick-start btn btn-outline-secondary rounded border-0" href="/explore">
-          瀏覽熱門觀點
-        </a>
-        <a class="btn btn-outline-secondary quick-start  rounded border-0" data-bs-toggle="modal" data-bs-target="#war-room-check">
-          快速開啟研究室
-        </a>
+
+        <div class="functional-btns">
+          <a class="quick-start btn btn-outline-secondary rounded border-0" href="/explore">
+            瀏覽熱門觀點
+          </a>
+          <a class="btn btn-outline-secondary quick-start  rounded border-0 quick-war-room-btn">
+            快速開啟研究室
+          </a>
+        </div>
+        
         <div class='dropdown'>
           <a
             id='dropdownMenuLink'
@@ -51,7 +55,7 @@
         </div>
       </div>
 
-      <div class='home-login-btns'>
+      {{!-- <div class='home-login-btns'>
         <button
           type='button'
           class='btn btn-secondary mx-3'
@@ -64,10 +68,10 @@
           data-bs-toggle='modal'
           data-bs-target='#signup-modal'
         >註冊</button>
-      </div>
+      </div> --}}
     </div>
 
-    {{! modal }}
+    {{! start war room modal }}
   <div
     class='modal fade'
     id='war-room-check'
@@ -95,7 +99,7 @@
               <input
                 type="text"
                 class="form-control"
-                id="signup-user-mail"
+                id="war-room-title"
                 value=""
                 name="war_room_title"
               />
@@ -105,7 +109,7 @@
               <input
                 type="text"
                 class="form-control"
-                id="signup-user-password"
+                id="stock-name-code"
                 placeholder="請輸入股票名稱或代碼"
                 name="stock_name_code"/>
 
@@ -117,6 +121,144 @@
     </div>
   </div>
 
+  <!-- Log in Modal -->
+    <div
+      class="modal fade"
+      id="nav-login-modal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="login-title">登入</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+              data-bs-target="#nav-login-modal"
+            ></button>
+          </div>
+          <div class="modal-body">
+            <form>
+              <h3 class="welcome-msg js-login-msg">StoComm 歡迎你!</h3>
+
+              <div class="form-group mt-3">
+                <label for="staticEmail" class="col-sm-2 col-form-label"
+                  >Email</label
+                >
+                <div class="col-sm-12">
+                  <input
+                    type="text"
+                    class="form-control"
+                    name="email"
+                    id="nav-user-email"
+                    placeholder="請輸入email..."
+                    value=""
+                  />
+                </div>
+              </div>
+              
+              <div class="form-group mt-3">
+                <label for="inputPassword" class="col-sm-2 col-form-label"
+                  >密碼</label
+                >
+                <div class="col-sm-12">
+                  <input
+                    type="password"
+                    class="form-control"
+                    name="password"
+                    id="nav-user-password"
+                    placeholder="請輸入密碼..."
+                  />
+                </div>
+              </div>
+              <div class="d-flex align-items-center mt-4">
+                <button type="submit" class="btn btn-outline-primary ms-auto" id="js-nav-login-btn">送出</button>
+                <button type="button" class="btn btn-outline-secondary mx-3 nav-signup-btn">還沒註冊</button>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+  
+
+    <!-- Sign up Modal -->
+    <div
+      class="modal fade"
+      id="nav-signup-modal"
+      data-bs-backdrop="static"
+      data-bs-keyboard="false"
+      tabindex="-1"
+      aria-labelledby="staticBackdropLabel"
+      aria-hidden="true"
+    >
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="login-title">註冊</h5>
+            <button
+              type="button"
+              class="btn-close"
+              data-bs-dismiss="modal"
+              aria-label="Close"
+            ></button>
+          </div>
+          <div class="modal-body d-flex flex-column">
+            <h3 class="welcome-msg js-signup-msg">StoComm 歡迎你!</h3>
+            <form class="signup-data">
+              <label for="signup-user-mail" class="col-sm-2 col-form-label mt-3"
+                >Email</label
+              >
+              <input
+                type="email"
+                class="form-control"
+                id="signup-user-mail"
+                value=""
+                placeholder="請輸入email..."
+                name="email"
+              />
+
+              <label for="signup-user-name" class="col-sm-2 col-form-label mt-3"
+              >綽號</label>
+              <input
+                type="text"
+                class="form-control"
+                id="signup-user-name"
+                value=""
+                placeholder="請輸入綽號..."
+                name="name"
+              />
+
+              <label for="signup-user-password" class="col-sm-2 col-form-label mt-3"
+              >密碼</label>
+              <input
+                type="password"
+                class="form-control"
+                id="signup-user-password"
+                placeholder="請輸入密碼..."
+                name="password"/>
+              
+              <div class="d-flex">
+                <button type="submit" class="btn btn-outline-primary mb-2 mt-4 ms-auto" id="js-signup-btn">送出</button>
+              </div>
+              
+            </form>
+            
+          </div>
+
+        </div>
+      </div>
+    </div>
+
     <!-- JS -->
     <script
       src='https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js'
@@ -126,64 +268,9 @@
     
     <script src="//cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src='/javascript/template/universal.js'></script>
-    <script>
-      document.querySelector('#navbar-logou').addEventListener('click', (e) => {
-      localStorage.removeItem('user');localStorage.removeItem('access_token');
-      window.location.href = '/' })
-    </script>
-
+    <script src="/javascript/template/main.js"></script>
     {{{body}}}
-
-    <script>
-      document.querySelector('#js-create-war-room-btn').addEventListener('click', async (e) => {
-        e.preventDefault()
-        const accessToken = localStorage.getItem('access_token')
-        
-        const userResponse = await fetch('/api/1.0/user/user_auth', {
-          method: 'GET',
-          headers: {
-            Authorization: 'Bearer ' + accessToken
-          }
-        })
-
-        if (userResponse.status !== 200) {
-          await Swal.fire({
-            icon: 'error',
-            title: '請重新登入!',
-            confirmButtonColor: '#315375'
-          })
-          return 
-        }
-
-        const userResult = await userResponse.json()
-        const userData = userResult.data
-
-        document.querySelector('#user_id').value = userData.id
-        const createData = new FormData(document.querySelector('.war-room-check-data'))
-        const roomResponse = await fetch('/api/1.0/war_room/create_war_room', {
-          method: 'POST',
-          Authorization: 'Bearer ' + accessToken,
-          body: createData
-        })
-        const roomresult = await roomResponse.json()
-        console.log(roomresult)
-
-        if (roomResponse.status !== 200) {
-          await Swal.fire({
-            icon: 'error',
-            title: roomresult.error,
-            confirmButtonColor: '#315375'
-          })
-          return 
-        }
-
-        const roomId = roomresult.data.insertId
-        const stockCode = roomresult.data.stock_code
-        window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
-      })
-
-      
-    </script>
+    
   </body>
 
 </html>

@@ -5,19 +5,22 @@ const View = {
 
   welcomeLogIn: document.querySelector('.js-login-msg'),
   welcomeSignUp: document.querySelector('.js-signup-msg'),
-  userEmail: document.querySelector('#user-email'),
-  userPassword: document.querySelector('#user-password'),
+  userEmail: document.querySelector('#nav-user-email'),
+  userPassword: document.querySelector('#nav-user-password'),
   loginBtn: document.querySelector('#js-login-btn'),
   signUpBtn: document.querySelector('#js-signup-btn'),
 
-  logInModal: document.querySelector('#login-modal'),
-  signUpModal: document.querySelector('#signup-modal'),
+  logInModal: document.querySelector('#nav-login-modal'),
+  signUpModal: document.querySelector('#nav-signup-modal'),
 
   signUpData: document.querySelector('.signup-data'),
   signUpEmail: document.querySelector('#signup-user-mail'),
 
-  navBarBtns: document.querySelector('.functional-part'),
-  homeLoginBtns: document.querySelector('.home-login-btns')
+  navBarBtns: document.querySelector('.functional-part .functional-btns'),
+  homeLoginBtns: document.querySelector('.home-login-btns'),
+
+  memberLink: document.querySelector('#member-link'),
+  navSignUpBtn: document.querySelector('.nav-signup-btn')
 }
 
 const Controller = {
@@ -38,66 +41,24 @@ View.loginForm.addEventListener('submit', async (e) => {
   })
   const result = await response.json()
 
-  const logInModal = new bootstrap.Modal(View.logInModal, {
-    keyboard: false
-  })
-  const signUpModal = new bootstrap.Modal(View.signUpModal, {
-    keyboard: false
-  })
+  // const logInModal = new bootstrap.Modal(View.logInModal, {
+  //   keyboard: false
+  // })
+  // const signUpModal = new bootstrap.Modal(View.signUpModal, {
+  //   keyboard: false
+  // })
 
   if (result.searchResult) {
-    logInModal.show()
+    // use global modal from main.js
+    loginModal.show()
     View.welcomeLogIn.innerText = `歡迎回來，${result.name}`
     View.userEmail.value = result.email
+    View.navSignUpBtn.classList.add('hidden')
   } else {
-    signUpModal.show()
+    signupModal.show()
     View.welcomeSignUp.innerText = `你還沒有加入會員喔，快點加入吧`
+    console.log(View.signUpEmail)
     View.signUpEmail.value = View.enterEmail.value
-  }
-})
-
-View.loginBtn.addEventListener('click', async (e) => {
-  e.preventDefault()
-  const loginData = {
-    provider: 'native',
-    email: View.userEmail.value,
-    password: View.userPassword.value
-  }
-
-  const response = await fetch('/api/1.0/user/log_in', {
-    method: 'POST',
-    body: JSON.stringify(loginData),
-    headers: {
-      'Content-type': 'application/json'
-    }
-  })
-  const result = await response.json()
-
-  switch (response.status) {
-    case 500:
-    case 403:
-      await Swal.fire({
-        icon: 'error',
-        title: result.error,
-        confirmButtonColor: '#315375'
-      })
-      break
-    case 200:
-      localStorage.setItem('access_token', result.data.access_token)
-
-      const user = {
-        id: result.data.user.id,
-        name: result.data.user.name,
-        email: result.data.user.email,
-        piture: result.data.user.picture
-      }
-      localStorage.setItem('user', JSON.stringify(user))
-
-      await Swal.fire({
-        title: '登入成功!',
-        confirmButtonColor: '#315375'
-      })
-      window.location.href = '/hot-rooms'
   }
 })
 
@@ -143,8 +104,8 @@ async function userAuth() {
   // const pathname = window.location.pathname
 
   // render nav btns
-  View.navBarBtns.style.display = 'none'
-  View.homeLoginBtns.style.display = 'flex'
+  View.navBarBtns.classList.add('hidden')
+  // View.homeLoginBtns.style.display = 'flex'
 
   if (!accessToken) return
 
@@ -162,5 +123,7 @@ async function userAuth() {
     window.location.href = '/hot-rooms'
   }
 }
-
 userAuth()
+
+
+

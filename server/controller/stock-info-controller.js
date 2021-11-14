@@ -17,7 +17,7 @@ async function stockNews(req, res) {
     for (let item of newsResult) {
       titleList.push({
         title: item.title,
-        date: item.date,
+        date: moment(item.date).format('MM-DD'),
         link: item.link
       })
     }

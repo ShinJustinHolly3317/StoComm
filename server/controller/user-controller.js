@@ -1,6 +1,15 @@
-const { RssHandler } = require('htmlparser2')
 const validator = require('validator')
 const User = require('../model/user-model')
+const fs = require('fs')
+
+// AWS S3
+const AWS = require('aws-sdk')
+AWS.config.update({ region: 'ap-northeast-1' })
+const s3 = new AWS.S3({
+  apiVersion: '2006-03-01',
+  accessKeyId: process.env.S3_ACCESS_KEY,
+  secretAccessKey: process.env.S3_SECRET_KEY
+})
 
 async function login(req, res) {
   const { provider, email, password, access_token } = req.body
@@ -74,6 +83,28 @@ async function signUp(req, res) {
     res.status(500).send({ error: 'Database Query Error' })
     return
   }
+
+  // upload default image
+  const defaultImg = fs.createReadStream(__dirname + '/../../public/img/profile-icon.png')
+  const uploadParams = {
+    Bucket: process.env.S3_BUCKET_NAME + '/users',
+    Key: user.id + '-profile',
+    Body: defaultImg,
+    ACL: 'public-read',
+    ContentType: 'image/png'
+  }
+
+  // upload to S3
+  s3.upload(uploadParams, function (err, data) {
+    if (err) {
+      console.log('Error', err)
+      res.status(500).send({error: '伺服器內部出錯了'})
+      return
+    }
+    if (data) {
+      console.log('Upload Success', data.Location)
+    }
+  })
 
   res.status(200).send({
     data: {

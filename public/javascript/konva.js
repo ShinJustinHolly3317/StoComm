@@ -4,7 +4,7 @@ const commandHistory = []
 const undoHistory = []
 let localLayerCounter = 0
 let width = window.innerWidth
-let height = window.innerHeight - 118
+let height = window.innerHeight - 130
 
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')

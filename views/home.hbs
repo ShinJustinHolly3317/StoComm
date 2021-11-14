@@ -1,160 +1,98 @@
-<div class="home-wrapper">
-  <div class="welcome-page">
-    <div class="slogan">
-      <div class="slogon-title">
-        <div class="tilte-1">最尊重，友善，包容的平台</div>
-        <div class="title-2">討論、研究、共同編輯、以及網羅各大高手的觀點，每日提供最即時的資訊，讓你不再有被<span class="fw-bold" style="color: rgb(20, 201, 186);">割韭菜</span>的感受</div>
-      </div>
-    </div>
+<div class='home-wrapper'>
+  <div class='welcome-page'>
+    <div class='slogan'>
+      <div class='slogon-title'>
+        <div class='tilte-1'>最尊重，友善，包容的平台</div>
+        <div
+          class='title-2'
+        >股市討論、研究、共同編輯、以及網羅各大高手的觀點，每日提供最即時的個股資訊，讓你不再有被<span
+            class='fw-bold'
+            style='color: rgb(20, 201, 186);'
+          >割韭菜</span>的感受</div>
 
-    <div class="d-flex flex-column login-area">
-      <div class="login-btn-area">
-        <form id="js-login-form" class="w-100 d-flex justify-content-around">
-          <input
-            type="text"
-            id="enter-email"
-            name="email"
-            placeholder="請輸入你的email..."
-            value=""
-            class="login-form"
-          />
-          <button type="submit" id="enter-btn" class="fw-bold">進入</button>
-        </form>
-      </div>
-      <p class="mt-2 hint-login">還沒註冊嗎? <a class="text-primary fw-bold" data-bs-toggle="modal" data-bs-target="#signup-modal">快來吧</a>，或是先來<a class="text-primary fw-bold" href="/hot-rooms">參觀</a></p>
-    </div>
-    
-    <!-- Log in Modal -->
-    <div
-      class="modal fade"
-      id="login-modal"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-      tabindex="-1"
-      aria-labelledby="staticBackdropLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="login-title">登入</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form>
-              <h3 class="welcome-msg js-login-msg">歡迎回來!</h3>
-
-              <div class="form-group mt-3">
-                <label for="staticEmail" class="col-sm-2 col-form-label"
-                  >Email</label
-                >
-                <div class="col-sm-12">
-                  <input
-                    type="text"
-                    class="form-control"
-                    name="email"
-                    id="user-email"
-                    placeholder="請輸入email..."
-                    value=""
-                  />
-                </div>
-              </div>
-              
-              <div class="form-group mt-3">
-                <label for="inputPassword" class="col-sm-2 col-form-label"
-                  >密碼</label
-                >
-                <div class="col-sm-12">
-                  <input
-                    type="password"
-                    class="form-control"
-                    name="password"
-                    id="user-password"
-                    placeholder="請輸入密碼..."
-                  />
-                </div>
-              </div>
-              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-login-btn">送出</button>
-            </form>
-          </div>
-
-        </div>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="cover-img">
-    <img src="/img/harvest.jpg" alt="" id="ad-img">
-  </div>
-
-  <!-- Sign up Modal -->
-    <div
-      class="modal fade"
-      id="signup-modal"
-      data-bs-backdrop="static"
-      data-bs-keyboard="false"
-      tabindex="-1"
-      aria-labelledby="staticBackdropLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="login-title">註冊</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <h3 class="welcome-msg js-signup-msg">你還沒有加入會員喔，快點加入吧</h3>
-            <form class="signup-data">
-              <label for="signup-user-mail" class="col-sm-2 col-form-label mt-3"
-                >Email</label
+        <div>
+          <div class='d-flex flex-column login-area mt-5 mx-0'>
+            <div class='login-btn-area'>
+              <form
+                id='js-login-form'
+                class='w-100 d-flex justify-content-around'
               >
-              <input
-                type="email"
-                class="form-control"
-                id="signup-user-mail"
-                value=""
-                placeholder="請輸入email..."
-                name="email"
-              />
-
-              <label for="signup-user-name" class="col-sm-2 col-form-label mt-3"
-              >綽號</label>
-              <input
-                type="text"
-                class="form-control"
-                id="signup-user-name"
-                value=""
-                placeholder="請輸入綽號..."
-                name="name"
-              />
-
-              <label for="signup-user-password" class="col-sm-2 col-form-label mt-3"
-              >密碼</label>
-              <input
-                type="password"
-                class="form-control"
-                id="signup-user-password"
-                placeholder="請輸入密碼..."
-                name="password"/>
-
-              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-signup-btn">送出</button>
-            </form>
-            
+                <input
+                  type='text'
+                  id='enter-email'
+                  name='email'
+                  placeholder='請輸入你的email...'
+                  value=''
+                  class='login-form'
+                />
+                <button
+                  type='submit'
+                  id='enter-btn'
+                  class='fw-bold'
+                >進入</button>
+              </form>
+            </div>
+            <p class='mt-2 hint-login'>還沒註冊嗎?
+              <a
+                class='text-primary fw-bold'
+                data-bs-toggle='modal'
+                data-bs-target='#nav-signup-modal'
+              >快來吧</a>，或是先來<a
+                class='text-primary fw-bold'
+                href='/hot-rooms'
+              >參觀</a></p>
           </div>
-
         </div>
+      </div>
+
+    </div>
+
+  </div>
+
+  <div class='cover-img overflow-hidden'>
+    <img src='/img/harvest.jpg' alt='' id='ad-img' />
+  </div>
+
+</div>
+
+<div class='dilimiter'></div>
+
+{{! Describe Characteristics of my website  }}
+<div class='description-wrapper d-flex position-relative'>
+
+  {{! <div class="meeting-area">
+    <img src="/img/meeting.png" alt="" class="meeting-img">
+    
+  </div> }}
+  <div class='d-flex p-5 justify-content-center w-100 floating-title-area'>
+
+    <div class='p-3 card mx-3 shadow'>
+      <div class='text-area card-body'>
+        <h3 class='fw-bold'>即時研究室</h3>
+        <h5 class='text-secondary fw-bold'>語音 <i class="bi bi-x-lg"></i> 文字聊天室</h5>
+        <p
+          class='mt-5'
+        >提供一個共同討論的空間，讓你與你的朋友不再有文字或語音的距離。</p>
+      </div>
+    </div>
+
+    <div class='p-3 card mx-3 shadow'>
+      <div class='card-body'>
+        <h3 class='fw-bold'>即時研究室</h3>
+        <h5 class='text-secondary fw-bold'>共享繪圖板</h5>
+        <p
+          class='mt-5'
+        >提供一個共同編輯的空間，讓你與你的朋友不再有想畫圖討論卻無從下手的困擾。</p>
+      </div>
+    </div>
+
+    <div class='p-3 card mx-3 shadow'>
+      <div class='card-body'>
+        <h3 class='fw-bold'>分享觀點</h3>
+        <h5 class='text-secondary fw-bold'>保存你的每一次的討論結果</h5>
+        <p
+          class='mt-5'
+        >保存及時研究室討論後的結果。把每一次與朋友討論的內容保存，或是轉發你喜歡的研究室討論結果。</p>
       </div>
     </div>
 
@@ -162,4 +100,4 @@
 </div>
 
 <!-- JS -->
-<script src="./javascript/home.js"></script>
+<script src='./javascript/home.js'></script>

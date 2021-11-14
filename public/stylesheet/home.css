@@ -1,6 +1,6 @@
 .home-wrapper {
   display: flex;
-  height: calc(100vh - 80px);
+  height: calc(90vh - 80px);
 }
 
 .welcome-page {
@@ -15,6 +15,7 @@
   background-repeat: no-repeat;
   background-position: right center; */
   width: 50%;
+  background-color: rgb(231, 251, 240);
 }
 
 .slogan {
@@ -23,7 +24,7 @@
   /* padding: 100px 0 0 100px; */
 
   width: 90%;
-  margin: 100px auto 0 auto;
+  margin: 0 auto 0 auto;
 }
 
 .slogon-title {
@@ -78,7 +79,8 @@ h3 {
 
 .login-area{
   width: 90%;
-  margin-top: 100px;
+  margin: 0 auto;
+  /* margin-top: 100px; */
 }
 
 .login-btn-area {
@@ -95,5 +97,36 @@ h3 {
 
 #enter-btn{
   border: none;
-  background-color: white;
+  background-color: rgb(231, 251, 240);
+}
+
+/* description */
+.meeting-area{
+  background-color: #F6AAA9;
+  width: 30%;
+}
+
+.meeting-img{
+  width: 100%;
+}
+
+.room-img{
+  position: absolute;
+  top: 0;
+  width: 100%;
+
+  z-index: 1;
+}
+
+.text-area{
+  z-index: 2;
+}
+
+.floating-title-area{
+  position: absolute;
+  top: -100px
+}
+
+.floating-title-area .card{
+  width: 30%;
 }

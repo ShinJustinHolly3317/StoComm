@@ -317,6 +317,11 @@ async function socketController(io) {
         // user left notification
         socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
 
+        // if (onlineClients[roomId][socket.id].userId === onlineClients[roomId].hostId) {
+        //   socket.to(roomId).emit('update host leaving')
+        //   WarRoom.endWarRoom(roomId, onlineClients[roomId][socket.id].userId)
+        // }
+
         console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
 
