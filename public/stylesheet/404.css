@@ -1,0 +1,34 @@
+.lost{
+  width: 100vw;
+  height: calc(100vh - 60px);
+}
+
+.lost-img{
+  max-height: 100px;
+  max-width: 100px;
+  height: 70%;
+}
+
+.lost-title{
+  font-size: 24px;
+  font-weight: 800;
+  color: rgb(48, 48, 48);
+  letter-spacing: 5px;
+}
+
+.analysis-card {
+  width: 400px;
+  height: 400px;
+}
+
+/* anychart watermark */
+a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8.10.0.1933'] {
+  display: none;
+}
+
+@media (min-width: 1300px) {
+  .analysis-card {
+    width: 500px;
+    height: 500px;
+  }
+}

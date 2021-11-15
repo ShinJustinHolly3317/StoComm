@@ -19,6 +19,11 @@
 
   <body>
     <div class="blocking-view hidden"></div>
+
+    <div class="loading-img-area">
+      <img src="/img/loading.gif" class="loading-img">
+    </div>
+
     <div class='navbar shadow-sm'>
       <a href='/hot-rooms'>
         {{! <h3>StoComm</h3> }}
@@ -93,7 +98,7 @@
         <div class='modal-body'>
           <h2 class="welcome-msg js-signup-msg"></h3>
             <form class="war-room-check-data">
-              <label for="staticEmail" class="col-sm-12 col-form-label mt-3"
+              <label for="staticEmail" class="col-sm-12 col-form-label mt-3 input-label"
                 >研究室名稱</label
               >
               <input
@@ -104,7 +109,7 @@
                 name="war_room_title"
               />
 
-              <label for="inputPassword" class="col-sm-12 col-form-label mt-3"
+              <label for="inputPassword" class="col-sm-12 col-form-label mt-3 input-label"
               >股票名稱或代碼</label>
               <input
                 type="text"
@@ -114,7 +119,11 @@
                 name="stock_name_code"/>
 
               <input type="hidden" id="user_id" name="user_id">
-              <button type="submit" class="btn btn-primary mb-2 mt-4" id="js-create-war-room-btn">送出</button>
+
+              <div class="d-flex">
+                <button type="submit" class="btn btn-outline-primary ms-auto mb-2 mt-4 rounded-pill" id="js-create-war-room-btn">送出</button>
+              </div>
+              
             </form>
         </div>
       </div>
@@ -148,7 +157,7 @@
               <h3 class="welcome-msg js-login-msg">StoComm 歡迎你!</h3>
 
               <div class="form-group mt-3">
-                <label for="staticEmail" class="col-sm-2 col-form-label"
+                <label for="staticEmail" class="col-form-label input-label"
                   >Email</label
                 >
                 <div class="col-sm-12">
@@ -164,7 +173,7 @@
               </div>
               
               <div class="form-group mt-3">
-                <label for="inputPassword" class="col-sm-2 col-form-label"
+                <label for="inputPassword" class="col-sm-2 col-form-label input-label"
                   >密碼</label
                 >
                 <div class="col-sm-12">
@@ -178,8 +187,8 @@
                 </div>
               </div>
               <div class="d-flex align-items-center mt-4">
-                <button type="submit" class="btn btn-outline-primary ms-auto" id="js-nav-login-btn">送出</button>
-                <button type="button" class="btn btn-outline-secondary mx-3 nav-signup-btn">還沒註冊</button>
+                <button type="submit" class="btn btn-outline-primary ms-auto rounded-pill" id="js-nav-login-btn">送出</button>
+                <button type="button" class="btn btn-outline-secondary ms-3 nav-signup-btn rounded-pill">還沒註冊</button>
               </div>
             </form>
           </div>
@@ -215,7 +224,7 @@
           <div class="modal-body d-flex flex-column">
             <h3 class="welcome-msg js-signup-msg">StoComm 歡迎你!</h3>
             <form class="signup-data">
-              <label for="signup-user-mail" class="col-sm-2 col-form-label mt-3"
+              <label for="signup-user-mail" class="col-sm-2 col-form-label mt-3 input-label"
                 >Email</label
               >
               <input
@@ -227,7 +236,7 @@
                 name="email"
               />
 
-              <label for="signup-user-name" class="col-sm-2 col-form-label mt-3"
+              <label for="signup-user-name" class="col-sm-2 col-form-label mt-3 input-label"
               >綽號</label>
               <input
                 type="text"
@@ -238,7 +247,7 @@
                 name="name"
               />
 
-              <label for="signup-user-password" class="col-sm-2 col-form-label mt-3"
+              <label for="signup-user-password" class="col-sm-2 col-form-label mt-3 input-label"
               >密碼</label>
               <input
                 type="password"
@@ -248,7 +257,7 @@
                 name="password"/>
               
               <div class="d-flex">
-                <button type="submit" class="btn btn-outline-primary mb-2 mt-4 ms-auto" id="js-signup-btn">送出</button>
+                <button type="submit" class="btn btn-outline-primary mb-2 mt-4 ms-auto rounded-pill" id="js-signup-btn">送出</button>
               </div>
               
             </form>

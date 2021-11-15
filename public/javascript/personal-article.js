@@ -17,12 +17,13 @@ const View = {
 }
 
 const Controller = {
-  init: async function() {
+  init: async function () {
     // check paging
     if (getQueryObject().page) {
       View.page = Number(getQueryObject().page) - 1
     }
 
+    // Verify user ID exist or not
     const userResponse = await fetch(
       `/api/1.0/user/user_data?userId=${followId}`
     )
@@ -41,23 +42,54 @@ const Controller = {
     }
 
     let ideasUrl = `/api/1.0/ideas/all?userId=${userData.id}&page=${View.page}`
+    let followingUrl = `/api/1.0/user/following_num?userId=${followId}`
     const pathname = window.location.pathname
     if (pathname.includes('following')) {
       ideasUrl = `/api/1.0/ideas/hot_ideas?filter=byFollowing&userId=${userData.id}&page=${View.page}`
     }
 
-    View.memberNameEle.innerText = userData.name
-    View.followingInfoEle[0].innerText = userData.followers
-    View.followingInfoEle[1].innerText = userData.following
-    View.profileEle.src = userData.picture
-
     const ideasResponse = await fetch(ideasUrl)
     const ideasResult = await ideasResponse.json()
+    const followingResponse = await fetch(followingUrl)
+    const follwingResult = await followingResponse.json()
+
+    View.memberNameEle.innerText = userData.name
+    View.followingInfoEle[0].innerText = follwingResult.data.followers
+    View.followingInfoEle[1].innerText = follwingResult.data.following
+    View.profileEle.src = userData.picture
+
+    // check if followed
+    if (accessToken) {
+      userId = (await this.userAuth()).data.id
+
+      if (Number(userId) === Number(followId)) {
+        window.location.href = '/member'
+      }
+
+      const response = await fetch(
+        `/api/1.0/user/check_follow?userId=${userId}&followId=${followId}`,
+        {
+          headers: {
+            Authorization: 'Bearer ' + accessToken
+          }
+        }
+      )
+      if (response.status === 200) {
+        const result = await response.json()
+        View.followedBadge.classList.remove('hidden')
+        View.followBtn.classList.add('hidden')
+        View.unFollowBtn.classList.remove('hidden')
+      } else {
+        const result = await response.json()
+        console.log('error', result)
+      }
+    }
 
     if (!ideasResult.data.length) {
       View.ideasListEle.innerHTML = `
         <h5 class="mt-5 text-center">目前還沒有任何觀點喔!</h5>
         `
+      closeLoading()
       return
     }
 
@@ -124,34 +156,9 @@ const Controller = {
       .querySelector('.pagination')
       .children[View.page].classList.add('active')
 
-    // check if followed
-    if (accessToken) {
-      userId = (await this.userAuth()).data.id
-
-      if (Number(userId) === Number(followId)) {
-        window.location.href = '/member'
-      }
-
-      const response = await fetch(
-        `/api/1.0/user/check_follow?userId=${userId}&followId=${followId}`,
-        {
-          headers: {
-            Authorization: 'Bearer ' + accessToken
-          }
-        }
-      )
-      if (response.status === 200) {
-        const result = await response.json()
-        View.followedBadge.classList.remove('hidden')
-        View.followBtn.classList.add('hidden')
-        View.unFollowBtn.classList.remove('hidden')
-      } else {
-        const result = await response.json()
-        console.log('error', result)
-      }
-    }
+    closeLoading()
   },
-  userAuth: async function() {
+  userAuth: async function () {
     const response = await fetch('/api/1.0/user/user_auth', {
       method: 'GET',
       headers: {
@@ -174,7 +181,7 @@ Controller.init()
 View.followBtn.addEventListener('click', async () => {
   // check user logged in or not
   const loginResult = await showLoginModal()
-  if(!loginResult) return
+  if (!loginResult) return
 
   const response = await fetch(
     `/api/1.0/user/follow_user?userId=${userId}&followId=${followId}`,
@@ -191,24 +198,22 @@ View.followBtn.addEventListener('click', async () => {
       title: '已經追蹤過拉!',
       confirmButtonColor: '#315375'
     })
-    if (result.isConfirmed) {
-      window.location.reload()
-    }
+    window.location.reload()
   } else if (response.status === 200) {
     const result = await Swal.fire({
       title: '追蹤成功!',
       confirmButtonColor: '#315375'
     })
-    window.location.reload()
+    View.followBtn.classList.add('hidden')
+    View.unFollowBtn.classList.remove('hidden')
+    View.followedBadge.classList.remove('hidden')
   } else {
     const result = await Swal.fire({
       icon: 'error',
       title: '伺服器內部錯誤拉!',
       confirmButtonColor: '#315375'
     })
-    if (result.isConfirmed) {
-      window.location.reload()
-    }
+    window.location.reload()
   }
 })
 
@@ -229,16 +234,14 @@ View.unFollowBtn.addEventListener('click', async () => {
       title: '伺服器內部錯誤拉!',
       confirmButtonColor: '#315375'
     })
-    if (result.isConfirmed) {
-      window.location.reload()
-    }
+    window.location.reload()
   } else {
     const result = await Swal.fire({
       title: '取消追蹤成功!',
       confirmButtonColor: '#315375'
     })
-    if (result.isConfirmed) {
-      window.location.reload()
-    }
+    View.followBtn.classList.remove('hidden')
+    View.unFollowBtn.classList.add('hidden')
+    View.followedBadge.classList.add('hidden')
   }
 })

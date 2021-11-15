@@ -64,10 +64,6 @@ View.dltBtn.addEventListener('click', async (e) => {
   window.location.href = '/member'
 })
 
-// main
-getIdeaLikes()
-showDltByn()
-
 // function
 async function likeIdea() {
   const isLiked = document.querySelector('.liked').classList.contains('hidden')
@@ -160,3 +156,10 @@ async function showDltByn() {
     View.dltBtn.classList.remove('hidden')
   }
 }
+
+// main
+;(async function(){
+  getIdeaLikes()
+  showDltByn()
+  closeLoading()
+})()

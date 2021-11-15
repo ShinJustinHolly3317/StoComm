@@ -8,7 +8,7 @@ let height = window.innerHeight - 130
 
 // DOM
 const cavasWrapper = document.querySelector('#canvas-wrapper')
-const addCanvasBtn = document.querySelector('.add-canvas')
+const addCanvasBtnArea = document.querySelector('.carousel-inner')
 const undoBtn = document.querySelector('#undo-btn')
 const redoBtn = document.querySelector('#redo-btn')
 const delBtn = document.querySelector('.draw-tool-icon[value="delete"]')
@@ -173,6 +173,10 @@ stage.on('click tap', function (e) {
 
   // if click on empty area - remove all selections
   if (e.target === stage) {
+    if (!tr.nodes()[0]) {
+      return
+    }
+    tr.nodes()[0].draggable(false)
     tr.nodes([])
     // console.log('curSelectShape', curSelectShape)
     // console.log('cursleectshape', stage.find(`#${0}`))
@@ -204,6 +208,7 @@ stage.on('click tap', function (e) {
     tr.nodes([e.target])
     curSelectShape = e.target
     tr.moveToTop()
+    e.target.draggable(true)
     // e.target.draggable(true)
   } else if (metaPressed && isSelected) {
     // if we pressed keys and node was selected
@@ -217,6 +222,13 @@ stage.on('click tap', function (e) {
     const nodes = tr.nodes().concat([e.target])
     tr.nodes(nodes)
   }
+})
+
+layer.on('dragend', (e) => {
+  if (e.target.attrs.id === undefined) {
+    return
+  }
+  socket.emit('move draw', e.target.attrs.id, [e.target.attrs.x, e.target.attrs.y])
 })
 
 // listener
@@ -365,60 +377,46 @@ socket.on('update start draw', (remoteLatestLayerId, remoteDrawHistory) => {
 //   tracking(id, drawHistory[id].layerObject, location)
 // })
 
-socket.on('init load data', (drawHistory) => {
-  if (!Object.keys(drawHistory).length) {
-    console.log(Object.keys(drawHistory))
+socket.on('update move draw', (drawingId, position) => {
+  if (drawHistory[drawingId].toolType === 'image') {
+    drawHistory[drawingId].location.x = position[0]
+    drawHistory[drawingId].location.y = position[1]
+    stage.find(`#${drawingId}`)[0].position({
+      x: position[0],
+      y: position[1]
+    })
+  } else {
+    drawHistory[drawingId].moveLocation = position
+    console.log('old x ', stage.find(`#${drawingId}`)[0])
+    stage.find(`#${drawingId}`)[0].position({
+      x: position[0],
+      y: position[1]
+    })
+  }
+})
+
+socket.on('init load data', (remoteDrawHistory) => {
+  if (!Object.keys(remoteDrawHistory).length) {
+    console.log(Object.keys(remoteDrawHistory))
     return
   }
 
-  // for (let key in drawHistory) {
-  //   let layerObj = new Konva.Line({
-  //     points: drawHistory[key].location,
-  //     stroke: '#df4b26',
-  //     strokeWidth: 5,
-  //     lineCap: 'round',
-  //     lineJoin: 'round',
-  //     globalCompositeOperation:
-  //       drawHistory[key].toolType === 'eraser'
-  //         ? 'destination-out'
-  //         : 'source-over',
-  //     name: 'select',
-  //     id: key
-  //   })
-
-  //   layer.add(layerObj)
-  // }
-
-  for (let key in drawHistory) {
-    if (drawHistory[key].toolType === 'image') {
-      addImg(drawHistory[key].canvasImg, key, drawHistory[key].location)
+  for (let key in remoteDrawHistory) {
+    if (remoteDrawHistory[key].toolType === 'image') {
+      addImg(
+        remoteDrawHistory[key].canvasImg,
+        key,
+        remoteDrawHistory[key].location
+      )
     } else {
-      // setTimeout(() => {
-      //   // handle html render async
-      //   let layerObj = new Konva.Line({
-      //     points: drawHistory[key].location,
-      //     stroke: '#df4b26',
-      //     strokeWidth: 5,
-      //     lineCap: 'round',
-      //     lineJoin: 'round',
-      //     globalCompositeOperation:
-      //       drawHistory[key].toolType === 'eraser'
-      //         ? 'destination-out'
-      //         : 'source-over',
-      //     name: 'select',
-      //     id: key
-      //   })
-      //   layer.add(layerObj)
-      // }, 0)
-
       let layerObj = new Konva.Line({
-        points: drawHistory[key].location,
+        points: remoteDrawHistory[key].location,
         stroke: '#df4b26',
         strokeWidth: 5,
         lineCap: 'round',
         lineJoin: 'round',
         globalCompositeOperation:
-          drawHistory[key].toolType === 'eraser'
+          remoteDrawHistory[key].toolType === 'eraser'
             ? 'destination-out'
             : 'source-over',
         name: 'select',
@@ -428,9 +426,19 @@ socket.on('init load data', (drawHistory) => {
 
       // set z index
       layerObj.zIndex(key)
+
+      // check if line moved 
+      if (remoteDrawHistory[key].moveLocation) {
+        stage.find(`#${key}`)[0].position({
+          x: remoteDrawHistory[key].moveLocation[0],
+          y: remoteDrawHistory[key].moveLocation[1]
+        })
+      }
     }
+
+    drawHistory[key] = remoteDrawHistory[key]
   }
-  console.log(drawHistory)
+  console.log(remoteDrawHistory)
 })
 
 socket.on('update delete drawing', (drawingId) => {
@@ -471,6 +479,9 @@ socket.on('update my image', (topLayerId, canvasImg, location) => {
 socket.on('update undo', (commandLayer) => {
   console.log('this is update', commandLayer)
   undoLayer(commandLayer)
+
+  // add drawHistory
+  // drawHistory[Object.keys(drawHistory).length + 1] = commandLayer.drawObj
 })
 
 socket.on('update redo', (commandLayer) => {
@@ -497,7 +508,13 @@ cavasWrapper.addEventListener('mouseout', (e) => {
   isPaint = false
 })
 
-addCanvasBtn.addEventListener('click', async (e) => {
+addCanvasBtnArea.addEventListener('click', async (e) => {
+  if(!e.target.classList.contains('add-canvas')){
+    return
+  }
+
+  showLoading()
+
   // add image to canvas
   // prevent drawing
   const role = (await userAuth()).data.role
@@ -505,32 +522,42 @@ addCanvasBtn.addEventListener('click', async (e) => {
   if (role !== 'streamer') {
     const drawOpen = (await roomAuth()).open_draw
     if (!drawOpen) {
+      closeLoading()
       return
     }
   }
 
   const curStockInfo = document.querySelector('.carousel-item.active')
-  const canvas = await html2canvas(curStockInfo)
+  let isYearHistory = false
+  if(curStockInfo.children['1'].getAttribute('id') === 'year-history'){
+    isYearHistory = true
+  }
+
+  const canvas = await html2canvas(curStockInfo, {
+    y: isYearHistory ? -120 : -60
+  })
   let canvasImg = canvas.toDataURL('image/jpeg')
   const cavasInfo = {
     userId: USER.id,
     drawLayerCounter: null,
     location: {
-      x: window.innerWidth / 2 - (window.innerHeight - 150) / 2,
-      y: 10,
-      width: window.innerHeight - 150,
-      height: window.innerHeight - 150
+      x: window.innerWidth / 2 - 250,
+      y: isYearHistory ? -180 : -60,
+      width: isYearHistory ? 500 : 400,
+      height: isYearHistory ? 600 : 450
     },
     toolType: 'image',
     canvasImg
   }
 
   socket.emit('add image', cavasInfo)
+  closeLoading()
+  document.querySelector('#stock-real-price-wrapper').classList.add('hidden')
 })
 
 window.addEventListener('keydown', async (e) => {
   // delete selected object
-  if (e.code === 'Delete') {
+  if (e.code === 'Delete' || e.code === 'Backspace') {
     // prevent drawing
     const role = (await userAuth()).data.role
 
@@ -542,12 +569,16 @@ window.addEventListener('keydown', async (e) => {
     }
 
     if (curSelectShape) {
-      curSelectShape.destroy()
+      curSelectShape.destroy()   
+
+      console.log('command history', commandHistory);
+
       socket.emit('delete drawing', curSelectShape.attrs.id)
       commandHistory.push({
         command: 'delete',
         drawObj: drawHistory[curSelectShape.attrs.id]
       })
+      
       delete drawHistory[curSelectShape.attrs.id]
 
       // clear undo history
@@ -699,7 +730,7 @@ function addImg(imageBase64, topLayerId, location) {
       width: location.width,
       height: location.height,
       name: 'select',
-      id: topLayerId.toString() // use string for consistancy
+      id: topLayerId.toString() // use string for consistancy,
     })
 
     // add the shape to the layer
@@ -748,9 +779,19 @@ function undoLayer(commandLayer) {
       // push back
       layer.add(layerObj)
 
+      // check if line moved
+      if (commandLayer.drawObj.moveLocation) {
+        console.log(`#${commandLayer.drawObj.drawLayerCounter}`)
+        stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+          x: commandLayer.drawObj.moveLocation[0],
+          y: commandLayer.drawObj.moveLocation[1]
+        })
+      }
+
       // reset z index
       layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
     }
+    drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
   }
 }
 
@@ -789,8 +830,17 @@ function redoLayer(commandLayer) {
       // push back
       layer.add(layerObj)
 
+      // check if line moved
+      if (commandLayer.drawObj.moveLocation) {
+        stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+          x: commandLayer.drawObj.moveLocation[0],
+          y: commandLayer.drawObj.moveLocation[1]
+        })
+      }
+
       // reset z index
       layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
     }
+    drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
   }
 }

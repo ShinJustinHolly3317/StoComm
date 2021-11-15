@@ -18,6 +18,9 @@ const signupModal = new bootstrap.Modal(
 )
 const quickWarRoomBtn = document.querySelector('.quick-war-room-btn')
 const navLoginBtn = document.querySelector('#js-nav-login-btn')
+const navSignUpBtn = document.querySelector('.nav-signup-btn')
+const signUpBtn = document.querySelector('#js-signup-btn')
+const inputEle = document.querySelectorAll('input')
 
 // Listener
 quickWarRoomBtn.addEventListener('click', async (e) => {
@@ -67,6 +70,20 @@ document
     const createData = new FormData(
       document.querySelector('.war-room-check-data')
     )
+
+    const warRoomTitle = createData.get('war_room_title')
+
+    // Check title length
+    if (textLenCheck(warRoomTitle) > 32) {
+      await Swal.fire({
+        icon: 'error',
+        title: '研究室名稱字數請勿超過32位!!',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }
+
     const roomResponse = await fetch('/api/1.0/war_room/create_war_room', {
       method: 'POST',
       Authorization: 'Bearer ' + accessToken,
@@ -93,6 +110,17 @@ navLoginBtn.addEventListener('click', async (e) => {
   e.preventDefault()
   const userEmail = document.querySelector('#nav-user-email').value
   const userpassword = document.querySelector('#nav-user-password').value
+
+  // Check title length
+  if (textLenCheck(userEmail) > 32) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Email 字數請勿超過32位!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
 
   const loginData = {
     provider: 'native',
@@ -141,6 +169,68 @@ navLoginBtn.addEventListener('click', async (e) => {
   }
 })
 
+signUpBtn.addEventListener('click', async (e) => {
+  e.preventDefault()
+  signUpData = document.querySelector('.signup-data')
+  const signUpFormData = new FormData(signUpData)
+  const email = signUpFormData.get('email')
+  const name = signUpFormData.get('name')
+
+  // Check title length
+  if (textLenCheck(email) > 32) {
+    await Swal.fire({
+      icon: 'error',
+      title: 'Email 字數請勿超過32位!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
+  if (textLenCheck(name) > 32) {
+    await Swal.fire({
+      icon: 'error',
+      title: '綽號字數請勿超過32位!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
+
+  const response = await fetch('/api/1.0/user/sign_up', {
+    method: 'POST',
+    body: signUpFormData
+  })
+  const result = await response.json()
+
+  switch (response.status) {
+    case 500:
+    case 403:
+    case 400:
+      await Swal.fire({
+        icon: 'error',
+        title: result.error,
+        confirmButtonColor: '#315375'
+      })
+      break
+    case 200:
+      await Swal.fire({
+        title: '註冊成功!',
+        confirmButtonColor: '#315375'
+      })
+      localStorage.setItem('access_token', result.data.access_token)
+
+      const user = {
+        id: result.data.user.id,
+        name: result.data.user.name,
+        email: result.data.user.email,
+        piture: result.data.user.picture
+      }
+      localStorage.setItem('user', JSON.stringify(user))
+
+      window.location.href = '/hot-rooms'
+  }
+})
+
 document.querySelector('#member-link').addEventListener('click', async (e) => {
   showLoginModal()
 })
@@ -160,6 +250,11 @@ document.querySelector('#navbar-logou').addEventListener('click', async (e) => {
   window.location.href = '/'
 })
 
+navSignUpBtn.addEventListener('click', (e) => {
+  loginModal.hide()
+  signupModal.show()
+})
+
 // Function
 async function displayemeberBtn() {
   document.querySelector('#dropdownMenuLink').setAttribute('data-bs-toggle', '')
@@ -175,7 +270,6 @@ async function displayemeberBtn() {
   })
 
   if (response.status === 200) {
-    console.log('testtttt');
     document
       .querySelector('#dropdownMenuLink')
       .setAttribute('data-bs-toggle', 'dropdown')
@@ -193,7 +287,11 @@ async function showLoginModal() {
 
   if (!accessToken) {
     document.querySelector('.js-login-msg').innerText = `StoComm 歡迎你!`
-    document.querySelector('#nav-user-email').value = result.email
+
+    if (result.email) {
+      document.querySelector('#nav-user-email').value = result.email
+    }
+
     loginModal.show()
     return false
   }
@@ -213,5 +311,37 @@ async function showLoginModal() {
   }
 }
 
+function showLoading() {
+  document.querySelector('.loading-img-area').classList.remove('hidden')
+}
+
+function closeLoading() {
+  document.querySelector('.loading-img-area').classList.add('hidden')
+}
+
+function textLenCheck(str) {
+  return str.replace(/[\u4E00-\u9FFF]/g, 'xx').length
+}
+
+async function initInputValid() {
+  for (let index in inputEle) {
+    if (['0', '3', '5', '6'].includes(index)) {
+      inputEle[index].addEventListener('change', async (e) => {
+        if (textLenCheck(e.target.value) >= 32) {
+          // Check title length
+          await Swal.fire({
+            icon: 'error',
+            title: '字數請勿超過32位!!',
+            showConfirmButton: false,
+            timer: 1500
+          })
+          return
+        }
+      })
+    }
+  }
+}
+
 // Main
 displayemeberBtn()
+initInputValid()

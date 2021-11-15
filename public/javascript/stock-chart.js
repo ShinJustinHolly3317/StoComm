@@ -445,7 +445,14 @@ async function getCompanyName(stockCode) {
   const response = await fetch(`/companyName/${stockCode}`)
 
   if (response.status !== 200) {
-    company_name = '無法取得'
+    // blocking user typing invalid stock code in URL
+    Swal.fire({
+      icon: 'error',
+      title: '查無此股票資訊!!',
+      confirmButtonColor: '#315375'
+    }).then(() => {
+      window.location.href = '/hot-rooms'
+    })
     return
   }
 
@@ -455,17 +462,23 @@ async function getCompanyName(stockCode) {
 
 // Listener
 stockShrinkBtn.addEventListener('click', () => {
-  stockWrapper.style.display = 'none'
+  stockWrapper.classList.add('hidden')
   stockWrapper.style.zIndex = 2
-  // minStockWrapper.style.display = 'flex'
 })
 
 stockEnlargeBtn.addEventListener('click', () => {
-  if (stockWrapper.style.display === 'flex') {
-    stockWrapper.style.display = 'none'
+  if (!stockWrapper.classList.contains('hidden')) {
+    stockWrapper.classList.add('hidden')
   } else {
-    stockWrapper.style.display = 'flex'
+    stockWrapper.classList.remove('hidden')
     stockWrapper.style.zIndex = 3
   }
-  // minStockWrapper.style.display = 'none'
+})
+
+stockWrapper.addEventListener('click', () => {
+  const isNews = document.querySelector('.carousel-item.active').children['1'].classList.contains('news-card')
+
+  if (isNews) {
+    document.querySelector('.add-canvas').classList.add('hiddnen')
+  }
 })

@@ -16,11 +16,13 @@ const {
   followUser,
   unfollowUser,
   checkFollowState,
-  editProfile
+  editProfile,
+  getFollwingNums
 } = require('../../controller/user-controller')
 
 router.get('/user_auth', authentication)
 router.get('/user_data', userData)
+router.get('/following_num', getFollwingNums)
 router.post('/check_user_exist', upload.array(), checkUserExist)
 
 router.post('/log_in', login)

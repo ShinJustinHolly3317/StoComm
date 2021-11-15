@@ -41,13 +41,6 @@ View.loginForm.addEventListener('submit', async (e) => {
   })
   const result = await response.json()
 
-  // const logInModal = new bootstrap.Modal(View.logInModal, {
-  //   keyboard: false
-  // })
-  // const signUpModal = new bootstrap.Modal(View.signUpModal, {
-  //   keyboard: false
-  // })
-
   if (result.searchResult) {
     // use global modal from main.js
     loginModal.show()
@@ -59,43 +52,6 @@ View.loginForm.addEventListener('submit', async (e) => {
     View.welcomeSignUp.innerText = `你還沒有加入會員喔，快點加入吧`
     console.log(View.signUpEmail)
     View.signUpEmail.value = View.enterEmail.value
-  }
-})
-
-View.signUpBtn.addEventListener('click', async (e) => {
-  e.preventDefault()
-  const response = await fetch('/api/1.0/user/sign_up', {
-    method: 'POST',
-    body: new FormData(View.signUpData)
-  })
-  const result = await response.json()
-
-  switch (response.status) {
-    case 500:
-    case 403:
-    case 400:
-      await Swal.fire({
-        icon: 'error',
-        title: result.error,
-        confirmButtonColor: '#315375'
-      })
-      break
-    case 200:
-      await Swal.fire({
-        title: '註冊成功!',
-        confirmButtonColor: '#315375'
-      })
-      localStorage.setItem('access_token', result.data.access_token)
-
-      const user = {
-        id: result.data.user.id,
-        name: result.data.user.name,
-        email: result.data.user.email,
-        piture: result.data.user.picture
-      }
-      localStorage.setItem('user', JSON.stringify(user))
-
-      window.location.href = '/hot-rooms'
   }
 })
 
@@ -123,7 +79,20 @@ async function userAuth() {
     window.location.href = '/hot-rooms'
   }
 }
-userAuth()
+
+// Main
+(async function(){
+  document.querySelector('.description-wrapper').classList.add('hidden')
+  document.querySelector('.home-wrapper').classList.add('hidden')
+
+  await userAuth()
+
+  document.querySelector('.description-wrapper').classList.remove('hidden')
+  document.querySelector('.home-wrapper').classList.remove('hidden')
+  closeLoading()
+})()
+
+
 
 
 

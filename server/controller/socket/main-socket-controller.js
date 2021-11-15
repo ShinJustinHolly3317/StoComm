@@ -2,10 +2,12 @@ const drawHistory = {}
 const chatHistory = {}
 const onlineClients = {}
 let clientList
+let multipleHostList = {}
 const Canvas = require('../../model/canvas-model')
 const Chat = require('../../model/chat-model')
 const WarRoom = require('../../model/war-room-model')
 const moment = require('moment')
+const e = require('express')
 let drawToolTurnOn = false
 
 async function socketController(io) {
@@ -31,7 +33,28 @@ async function socketController(io) {
 
       // Handle clients
       if (userRole === 'streamer') {
-        onlineClients[roomId].hostId = userId
+        const warRoomInfo = await WarRoom.getRoomInfo(roomId)
+        console.log('warRoomInfo', warRoomInfo[0].user_id)
+
+        if (warRoomInfo[0].user_id === userId) {
+          // Confirm room host
+          if (!onlineClients[roomId].hostId) {
+            onlineClients[roomId].hostId = userId
+          }
+
+          if (!multipleHostList[roomId]) {
+            multipleHostList[roomId] = 1
+          } else {
+            multipleHostList[roomId] += 1
+            console.log(multipleHostList[roomId])
+            if (multipleHostList[roomId] > 1) {
+              // Check multiple host
+              socket.emit('return host room')
+            }
+          }
+        } else {
+          socket.emit('return host room')
+        }
       }
 
       // drawing canvas
@@ -141,31 +164,6 @@ async function socketController(io) {
         )
       })
 
-      // socket.on('drawing', (localLayerId, location) => {
-      //   drawHistory[roomId][localLayerId].location =
-      //     drawHistory[roomId][localLayerId].location.concat(location)
-      //   // console.log(drawHistory)
-      //   socket.to(roomId).emit('update drawing', localLayerId, location)
-
-      //   // clean additional location of line layer
-      //   const thisLocation = drawHistory[roomId][localLayerId].location
-      //   if (drawHistory[roomId][localLayerId].toolType === 'line') {
-      //     drawHistory[roomId][localLayerId].location = [
-      //       thisLocation[0],
-      //       thisLocation[1],
-      //       thisLocation[thisLocation.length - 2],
-      //       thisLocation[thisLocation.length - 1]
-      //     ]
-      //   }
-
-      //   // console.log(drawHistory[roomId]);
-      //   // console.log(drawHistory)
-      // })
-
-      // socket.on('update drawing', (curSelectShape) => {
-      //   console.log(JSON.parse(curSelectShape).attrs)
-      // })
-
       socket.on('finish layer', (localLayerObject) => {
         const curLayerObj = JSON.parse(localLayerObject)
         drawHistory[roomId][curLayerObj.attrs.id].location =
@@ -177,6 +175,18 @@ async function socketController(io) {
             'update finish layer',
             drawHistory[roomId][curLayerObj.attrs.id]
           )
+      })
+
+      socket.on('move draw', (drawingId, position) => {
+        console.log('move draw update', drawHistory[roomId][drawingId].location)
+        if (drawHistory[roomId][drawingId].toolType === 'image') {
+          drawHistory[roomId][drawingId].location.x = position[0]
+          drawHistory[roomId][drawingId].location.y = position[1]
+        } else {
+          drawHistory[roomId][drawingId].moveLocation = position
+        }
+        
+        io.to(roomId).emit('update move draw', drawingId, position)
       })
 
       socket.on('delete drawing', (drawingId) => {
@@ -265,7 +275,6 @@ async function socketController(io) {
       // peerjs
       socket.on('start calling', (userId) => {
         console.log('Peer user: ', userId)
-        socket.to(roomId).emit('user-connected', userId)
 
         socket.on('ready', () => {
           socket.to(roomId).emit('user-connected', userId)
@@ -317,17 +326,31 @@ async function socketController(io) {
         // user left notification
         socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
 
-        // if (onlineClients[roomId][socket.id].userId === onlineClients[roomId].hostId) {
-        //   socket.to(roomId).emit('update host leaving')
-        //   WarRoom.endWarRoom(roomId, onlineClients[roomId][socket.id].userId)
-        // }
+        // If host leave, delete host id
+        if (
+          onlineClients[roomId][socket.id].userId ===
+          onlineClients[roomId].hostId
+        ) {
+          multipleHostList[roomId] -= 1
+        }
 
         console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
 
+        if (Object.keys(onlineClients[roomId]).length - 1 === 0) {
+          //If it's still on people in this room after 1 mins, clear this rooms
+          setTimeout(() => {
+            if (Object.keys(onlineClients[roomId]).length - 1 === 0) {
+              console.log('Nobody left, Close Room', roomId)
+              WarRoom.endWarRoom(roomId, 1)
+            }
+          }, 60000)
+        }
+
         // store history data after each user left
         if (Object.keys(drawHistory[roomId]).length) {
           // store drawing history
+          console.log(drawHistory[roomId]['0'].location)
           await Canvas.insertDrawHistory(cleanDrawHistory(roomId), roomId)
         }
         if (chatHistory[roomId].length) {

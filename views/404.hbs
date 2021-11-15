@@ -1,0 +1,84 @@
+<div class="container">
+  <div class="d-flex justify-content-center align-items-center">
+    <div class="lost d-flex justify-content-center align-items-center">
+      <div class="lost-title-area d-flex flex-column justify-content-center align-items-center mx-5 my-5">
+        <img src="/img/404.png" alt="" class="my-3 mx-5 lost-img">
+        <span class="lost-title mx-auto">這個網頁似乎遺失了喔</span>
+        <span class="lost-title mx-auto">但是沒關係，我們有2404的股票</span>
+      </div>
+
+      <div id='year-history' class='analysis-card'></div>
+    </div>
+  </div>
+</div>
+
+{{!-- JS --}}
+<script
+  src='https://cdn.anychart.com/releases/8.10.0/js/anychart-base.min.js'
+></script>
+<script
+  src='https://cdn.anychart.com/releases/8.10.0/js/anychart-stock.min.js'
+  type='text/javascript'
+></script>
+<script>
+  async function yearPriceHistory() {
+    let table, mapping, chart
+    const url = `/yearPrice/${2404}`
+    const resposne = await fetch(url)
+    const result = await resposne.json()
+    table = anychart.data.table()
+    table.addData(result)
+
+    // mapping the data
+    mapping = table.mapAs()
+    mapping.addField('open', 1, 'first')
+    mapping.addField('high', 2, 'max')
+    mapping.addField('low', 3, 'min')
+    mapping.addField('close', 4, 'last')
+    const valueMapping = table.mapAs({
+      value: 5
+    })
+
+    // defining the chart type
+    chart = anychart.stock()
+
+    // turn off scroll bar
+    // chart.scroller().enabled(false)
+    chart.plot(0).xGrid().enabled(true)
+    chart.plot(0).yGrid().enabled(true)
+
+    const yScale = chart.plot(0).yScale()
+    const yTicks = yScale.ticks()
+    yTicks.interval(20)
+    var scale = chart.xScale()
+    scale.ticks([
+      { major: { unit: 'month', count: 1 }, minor: { unit: 'month', count: 1 } }
+    ])
+
+    // set the series type
+    const series_globex = chart.plot(0).candlestick(mapping)
+    const volumeSeries = chart.plot(1).column(valueMapping)
+    series_globex.name(`漢唐(${2404})`)
+    volumeSeries.name('volumes')
+
+    // set max height of volume series and attach it to the bottom of plot
+    chart.plot(1).height('30%').bottom(0)
+
+    // color setting
+    series_globex.risingStroke('#f35350')
+    series_globex.risingFill('#f35350')
+    series_globex.fallingStroke('#14c9ba')
+    series_globex.fallingFill('#14c9ba')
+
+    // setting the chart title
+    chart.title(`漢唐(${2404})歷史走勢`)
+
+    // display the chart
+    chart.container('year-history')
+    chart.draw()
+
+    // disble loading img
+    closeLoading()
+  }
+  yearPriceHistory()
+</script>

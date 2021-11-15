@@ -22,10 +22,6 @@
           data-bs-toggle='modal'
           data-bs-target='#staticBackdrop'
         > 編輯資料</button>
-        <button
-          type='button'
-          class='btn btn-outline-secondary rounded-pill logout-btn mx-2 js-logout-btn'
-        >登出</button>
       </div>
     </div>
   </div>
@@ -80,7 +76,7 @@
         <div class='modal-body'>
           <form class="edit-user-data-form">
             <div class='mb-3'>
-            <label for='edit-user-name' class='mx-1 col-form-label'>綽號</label>
+            <label for='edit-user-name' class='mx-1 col-form-label input-label'>綽號</label>
             <div class='col-sm-10'>
                 <input
                   type='text'
@@ -95,7 +91,7 @@
             <input type="hidden" id="edit-user-id" name="user_id">
 
             <div class='mb-3'>
-              <label for='edit-user-email' class='mx-1 col-form-label'>Email</label>
+              <label for='edit-user-email' class='mx-1 col-form-label input-label'>Email</label>
               <div class='col-sm-10'>
                 <input
                   type='text'
@@ -108,7 +104,9 @@
             </div>
 
             <div class='mb-3'>
-              <label for='formFile' class='mx-1 form-label'>上傳大頭貼</label>
+              <div class="d-flex">
+                <label for='formFile' class='mt-2 mx-1 form-label input-label'>上傳大頭貼 </label><span class="mt-2 me-2 h6 text-secondary ms-auto">檔案請勿超過 2 MB</span>
+              </div>
               <input class='form-control' type='file' id='formFile' name="user-picture"/>
             </div>
           </div>
@@ -120,10 +118,10 @@
           </div>
           <button
             type='button'
-            class='btn btn-secondary'
+            class='btn btn-outline-secondary rounded-pill'
             data-bs-dismiss='modal'
           >取消</button>
-          <button type='button' class='btn btn-primary js-submit-edit'>確認送出</button>
+          <button type='button' class='btn btn-outline-primary js-submit-edit rounded-pill'>確認送出</button>
         </div>
       </div>
     </div>

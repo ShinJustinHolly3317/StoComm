@@ -53,6 +53,8 @@ WarRoomView.groupMuteBtn.addEventListener('click', async (e) => {
 async function initPeer() {
   const userData = (await userAuth()).data
   const peerId = userData.id // equal to userId
+
+  // Initialize myPeerJS
   const myPeer = new Peer(peerId, {
     host: '/' + window.location.hostname,
     port: window.location.hostname === 'localhost' ? '3000' : '443',
@@ -60,8 +62,20 @@ async function initPeer() {
     debug: 3
   })
 
+
+  myPeer.on('error', (error) => {
+    console.log(error)
+    // Only one voice stream for each user
+    document.querySelector('#voice-control-modal .modal-body').innerHTML = `
+          <p>此用戶已經擁有語音頻道，如果打開多個瀏覽器分頁，請關閉多餘的分頁。</p>
+          `
+    document
+      .querySelector('#voice-control-modal .modal-body')
+      .classList.add('d-flex', 'align-items-center', 'justify-content-center')
+  })
+
   myPeer.on('open', (id) => {
-    // console.log('my id: ', id)
+    console.log('Open My id: ', id)
     socket.emit('start calling', id)
 
     // executing media stream
@@ -75,13 +89,13 @@ async function initPeer() {
 
         // default visitor mic is off
         const isMicOnInit = (await roomAuth()).open_mic
-        if (!isMicOnInit && userData !== 'streamer') {
+        if (!isMicOnInit && userData.role !== 'streamer') {
           stream.getAudioTracks()[0].enabled = false
         }
 
         socket.on('user-connected', (userId) => {
           // call to others
-          // console.log('userid: ', userId)
+          console.log('Call to userid: ', userId)
           // console.log('stream: ', stream)
           connectToNewUser(userId, stream)
         })
@@ -90,54 +104,57 @@ async function initPeer() {
         const audioIcon = document.createElement('div')
         audioIcon.setAttribute('peer_user_id', id)
 
+        // get user picture url
+        const userPicUrl = await getUserPic(id)
         if (userData.role === 'streamer') {
-          audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${id}-profile" class="audio-icon" peer_user_id="${id}">
+          audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${id}">
           <img src="/img/mic.png" class="mic-icon">`
 
           hostArea.append(audioIcon)
         } else {
           if (isMicOnInit) {
-            audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${id}-profile" class="audio-icon" peer_user_id="${id}">
+            audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${id}">
             <img src="/img/mic.png" class="mic-icon">`
           } else {
-            audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${id}-profile" class="audio-icon" peer_user_id="${id}">
+            audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${id}">
             <img src="/img/mute.png" class="mute-icon">`
           }
-          
+
           videoGrid.append(audioIcon)
         }
 
         myPeer.on('call', (call) => {
           // others call me
-          // console.log('call in', call.peer)
+          console.log('Others call in', call.peer)
           call.answer(stream)
 
           const video = document.createElement('video')
           // video.setAttribute('peer_user_id', call.peer)
 
-          if (Number(call.peer) === Number(roomHostId)) {
-            const audioIcon = document.createElement('div')
-            audioIcon.setAttribute('peer_user_id', call.peer)
-            audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${call.peer}-profile" class="audio-icon" peer_user_id="${call.peer}">
+          // get user picture url
+          getUserPic(call.peer)
+          .then((userPicUrl) => {
+            if (Number(call.peer) === Number(roomHostId)) {
+              const audioIcon = document.createElement('div')
+              audioIcon.setAttribute('peer_user_id', call.peer)
+              audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
             <img src="/img/mic.png" class="mic-icon">
             `
-            hostArea.append(audioIcon)
-          } else {
-            const audioIcon = document.createElement('div')
-            audioIcon.setAttribute('peer_user_id', call.peer)
-
-            if (isMicOnInit) {
-              audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${call.peer}-profile" class="audio-icon" peer_user_id="${call.peer}">
-            <img src="/img/mic.png" class="mic-icon">`
+              hostArea.append(audioIcon)
             } else {
-              audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${call.peer}-profile" class="audio-icon" peer_user_id="${call.peer}">
-            <img src="/img/mute.png" class="mute-icon">`
+              const audioIcon = document.createElement('div')
+              audioIcon.setAttribute('peer_user_id', call.peer)
+
+              if (isMicOnInit) {
+                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+              <img src="/img/mic.png" class="mic-icon">`
+              } else {
+                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+              <img src="/img/mute.png" class="mute-icon">`
+              }
+              videoGrid.append(audioIcon)
             }
-            // audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${call.peer}-profile" class="audio-icon" peer_user_id="${call.peer}">
-            // <img src="/img/mute.png" class="mute-icon">
-            // `
-            videoGrid.append(audioIcon)
-          }
+          })
 
           call.on('stream', (userVideoStream) => {
             addVideoStream(video, userVideoStream)
@@ -160,6 +177,8 @@ async function initPeer() {
             WarRoomView.groupMicBtn.classList.remove('hidden')
             WarRoomView.groupMuteBtn.classList.add('hidden')
           }
+
+          stream.getAudioTracks()[0].enabled = false
         })
 
         socket.on('update unmute all', async () => {
@@ -178,43 +197,9 @@ async function initPeer() {
             WarRoomView.groupMicBtn.classList.add('hidden')
             WarRoomView.groupMuteBtn.classList.remove('hidden')
           }
+
+          stream.getAudioTracks()[0].enabled = true
         })
-
-        // socket.on('update ban audio', async (banUserId) => {
-        //   if (banUserId === id) {
-        //     const isMicOn = (await userAuth()).data.is_mic_on
-        //     // console.log('isMicOn', isMicOn)
-        //     if (isMicOn) {
-        //       // console.log('banUserId', banUserId)
-        //       stream.getAudioTracks()[0].enabled = false
-        //       // console.log(stream.getAudioTracks()[0])
-
-        //       await updateUserMic(false, banUserId)
-
-        //       const banAudioIcon = document.querySelector(
-        //         `img[peer_user_id="${banUserId}"]`
-        //       ).nextElementSibling
-        //       // console.log(banAudioIcon)
-        //       banAudioIcon.src = '/img/mute.png'
-        //       banAudioIcon.classList.remove('mic-icon')
-        //       banAudioIcon.classList.add('mute-icon')
-        //     } else {
-        //       // console.log('banUserId', banUserId)
-        //       stream.getAudioTracks()[0].enabled = true
-        //       // console.log(stream.getAudioTracks()[0])
-
-        //       await updateUserMic(true, banUserId)
-
-        //       const banAudioIcon = document.querySelector(
-        //         `img[peer_user_id="${banUserId}"]`
-        //       ).nextElementSibling
-        //       // console.log(banAudioIcon)
-        //       banAudioIcon.src = '/img/mic.png'
-        //       banAudioIcon.classList.remove('mute-icon')
-        //       banAudioIcon.classList.add('mic-icon')
-        //     }
-        //   }
-        // })
 
         videoGrid.addEventListener('click', async (e) => {
           // mute person specifically
@@ -245,13 +230,18 @@ async function initPeer() {
       })
       .catch((error) => {
         if (error.message === 'Permission denied') {
-
           document.querySelector(
             '#voice-control-modal .modal-body'
           ).innerHTML = `
           <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
           `
-          document.querySelector('#voice-control-modal .modal-body').classList.add('d-flex', 'align-items-center', 'justify-content-center')
+          document
+            .querySelector('#voice-control-modal .modal-body')
+            .classList.add(
+              'd-flex',
+              'align-items-center',
+              'justify-content-center'
+            )
         }
         console.log('You got an error:' + error)
       })
@@ -265,53 +255,44 @@ async function initPeer() {
     videoGrid.append(video)
   }
 
-  function connectToNewUser(userId, stream) {
+  async function connectToNewUser(userId, stream) {
     const isMicOnInit = (await roomAuth()).open_mic
     const call = myPeer.call(userId, stream)
-
+    console.log('Call to user', userId);
     /* No vedio call for now, maybe online in the future */
     const video = document.createElement('video')
     video.setAttribute('peer_user_id', userId)
     // console.log(USER.picture)
 
     call.on('stream', (userVideoStream) => {
-      // console.log('on stream')
+      console.log('Start Stream to others')
 
-      // Show profile icon when peer answer the call
-      // const audioIcon = document.createElement('div')
-      // audioIcon.setAttribute('peer_user_id', userId)
-      // audioIcon.innerHTML = `<img src="/img/profile-icon.png" class="audio-icon" peer_user_id="${userId}">
-      // <img src="/img/mute.png" class="mute-icon">`
-      // console.log(audioIcon)
-      // videoGrid.append(audioIcon)
-      if (Number(userId) === Number(roomHostId)) {
-        const audioIcon = document.createElement('div')
-        audioIcon.setAttribute('peer_user_id', userId)
-        audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${userId}-profile" class="audio-icon" peer_user_id="${userId}">
+      // get user picture url
+      getUserPic(userId)
+      .then((userPicUrl) => {
+        if (Number(userId) === Number(roomHostId)) {
+          const audioIcon = document.createElement('div')
+          audioIcon.setAttribute('peer_user_id', userId)
+          audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${userId}">
             <img src="/img/mic.png" class="mic-icon">
             `
-        hostArea.append(audioIcon)
-      } else {
-        const audioIcon = document.createElement('div')
-        audioIcon.setAttribute('peer_user_id', userId)
-
-
-
-        if (isMicOnInit) {
-          audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${userId}-profile" class="audio-icon" peer_user_id="${userId}">
-            <img src="/img/mic.png" class="mic-icon">`
+          hostArea.append(audioIcon)
         } else {
-          audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${userId}-profile" class="audio-icon" peer_user_id="${userId}">
-            <img src="/img/mute.png" class="mute-icon">`
-        }
-        // audioIcon.innerHTML = `<img src="https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${userId}-profile" class="audio-icon" peer_user_id="${userId}">
-        //     <img src="/img/mute.png" class="mute-icon">
-        //     `
-        videoGrid.append(audioIcon)
-      }
+          const audioIcon = document.createElement('div')
+          audioIcon.setAttribute('peer_user_id', userId)
 
-      /* No vedio call for now, maybe online in the future */
-      addVideoStream(video, userVideoStream)
+          if (isMicOnInit) {
+            audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${userId}">
+            <img src="/img/mic.png" class="mic-icon">`
+          } else {
+            audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${userId}">
+            <img src="/img/mute.png" class="mute-icon">`
+          }
+          videoGrid.append(audioIcon)
+        }
+        /* No vedio call for now, maybe online in the future */
+        addVideoStream(video, userVideoStream)
+      })
     })
 
     // call.on('close', () => {
@@ -322,19 +303,11 @@ async function initPeer() {
     // console.log('Peer answer my call:', peers)
   }
 
-  async function updateUserMic(isAllow, userId) {
-    const response = await fetch('/api/1.0/user/user_permission', {
-      method: 'PATCH',
-      body: JSON.stringify({
-        type: 'is_mic_on',
-        isAllow,
-        userId
-      }),
-      headers: {
-        'Content-type': 'application/json'
-      }
-    })
+  async function getUserPic(userId) {
+    const response = await fetch(`/api/1.0/user/user_data?userId=${userId}`)
+    const result = await response.json()
+    const picUrl = result.data.picture
 
-    return response.status
+    return picUrl
   }
 }

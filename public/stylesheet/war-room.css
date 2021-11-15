@@ -9,6 +9,27 @@
   width: 100%;
 }
 
+/* Invalid room */
+.invalid-room{
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(216, 216, 216, 0.8);
+  z-index: 10;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.invalid-room *{
+  font-weight: 800;
+  color: rgb(48, 48, 48);
+  letter-spacing: 5px;
+}
+
 /* chat room */
 .chat-room {
   position: absolute;
@@ -178,7 +199,7 @@ div[peer_user_id] {
 
 /* stock-info */
 #stock-real-price-wrapper {
-  display: none;
+  display: flex;
   flex-direction: column;
   width: 500px;
   height: 540px;
@@ -215,8 +236,14 @@ div[peer_user_id] {
   position: relative;
 }
 
-.add-canvas {
-  margin-top: 40px;
+.add-canvas-note{
+  color: rgb(105, 105, 105);
+  font-size: 10px;
+  letter-spacing: 1px;
+}
+
+.add-canvas-spacer{
+  height: 38px;
 }
 
 .analysis-card {

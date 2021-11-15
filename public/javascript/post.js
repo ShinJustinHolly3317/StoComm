@@ -9,6 +9,7 @@ const PostView = {
   init: function () {
     canvas = localStorage.getItem('canvas')
     this.analysisImg.src = canvas
+    closeLoading()
   },
   futureBtn: document.querySelector('.choose-future'),
   bullCheck: document.querySelector('#bullish'),
@@ -63,6 +64,7 @@ PostView.closeBtn.addEventListener('click', (e) => {
 })
 
 PostView.publishBtn.addEventListener('click', async (e) => {
+  showLoading()
   const textData = {}
   textData.content = {}
   const textDataEle = document.querySelectorAll('.analysis-text')
@@ -71,12 +73,26 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   textData.title = document.querySelector('#idea-title-input').value
   textData.image = document.querySelector('#analysis-img').src
 
+  // check text title length
+  if (textLenCheck(textData.title) >= 24) {
+    // Check title length
+    await Swal.fire({
+      icon: 'error',
+      title: '字數請勿超過32位!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    window.location.reload()
+    return
+  }
+
   if (!textData.title) {
     await Swal.fire({
       icon: 'error',
       title: '請至少輸入標題!',
       confirmButtonColor: '#315375'
     })
+    window.location.reload()
     return
   }
 
@@ -94,6 +110,7 @@ PostView.publishBtn.addEventListener('click', async (e) => {
       title: '你網址怪怪的!',
       confirmButtonColor: '#315375'
     })
+    window.location.reload()
     return
   }
 
@@ -114,6 +131,8 @@ PostView.publishBtn.addEventListener('click', async (e) => {
       'Content-type': 'application/json'
     }
   })
+
+  closeLoading()
   
   if (response.status === 200) {
     await Swal.fire({

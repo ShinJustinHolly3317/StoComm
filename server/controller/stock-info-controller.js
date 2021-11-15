@@ -183,10 +183,10 @@ async function getCompanyName(req, res) {
   const { stockCode } = req.params
   const companyName = await Stock.getCompanyName(stockCode)
 
-  if (companyName) {
-    res.status(200).send({ data: companyName })
+  if (companyName.error) {
+    res.status(404).send({ error: '無此代號' })
   } else {
-    res.status(404).send({ error: 'nothing found' })
+    res.status(200).send({ data: companyName })
   }
 }
 

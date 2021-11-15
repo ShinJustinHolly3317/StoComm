@@ -106,12 +106,31 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
 .clients-icon{
   width: 20px;
   height: 20px;
-  margin: 0 10px 0 50px;
+  margin: 0 10px;
+}
+
+.online-people-area{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  margin: 0 30px;
 }
 
 .online-people{
   font-size: 10px;
   letter-spacing: 2px;
+}
+
+.closing-warning{
+  border: 1px solid tomato;
+  color: tomato;
+  font-size: 10px;
+  padding: 0 10px;
+  margin: 10px 0;
+
+  display: flex;
+  justify-content: center;
 }
 
 .stock-code-title {
@@ -196,7 +215,7 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
 }
 
 .date{
-  font-size: 6px;
+  font-size: 16px;
   font-weight: 600;
 }
 

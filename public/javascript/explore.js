@@ -81,6 +81,8 @@ const Controller = {
     document
       .querySelector('.pagination')
       .children[View.page].classList.add('active')
+
+    closeLoading()
   }
 }
 

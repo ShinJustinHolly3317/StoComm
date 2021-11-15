@@ -226,6 +226,17 @@ async function editProfile (req, res){
   }
 }
 
+async function getFollwingNums(req, res) {
+  const { userId } = req.query
+  const result = await User.getFollwingNums(userId)
+
+  if (result.error) {
+    res.status(500).send({ error: 'Server Problem' })
+  } else {
+    res.status(200).send({ data: { followers:result.following, following:result.followers } })
+  }
+}
+
 module.exports = {
   login,
   signUp,
@@ -234,5 +245,6 @@ module.exports = {
   followUser,
   unfollowUser,
   checkFollowState,
-  editProfile
+  editProfile,
+  getFollwingNums
 }

@@ -11,8 +11,16 @@
   /* align-items: center; */
 }
 
+.self-info {
+  width: 60%;
+}
+
 #member-name {
+  max-width: 50%;
   margin: 0 20px;
+  overflow:hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 
 .prfile-icon-area{
@@ -73,12 +81,21 @@ a.active.member-tab{
   letter-spacing: 5px;
 }
 
+#start-war-btn:hover {
+  background-color: rgb(20, 201, 186);
+  color: white;
+}
+
 #start-war-btn-arrow {
   background-image: url('/img/right-arrow.png');
   background-repeat: no-repeat;
   background-size: contain;
   width: 25px;
   height: 25px;
+}
+
+#start-war-btn-arrow:hover {
+  filter: invert(100%) grayscale(100%) brightness(100%);
 }
 
 /* war room check modal */
@@ -134,7 +151,7 @@ div#war-room-check label {
 }
 
 .date {
-  font-size: 6px;
+  font-size: 16px;
   font-weight: 600;
 }
 

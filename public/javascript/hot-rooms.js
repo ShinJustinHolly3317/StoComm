@@ -22,17 +22,21 @@ async function fetchOnlineRooms(onlineClients) {
       } else {
         clients = Object.keys(onlineClients[item.id]).length
       }
-      // const clients = onlineClients[item.id]
-      //   ? Object.keys(onlineClients[item.id]).length - 1
-      //   : 0
+      console.log('clients', clients)
+      let hiddenColsingMsg = !clients ? '' : 'hidden'
+
       warRoomHtml += `
       <a href='/war-room?roomId=${item.id}&stockCode=${item.stock_code}'>
         <div class='war-room shadow-lg'>
           <div>
             <div class="d-flex align-items-center">
-              <h3>${item.name} 開台中</h3>
+              <h3>${item.name}<h5 class="my-0 me-3">的研究室</h5></h3>
               <img src="/img/live.png" class="live-icon">
-              <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:<span room="${item.id}">${clients}</span></span>
+              <div class="online-people-area">
+                <span class="online-people"><img src="/img/clients.png" class="clients-icon">在線人數:<span room="${item.id}">${clients}</span></span>
+                <div class="rounded-pill closing-warning ${hiddenColsingMsg}">即將在 1 分鐘後關閉</div>
+              </div>
+              
             </div>
             <h4 id="war_room_title">${item.war_room_title}</h4>
           </div>
@@ -77,9 +81,8 @@ async function renderRealPriceChart(stockCode, id) {
   // create a line series and set the data
   const series = chart.line(stockPrice)
   series.stroke(isBull ? '#f35350' : '#14c9ba')
-  
+
   series.hovered().markers(false)
-  
 
   // set the container id
   chart.container(`stock-preview-${id}`)
@@ -112,23 +115,20 @@ async function fetchDayPrices(id) {
   return { isBull, stockPrice }
 }
 
-async function updateRoomClients(roomId, clients) {}
-
 async function socketInit() {
   const socket = io()
-  let socketId
+
+  socket.on('recieve all room clients', async (roomClients) => {
+    if (!View.warRooms.children.length) {
+      View.warRooms.innerHTML = ''
+      await fetchOnlineRooms(roomClients)
+      closeLoading()
+    }
+    console.log(roomClients)
+  })
 
   socket.on('connect', () => {
     console.log('socket connected')
-    socketId = socket.id
     socket.emit('get all room clients')
-  })
-
-  socket.on('recieve all room clients', (roomClients) => {
-    if (!View.warRooms.children.length) {
-      View.warRooms.innerHTML = ''
-      fetchOnlineRooms(roomClients)
-    }
-    console.log(roomClients)
   })
 }

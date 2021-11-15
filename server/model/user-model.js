@@ -104,8 +104,6 @@ async function signUp(name, email, password) {
       name: name,
       picture: '/img/profile-icon.png',
       access_expired: TOKEN_EXPIRE,
-      followers: 0,
-      following: 0,
       role: 'visitor',
       is_drawable: 0,
       is_mic_on: 0
@@ -161,38 +159,6 @@ async function changeToStreamer(userId) {
   return result
 }
 
-async function allowUserDraw(userId) {
-  const [result] = await db.query(
-    'UPDATE user SET is_drawable = 1 WHERE id = ?',
-    [userId]
-  )
-  return result
-}
-
-async function denyUserDraw(userId) {
-  const [result] = await db.query(
-    'UPDATE user SET is_drawable = 0 WHERE id = ?',
-    [userId]
-  )
-  return result
-}
-
-async function allowUserMic(userId) {
-  const [result] = await db.query(
-    'UPDATE user SET is_mic_on = 1 WHERE id = ?',
-    [userId]
-  )
-  return result
-}
-
-async function denyUserMic(userId) {
-  const [result] = await db.query(
-    'UPDATE user SET is_mic_on = 0 WHERE id = ?',
-    [userId]
-  )
-  return result
-}
-
 async function allowAllUserDraw(usersId) {
   try {
     const [result] = await db.query(
@@ -220,7 +186,6 @@ async function denyAllUserDraw(usersId) {
 async function followUser(userId, followId) {
   const conn = await db.getConnection()
   try {
-    console.log('userid', userId);
     await conn.query('BEGIN')
 
     const [searchResult] = await conn.query('SELECT * FROM follow_status WHERE user_id = ? AND following_id = ?', [userId, followId])
@@ -233,13 +198,6 @@ async function followUser(userId, followId) {
       'INSERT INTO follow_status (user_id, following_id) VALUES ?',
       [[[userId, followId]]]
     )
-    await conn.query('UPDATE user SET following = following + 1 WHERE id = ?', [
-      userId
-    ])
-    await conn.query('UPDATE user SET followers = followers + 1 WHERE id = ?', [
-      followId
-    ])
-
     await conn.query('COMMIT')
 
     return result.insertId
@@ -261,13 +219,6 @@ async function unFollowUser(userId, followId) {
       'DELETE FROM follow_status WHERE user_id = ? AND following_id = ?',
       [[userId], [followId]]
     )
-    await conn.query('UPDATE user SET following = following - 1 WHERE id = ?', [
-      userId
-    ])
-    await conn.query('UPDATE user SET followers = followers - 1 WHERE id = ?', [
-      followId
-    ])
-
     await conn.query('COMMIT')
 
     return result.insertId
@@ -290,6 +241,27 @@ async function checkFollowState(userId, followId) {
   } catch (error) {
     console.log(error);
     return {error}
+  }
+}
+
+async function getFollwingNums(userId) {
+  const followingQry = `
+  select count(*) as following from follow_status 
+  where following_id = ?
+  `
+  const followerQry = `
+  select count(*) as follower from follow_status 
+  where user_id = ?
+  `
+  try{
+    const [followerResult] = await db.query(followerQry, [userId])
+    const [followingResult] = await db.query(followingQry, [userId])
+    const followers = followerResult.length ? followerResult[0].follower : 0
+    const following = followingResult.length ? followingResult[0].following : 0
+    return { following, followers }
+  } catch(error) {
+    console.error(error)
+    return { error }
   }
 }
 
@@ -325,15 +297,12 @@ module.exports = {
   signUp,
   getUserDetail,
   changeToStreamer,
-  allowUserDraw,
-  denyUserDraw,
-  allowUserMic,
-  denyUserMic,
   allowAllUserDraw,
   denyAllUserDraw,
   followUser,
   unFollowUser,
   checkFollowState,
   findUserDataByEmail,
-  editProfile
+  editProfile,
+  getFollwingNums
 }

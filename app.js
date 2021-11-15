@@ -34,6 +34,7 @@ const { ExpressPeerServer } = require('peer')
 
 // start peerjs server
 const peerServer = ExpressPeerServer(server, {
+  proxied: true,
   debug: true
 })
 app.use('/peerjs', peerServer)
@@ -45,6 +46,11 @@ app.use(routes)
 // handle draw history
 const socketController = require('./server/controller/socket/main-socket-controller')
 socketController(io)
+
+// Page not found
+app.use(function (req, res, next) {
+  res.status(404).render('404', { style: '404.css' })
+})
 
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)

@@ -51,7 +51,10 @@ async function getGross(stock_code) {
 async function getNews(stock_code) {
   const qryString = `SELECT * FROM news 
   INNER JOIN stock on stock.stock_id=news.stock_id
-  WHERE stock.stock_code = ?`
+  WHERE stock.stock_code = ?
+  ORDER BY date DESC 
+  LIMIT 30
+  `
 
   try {
     const [result] = await db.query(qryString, [stock_code])
@@ -123,7 +126,11 @@ async function getCompanyName(stockCode) {
       stockCode
     ])
 
-    return companyName[0][0].company_name
+    if (companyName[0].length) {
+      return companyName[0][0].company_name
+    } else {
+      return { error: '無此代號'}
+    }
   } catch (error) {
     console.log(error)
     return { error }

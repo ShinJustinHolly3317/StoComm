@@ -1,8 +1,8 @@
 const View = {
   warRoomBtn: document.querySelector('.js-start-war-btn'),
-  warRoomModal: new bootstrap.Modal(document.querySelector('#war-room-check'), {
-    keyboard: false
-  }),
+  // warRoomModal: new bootstrap.Modal(document.querySelector('#war-room-check'), {
+  //   keyboard: false
+  // }),
   nameInput: document.querySelector('#user-name'),
   createBtn: document.querySelector('#js-create-war-room-btn'),
   createFormData: document.querySelector('.war-room-check-data'),
@@ -10,7 +10,6 @@ const View = {
 
   profileEle: document.querySelector('#profile-icon'),
   memberNameEle: document.querySelector('#member-name'),
-  logoutBtn: document.querySelector('.js-logout-btn'),
   followingInfoEle: document.querySelectorAll('.following-info span'),
   ideasListEle: document.querySelector('.ideas-list'),
 
@@ -21,7 +20,9 @@ const View = {
   editName: document.querySelector('#edit-user-name'),
   editEmail: document.querySelector('#edit-user-email'),
   editId: document.querySelector('#edit-user-id'),
-  submitEdit: document.querySelector('.js-submit-edit')
+  submitEdit: document.querySelector('.js-submit-edit'),
+
+  profilePicture: document.querySelector('.profile-picture')
 }
 
 const Controller = {
@@ -33,23 +34,27 @@ const Controller = {
 
     const userData = (await userAuth()).data
     let ideasUrl = `/api/1.0/ideas/all?userId=${userData.id}&page=${View.page}`
+    let followingUrl = `/api/1.0/user/following_num?userId=${userData.id}`
     const pathname = window.location.pathname
     if (pathname.includes('following')) {
       ideasUrl = `/api/1.0/ideas/hot_ideas?filter=byFollowing&userId=${userData.id}&page=${View.page}`
     }
 
-    View.memberNameEle.innerText = userData.name
-    View.followingInfoEle[0].innerText = userData.followers
-    View.followingInfoEle[1].innerText = userData.following
-    View.profileEle.src = userData.picture
-
     const ideasResponse = await fetch(ideasUrl)
     const ideasResult = await ideasResponse.json()
+    const followingResponse = await fetch(followingUrl)
+    const follwingResult = await followingResponse.json()
+
+    View.memberNameEle.innerText = userData.name
+    View.followingInfoEle[0].innerText = follwingResult.data.followers
+    View.followingInfoEle[1].innerText = follwingResult.data.following
+    View.profileEle.src = userData.picture
 
     if (!ideasResult.data.length) {
       View.ideasListEle.innerHTML = `
         <h5 class="mt-5 text-center">目前還沒有任何觀點喔!</h5>
         `
+      closeLoading()
       return
     }
 
@@ -96,7 +101,7 @@ const Controller = {
     View.ideasListEle.innerHTML = ideasListHtml
 
     const totalCount = Math.ceil(Number(ideasResult.totalCount) / 10)
-    if(!totalCount){
+    if (!totalCount) {
       return
     }
 
@@ -114,22 +119,18 @@ const Controller = {
     document
       .querySelector('.pagination')
       .children[View.page].classList.add('active')
+
+    closeLoading()
   }
 }
 
 Controller.init()
 
-View.warRoomBtn.addEventListener('click', (e) => {
-  // View.nameInput.value = userData.name
-  View.warRoomModal.show()
-})
+// View.warRoomBtn.addEventListener('click', (e) => {
+//   // View.nameInput.value = userData.name
+//   View.warRoomModal.show()
+// })
 
-View.logoutBtn.addEventListener('click', (e) => {
-  localStorage.removeItem('user')
-  localStorage.removeItem('access_token')
-
-  window.location.href = '/'
-})
 
 // View.pagination.addEventListener('click', (e) => {
 //   if (e.target.classList.contains('page-link')) {
@@ -149,7 +150,43 @@ View.editBtn.addEventListener('click', async (e) => {
 View.submitEdit.addEventListener('click', async (e) => {
   const userData = document.querySelector('.edit-user-data-form')
   const userFormData = new FormData(userData)
+  const imgTypes = ['jpg', 'jpeg', 'png']
 
+  const fileCat = View.profilePicture.files[0].type.split('/')[0]
+  const fileType = View.profilePicture.files[0].type.split('/')[1]
+  const fileSize = View.profilePicture.files[0].size
+  
+  if(fileCat !== 'image'){
+    await Swal.fire({
+      icon: 'error',
+      title: '只能上傳圖片格式!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
+
+  if (!imgTypes.includes(fileType)) {
+    await Swal.fire({
+      icon: 'error',
+      title: '只能上傳JPEG / PNG!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
+
+  if (fileSize > 2000000) {
+    await Swal.fire({
+      icon: 'error',
+      title: '尺寸請勿超過 2 MB!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
+
+  document.querySelector('.loading-img-area').classList.remove('hidden')
   const response = await fetch('/api/1.0/user/edit_user', {
     method: 'PUT',
     headers: {
@@ -159,6 +196,7 @@ View.submitEdit.addEventListener('click', async (e) => {
   })
 
   if (response.status === 200) {
+    document.querySelector('.loading-img-area').classList.add('hidden')
     await Swal.fire({
       position: 'center',
       icon: 'success',

@@ -23,7 +23,7 @@ const userPictureUpload = multer({
       cb(null, { fieldName: file.fieldname })
     },
     key: function (req, file, cb) {
-      cb(null, req.body['user_id'] + '-profile')
+      cb(null, req.body['user_id'] + '-' + Date.now())
     }
   }),
   limits: { fileSize: MAX_FILE_SIZE }
