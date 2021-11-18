@@ -45,6 +45,8 @@ async function main() {
     console.log('gogogo', i)
 
     let company = stockList[i][2].split('-')[0] // company name
+    company = company.replace(/[^\w\s]/gi, '')
+    console.log(company)
 
     await stockInfoInsert(stockList[i][0], stockList[i][1], company)
     await sleep(Math.floor(Math.random() * 4000) + 8000)
