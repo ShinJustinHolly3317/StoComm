@@ -31,7 +31,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 894; i < stockList.length; i++) {
+  for (let i = 0; i < stockList.length; i++) {
     console.log(
       `Id: ${i}, Stock code: ${stockList[i][1]}, Stock Name: ${stockList[i][2]}`
     )
@@ -49,50 +49,57 @@ async function main() {
 async function yearPrice(stockId, stockCode) {
   const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${stockCode}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
 
-  const result = await axios.get(url, {
-    headers: {
-      'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
-      'content-type': 'text/html; charset=UTF-8',
-      'x-requested-with': 'XMLHttpRequest',
-      'Accept-Encoding': 'br, gzip, deflate',
-      'Accept-Language': 'en-gb',
-      Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+  try {
+    const result = await axios.get(url, {
+      headers: {
+        'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
+        'content-type': 'text/html; charset=UTF-8',
+        'x-requested-with': 'XMLHttpRequest',
+        'Accept-Encoding': 'br, gzip, deflate',
+        'Accept-Language': 'en-gb',
+        Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
+      }
+    })
+
+    let pricehistory = JSON.parse(
+      result.data.split(`"ta":`)[1].split(',"ex"')[0]
+    )
+    // const rawLatestPrice = pricehistory[pricehistory.length - 1]
+    // let date = rawLatestPrice.t.toString()
+    // const latestPrice = [
+    //   stockId,
+    //   date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+    //   latestPrice.o,
+    //   latestPrice.h,
+    //   latestPrice.l,
+    //   latestPrice.c,
+    //   latestPrice.v
+    // ]
+    // const insertResult = await insertYearPrice(dataTable)
+
+    const dataTable = pricehistory.map((item) => {
+      let date = item.t.toString()
+      return [
+        stockId,
+        date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+        item.o,
+        item.h,
+        item.l,
+        item.c,
+        item.v
+      ]
+    })
+
+    if (!dataTable.length) {
+      missingStock.push(stockCode)
+      return
     }
-  })
 
-  let pricehistory = JSON.parse(result.data.split(`"ta":`)[1].split(',"ex"')[0])
-  // const rawLatestPrice = pricehistory[pricehistory.length - 1]
-  // let date = rawLatestPrice.t.toString()
-  // const latestPrice = [
-  //   stockId,
-  //   date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
-  //   latestPrice.o,
-  //   latestPrice.h,
-  //   latestPrice.l,
-  //   latestPrice.c,
-  //   latestPrice.v
-  // ]
-  // const insertResult = await insertYearPrice(dataTable)
-
-  const dataTable = pricehistory.map((item) => {
-    let date = item.t.toString()
-    return [
-      stockId,
-      date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
-      item.o,
-      item.h,
-      item.l,
-      item.c,
-      item.v
-    ]
-  })
-
-  if(!dataTable.length) {
-    missingStock.push(stockCode)
-    return
+    const insertResult = await insertYearPrice(dataTable)
+  } catch (error) {
+    console.log('Error:', error)
+    yearPrice(stockId, stockCode)
   }
-
-  const insertResult = await insertYearPrice(dataTable)
 }
 
 function sleep(ms) {

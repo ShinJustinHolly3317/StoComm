@@ -201,7 +201,8 @@ stage.on('click tap', function (e) {
   // do we pressed shift or ctrl?
   const metaPressed = e.evt.shiftKey || e.evt.ctrlKey || e.evt.metaKey
   const isSelected = tr.nodes().indexOf(e.target) >= 0
-  console.log(e.target)
+  console.log('Selected Target',e.target)
+  console.log('Select drawhostory', drawHistory);  
   if (!metaPressed && !isSelected) {
     // if no key pressed and the node is not selected
     // select just one
@@ -209,18 +210,17 @@ stage.on('click tap', function (e) {
     curSelectShape = e.target
     tr.moveToTop()
     e.target.draggable(true)
-    // e.target.draggable(true)
   } else if (metaPressed && isSelected) {
     // if we pressed keys and node was selected
     // we need to remove it from selection:
-    const nodes = tr.nodes().slice() // use slice to have new copy of array
+    // const nodes = tr.nodes().slice() // use slice to have new copy of array
     // remove node from array
-    nodes.splice(nodes.indexOf(e.target), 1)
-    tr.nodes(nodes)
+    // nodes.splice(nodes.indexOf(e.target), 1)
+    // tr.nodes(nodes)
   } else if (metaPressed && !isSelected) {
     // add the node into selection
-    const nodes = tr.nodes().concat([e.target])
-    tr.nodes(nodes)
+    // const nodes = tr.nodes().concat([e.target])
+    // tr.nodes(nodes)
   }
 })
 
@@ -387,6 +387,39 @@ socket.on('update move draw', (drawingId, position) => {
     })
   } else {
     drawHistory[drawingId].moveLocation = position
+    console.log('old x ', stage.find(`#${drawingId}`)[0])
+    stage.find(`#${drawingId}`)[0].position({
+      x: position[0],
+      y: position[1]
+    })
+  }
+})
+
+socket.on('update my move draw', (drawingId, position) => {
+  if (!drawHistory[drawingId].moveLocation) {
+    console.log('holy shit');
+    drawHistory[drawingId].moveLocation = position
+  } else {
+    console.log('fuck', position)
+    drawHistory[drawingId].moveLocation = drawHistory[
+      drawingId
+    ].moveLocation.concat(position)
+  }
+
+  // add to command history
+  const prevDrawObj = drawHistory[drawingId]
+  commandHistory.push({ command: 'move', drawObj: prevDrawObj })
+  console.log(commandHistory) 
+
+
+  if (drawHistory[drawingId].toolType === 'image') {
+    drawHistory[drawingId].location.x = position[0]
+    drawHistory[drawingId].location.y = position[1]
+    stage.find(`#${drawingId}`)[0].position({
+      x: position[0],
+      y: position[1]
+    })
+  } else {
     console.log('old x ', stage.find(`#${drawingId}`)[0])
     stage.find(`#${drawingId}`)[0].position({
       x: position[0],
@@ -598,22 +631,31 @@ undoBtn.addEventListener('click', (e) => {
     return
   }
 
-  undoLayer(commandHistory[commandHistory.length - 1])
+  console.log(
+    'Before poped undocommand',
+    commandHistory[commandHistory.length - 1].drawObj.prevMoveLocation
+  )
   socket.emit('undo', commandHistory[commandHistory.length - 1])
+  undoLayer(commandHistory[commandHistory.length - 1])
+  
+
+  console.log('poped undocommand', commandHistory[commandHistory.length - 1].drawObj.prevMoveLocation)
+  undoHistory.push(commandHistory[commandHistory.length - 1])
+  console.log('undoHistory', undoHistory)
+
   const undoCommandObj = commandHistory.pop()
-  undoHistory.push(undoCommandObj)
 })
 
 redoBtn.addEventListener('click', (e) => {
-  console.log(undoHistory)
-  console.log(drawHistory)
+  // console.log(undoHistory)
+  // console.log(drawHistory)
   redoBtn.classList.add('tool-active')
   if (!undoHistory.length) {
     return
   }
-
+socket.emit('redo', undoHistory[undoHistory.length - 1])
   redoLayer(undoHistory[undoHistory.length - 1])
-  socket.emit('redo', undoHistory[undoHistory.length - 1])
+  
   const redoCommandObj = undoHistory.pop()
   commandHistory.push(redoCommandObj)
 })
@@ -753,7 +795,7 @@ function undoLayer(commandLayer) {
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
     console.log(`${commandLayer.drawObj.drawLayerCounter} is deleted`)
-  } else {
+  } else if (commandLayer.command === 'delete') {
     // undo delete
     if (commandLayer.drawObj.toolType === 'image') {
       addImg(
@@ -761,7 +803,6 @@ function undoLayer(commandLayer) {
         commandLayer.drawObj.drawLayerCounter,
         commandLayer.drawObj.location
       )
-    } else {
       let layerObj = new Konva.Line({
         points: commandLayer.drawObj.location,
         stroke: '#df4b26',
@@ -791,7 +832,33 @@ function undoLayer(commandLayer) {
       // reset z index
       layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
     }
+
+    // add back drawhistory
     drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
+  } else if (commandLayer.command === 'move') {
+    let prevMoveY = commandLayer.drawObj.moveLocation.pop()
+    let prevMovex = commandLayer.drawObj.moveLocation.pop()
+    console.log('befoe undo commandobj', commandLayer)
+
+    if (!commandLayer.drawObj.prevMoveLocation) {
+      commandLayer.drawObj.prevMoveLocation = [prevMovex, prevMoveY]
+    } else {
+      commandLayer.drawObj.prevMoveLocation = commandLayer.drawObj.prevMoveLocation.concat(
+        [prevMovex, prevMoveY]
+      )
+    }
+
+    console.log(prevMovex, prevMoveY)
+    console.log('undo undohistory:', undoHistory)
+
+    stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+      x: commandLayer.drawObj.moveLocation[
+        commandLayer.drawObj.moveLocation.length - 2
+      ],
+      y: commandLayer.drawObj.moveLocation[
+        commandLayer.drawObj.moveLocation.length - 1
+      ]
+    })
   }
 }
 
@@ -804,7 +871,7 @@ function redoLayer(commandLayer) {
     }
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
-  } else {
+  } else if (commandLayer.command === 'create') {
     // undo delete
     if (commandLayer.drawObj.toolType === 'image') {
       addImg(
@@ -841,6 +908,32 @@ function redoLayer(commandLayer) {
       // reset z index
       layerObj.zIndex(commandLayer.drawObj.drawLayerCounter)
     }
+    // add back drawhistory
     drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
+  } else if (commandLayer.command === 'move') {
+    console.log('undohistory:', commandLayer.drawObj.prevMoveLocation)
+
+
+
+
+    stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+      x: commandLayer.drawObj.prevMoveLocation[
+        commandLayer.drawObj.prevMoveLocation.length - 2
+      ],
+      y: commandLayer.drawObj.prevMoveLocation[
+        commandLayer.drawObj.prevMoveLocation.length - 1
+      ]
+    })
+
+    let prevMoveY = commandLayer.drawObj.prevMoveLocation.pop()
+    let prevMovex = commandLayer.drawObj.prevMoveLocation.pop()
+
+    
+    if (!commandLayer.drawObj.moveLocation) {
+      commandLayer.drawObj.moveLocation = [prevMovex, prevMoveY]
+    } else {
+      commandLayer.drawObj.moveLocation =
+        commandLayer.drawObj.moveLocation.concat([prevMovex, prevMoveY])
+    }
   }
 }

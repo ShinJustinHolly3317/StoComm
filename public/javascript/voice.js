@@ -62,7 +62,6 @@ async function initPeer() {
     debug: 3
   })
 
-
   myPeer.on('error', (error) => {
     console.log(error)
     // Only one voice stream for each user
@@ -132,8 +131,7 @@ async function initPeer() {
           // video.setAttribute('peer_user_id', call.peer)
 
           // get user picture url
-          getUserPic(call.peer)
-          .then((userPicUrl) => {
+          getUserPic(call.peer).then((userPicUrl) => {
             if (Number(call.peer) === Number(roomHostId)) {
               const audioIcon = document.createElement('div')
               audioIcon.setAttribute('peer_user_id', call.peer)
@@ -229,64 +227,61 @@ async function initPeer() {
         // console.log('init stream', stream.getAudioTracks())
       })
       .catch((error) => {
-        // if (error.message === 'Permission denied') {
-        //   document.querySelector(
-        //     '#voice-control-modal .modal-body'
-        //   ).innerHTML = `
-        //   <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
-        //   `
-        //   document
-        //     .querySelector('#voice-control-modal .modal-body')
-        //     .classList.add(
-        //       'd-flex',
-        //       'align-items-center',
-        //       'justify-content-center'
-        //     )
-        // }
+        if (error.message === 'Permission denied') {
+          document.querySelector(
+            '#voice-control-modal .modal-body'
+          ).innerHTML = `
+          <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
+          `
+          document
+            .querySelector('#voice-control-modal .modal-body')
+            .classList.add(
+              'd-flex',
+              'align-items-center',
+              'justify-content-center'
+            )
+        }
 
         // still turn on on way audio call
-        myPeer.on('call', (call) => {
-          // others call me
-          console.log('Others call in', call.peer)
-          call.answer()
+        // myPeer.on('call', (call) => {
+        //   // others call me
+        //   console.log('Others call in', call.peer)
+        //   call.answer()
 
-          const video = document.createElement('video')
-          // video.setAttribute('peer_user_id', call.peer)
+        //   const video = document.createElement('video')
+        //   // video.setAttribute('peer_user_id', call.peer)
 
-          // get user picture url
-          getUserPic(call.peer).then((userPicUrl) => {
-            if (Number(call.peer) === Number(roomHostId)) {
-              const audioIcon = document.createElement('div')
-              audioIcon.setAttribute('peer_user_id', call.peer)
-              audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
-            <img src="/img/mic.png" class="mic-icon">
-            `
-              hostArea.append(audioIcon)
-            } else {
-              const audioIcon = document.createElement('div')
-              audioIcon.setAttribute('peer_user_id', call.peer)
+        //   // get user picture url
+        //   getUserPic(call.peer).then((userPicUrl) => {
+        //     if (Number(call.peer) === Number(roomHostId)) {
+        //       const audioIcon = document.createElement('div')
+        //       audioIcon.setAttribute('peer_user_id', call.peer)
+        //       audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+        //     <img src="/img/mic.png" class="mic-icon">
+        //     `
+        //       hostArea.append(audioIcon)
+        //     } else {
+        //       const audioIcon = document.createElement('div')
+        //       audioIcon.setAttribute('peer_user_id', call.peer)
 
-              if (isMicOnInit) {
-                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
-              <img src="/img/mic.png" class="mic-icon">`
-              } else {
-                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
-              <img src="/img/mute.png" class="mute-icon">`
-              }
-              videoGrid.append(audioIcon)
-            }
-          })
+        //       if (isMicOnInit) {
+        //         audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+        //       <img src="/img/mic.png" class="mic-icon">`
+        //       } else {
+        //         audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+        //       <img src="/img/mute.png" class="mute-icon">`
+        //       }
+        //       videoGrid.append(audioIcon)
+        //     }
+        //   })
 
-          // call.on('stream', (userVideoStream) => {
-          //   addVideoStream(video, userVideoStream)
-          // })
-
-          
-        })
-        setTimeout(() => {
-          socket.emit('ready')
-        }, 1000);
-        
+        //   call.on('stream', (userVideoStream) => {
+        //     addVideoStream(video, userVideoStream)
+        //   })
+        // })
+        // setTimeout(() => {
+        //   socket.emit('ready')
+        // }, 1000)
 
         console.log('You got an error:' + error)
       })
@@ -303,10 +298,10 @@ async function initPeer() {
   async function connectToNewUser(userId, stream) {
     const isMicOnInit = (await roomAuth()).open_mic
 
-    console.log('check stream before call to others', stream);
+    console.log('check stream before call to others', stream)
 
     const call = myPeer.call(userId, stream)
-    console.log('Call to user', userId);
+    console.log('Call to user', userId)
     /* No vedio call for now, maybe online in the future */
     const video = document.createElement('video')
     video.setAttribute('peer_user_id', userId)
@@ -316,8 +311,7 @@ async function initPeer() {
       console.log('Start Stream to others')
 
       // get user picture url
-      getUserPic(userId)
-      .then((userPicUrl) => {
+      getUserPic(userId).then((userPicUrl) => {
         if (Number(userId) === Number(roomHostId)) {
           const audioIcon = document.createElement('div')
           audioIcon.setAttribute('peer_user_id', userId)

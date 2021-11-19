@@ -186,7 +186,8 @@ async function socketController(io) {
           drawHistory[roomId][drawingId].moveLocation = position
         }
         
-        io.to(roomId).emit('update move draw', drawingId, position)
+        socket.to(roomId).emit('update move draw', drawingId, position)
+        socket.emit('update my move draw', drawingId, position)
       })
 
       socket.on('delete drawing', (drawingId) => {
