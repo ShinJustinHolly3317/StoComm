@@ -387,7 +387,7 @@ async function yearPriceHistory() {
   const result = await resposne.json()
 
   table = anychart.data.table()
-  table.addData(result)
+  table.addData(result.data)
 
   // mapping the data
   mapping = table.mapAs()

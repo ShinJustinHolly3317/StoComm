@@ -16,14 +16,8 @@ const USER_AGNET = [
 
 // model
 const {
-  insertRevenue,
-  getRevenue,
-  getNews,
-  insertNews,
-  insertChip,
-  getChip,
+  insertYearPrice,
   getStockList,
-  insertGross
 } = require('../../server/model/stock_info_model')
 
 // Require mysql connection
@@ -37,12 +31,12 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 0; i < stockList.length; i++) {
-    console.log('gogogo', i)
+  for (let i = 894; i < stockList.length; i++) {
+    console.log(
+      `Id: ${i}, Stock code: ${stockList[i][1]}, Stock Name: ${stockList[i][2]}`
+    )
 
-    let company = stockList[i][2].split('-')[0] // company name
-
-    await stockInfoInsert(stockList[i][0], stockList[i][1], company)
+    await yearPrice(stockList[i][0], stockList[i][1])
     await sleep(Math.floor(Math.random() * 4000) + 8000)
     console.log('missingStock', missingStock)
   }
@@ -52,7 +46,7 @@ async function main() {
 }
 
 // functions
-async function yearPrice(stockCode) {
+async function yearPrice(stockId, stockCode) {
   const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${stockCode}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
 
   const result = await axios.get(url, {
@@ -67,9 +61,23 @@ async function yearPrice(stockCode) {
   })
 
   let pricehistory = JSON.parse(result.data.split(`"ta":`)[1].split(',"ex"')[0])
+  // const rawLatestPrice = pricehistory[pricehistory.length - 1]
+  // let date = rawLatestPrice.t.toString()
+  // const latestPrice = [
+  //   stockId,
+  //   date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+  //   latestPrice.o,
+  //   latestPrice.h,
+  //   latestPrice.l,
+  //   latestPrice.c,
+  //   latestPrice.v
+  // ]
+  // const insertResult = await insertYearPrice(dataTable)
+
   const dataTable = pricehistory.map((item) => {
     let date = item.t.toString()
     return [
+      stockId,
       date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
       item.o,
       item.h,
@@ -79,7 +87,16 @@ async function yearPrice(stockCode) {
     ]
   })
 
-  console.log(dataTable[159])
+  if(!dataTable.length) {
+    missingStock.push(stockCode)
+    return
+  }
+
+  const insertResult = await insertYearPrice(dataTable)
 }
 
-yearPrice(1234)
+function sleep(ms) {
+  return new Promise((resolve, resject) => setTimeout(resolve, ms))
+}
+
+main()

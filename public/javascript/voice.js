@@ -201,48 +201,93 @@ async function initPeer() {
           stream.getAudioTracks()[0].enabled = true
         })
 
-        videoGrid.addEventListener('click', async (e) => {
-          // mute person specifically
-          const userCheckResult = await userAuth()
-          if (userCheckResult.data.role !== 'streamer') {
-            return
-          }
+        // videoGrid.addEventListener('click', async (e) => {
+        //   // mute person specifically
+        //   const userCheckResult = await userAuth()
+        //   if (userCheckResult.data.role !== 'streamer') {
+        //     return
+        //   }
 
-          const audioIcon = e.target
-          if (audioIcon.classList.contains('audio-icon')) {
-            socket.emit('ban audio', e.target.getAttribute('peer_user_id'))
+        //   const audioIcon = e.target
+        //   if (audioIcon.classList.contains('audio-icon')) {
+        //     socket.emit('ban audio', e.target.getAttribute('peer_user_id'))
 
-            if (audioIcon.nextElementSibling.classList.contains('mic-icon')) {
-              audioIcon.nextElementSibling.src = '/img/mute.png'
-              audioIcon.nextElementSibling.classList.remove('mic-icon')
-              audioIcon.nextElementSibling.classList.add('mute-icon')
-            } else if (
-              audioIcon.nextElementSibling.classList.contains('mute-icon')
-            ) {
-              audioIcon.nextElementSibling.src = '/img/mic.png'
-              audioIcon.nextElementSibling.classList.remove('mute-icon')
-              audioIcon.nextElementSibling.classList.add('mic-icon')
-            }
-          }
-        })
+        //     if (audioIcon.nextElementSibling.classList.contains('mic-icon')) {
+        //       audioIcon.nextElementSibling.src = '/img/mute.png'
+        //       audioIcon.nextElementSibling.classList.remove('mic-icon')
+        //       audioIcon.nextElementSibling.classList.add('mute-icon')
+        //     } else if (
+        //       audioIcon.nextElementSibling.classList.contains('mute-icon')
+        //     ) {
+        //       audioIcon.nextElementSibling.src = '/img/mic.png'
+        //       audioIcon.nextElementSibling.classList.remove('mute-icon')
+        //       audioIcon.nextElementSibling.classList.add('mic-icon')
+        //     }
+        //   }
+        // })
 
         // console.log('init stream', stream.getAudioTracks())
       })
       .catch((error) => {
-        if (error.message === 'Permission denied') {
-          document.querySelector(
-            '#voice-control-modal .modal-body'
-          ).innerHTML = `
-          <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
-          `
-          document
-            .querySelector('#voice-control-modal .modal-body')
-            .classList.add(
-              'd-flex',
-              'align-items-center',
-              'justify-content-center'
-            )
-        }
+        // if (error.message === 'Permission denied') {
+        //   document.querySelector(
+        //     '#voice-control-modal .modal-body'
+        //   ).innerHTML = `
+        //   <p>你沒有打開語音權限，請去瀏覽器設定打開，再重新整理頁面</p>
+        //   `
+        //   document
+        //     .querySelector('#voice-control-modal .modal-body')
+        //     .classList.add(
+        //       'd-flex',
+        //       'align-items-center',
+        //       'justify-content-center'
+        //     )
+        // }
+
+        // still turn on on way audio call
+        myPeer.on('call', (call) => {
+          // others call me
+          console.log('Others call in', call.peer)
+          call.answer()
+
+          const video = document.createElement('video')
+          // video.setAttribute('peer_user_id', call.peer)
+
+          // get user picture url
+          getUserPic(call.peer).then((userPicUrl) => {
+            if (Number(call.peer) === Number(roomHostId)) {
+              const audioIcon = document.createElement('div')
+              audioIcon.setAttribute('peer_user_id', call.peer)
+              audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+            <img src="/img/mic.png" class="mic-icon">
+            `
+              hostArea.append(audioIcon)
+            } else {
+              const audioIcon = document.createElement('div')
+              audioIcon.setAttribute('peer_user_id', call.peer)
+
+              if (isMicOnInit) {
+                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+              <img src="/img/mic.png" class="mic-icon">`
+              } else {
+                audioIcon.innerHTML = `<img src="${userPicUrl}" class="audio-icon" peer_user_id="${call.peer}">
+              <img src="/img/mute.png" class="mute-icon">`
+              }
+              videoGrid.append(audioIcon)
+            }
+          })
+
+          // call.on('stream', (userVideoStream) => {
+          //   addVideoStream(video, userVideoStream)
+          // })
+
+          
+        })
+        setTimeout(() => {
+          socket.emit('ready')
+        }, 1000);
+        
+
         console.log('You got an error:' + error)
       })
   })
@@ -257,6 +302,9 @@ async function initPeer() {
 
   async function connectToNewUser(userId, stream) {
     const isMicOnInit = (await roomAuth()).open_mic
+
+    console.log('check stream before call to others', stream);
+
     const call = myPeer.call(userId, stream)
     console.log('Call to user', userId);
     /* No vedio call for now, maybe online in the future */

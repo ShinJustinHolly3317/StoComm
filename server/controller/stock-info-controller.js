@@ -98,23 +98,21 @@ async function getDayPrices(req, res) {
 
 async function getYearPrice(req, res) {
   const { stockCode } = req.params
-  const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${stockCode}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
-  const result = await axios.get(url)
+  const result = await Stock.getYearPrice(stockCode)
 
-  let pricehistory = JSON.parse(result.data.split(`"ta":`)[1].split(',"ex"')[0])
-  const dataTable = pricehistory.map((item) => {
-    let date = item.t.toString()
+  const dataTable = result.map((item) => {
+    let date = moment(item.date).format('YYYY-MM-DD')
     return [
-      date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
-      item.o,
-      item.h,
-      item.l,
-      item.c,
-      item.v
+      date,
+      item.open_price,
+      item.high_price,
+      item.low_price,
+      item.close_price,
+      item.volume
     ]
   })
 
-  res.send(dataTable)
+  res.send({ data: dataTable })
 }
 
 async function stockChip(req, res) {

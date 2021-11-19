@@ -137,6 +137,37 @@ async function getCompanyName(stockCode) {
   }
 }
 
+async function insertYearPrice(yearPriceData) {
+  const insertQry = `
+  INSERT INTO year_price (stock_id, date, open_price, high_price, low_price, close_price,volume) VALUES ?
+  `
+
+  try {
+    const [result] = await db.query(insertQry, [yearPriceData])
+    console.log('Year Price Insert Result', result)
+    return result
+  } catch (error) {
+    console.log(error)
+    return { error }
+  }
+}
+
+async function getYearPrice(stockCode) {
+  const yearPriceQry = `
+  SELECT * FROM year_price 
+  INNER JOIN stock on stock.stock_id = year_price.stock_id
+  WHERE stock.stock_code = ?
+  `
+
+  try{
+    const [result] = await db.query(yearPriceQry, [stockCode])
+    return result
+  } catch(error) {
+    console.log(error)
+    return { error }
+  }
+}
+
 module.exports = {
   insertRevenue,
   getRevenue,
@@ -146,5 +177,7 @@ module.exports = {
   getChip,
   getStockList,
   insertGross,
-  getCompanyName
+  getCompanyName,
+  insertYearPrice,
+  getYearPrice
 }
