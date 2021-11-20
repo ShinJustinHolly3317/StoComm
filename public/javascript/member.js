@@ -68,7 +68,7 @@ const Controller = {
                 <p class="date text-secondary mt-1">${item.date}</p>
               </div>
               
-              <p class="badge bg-secondary my-3">${item.company_name} (${
+              <p class="badge bg-secondary my-3 fs-6">${item.company_name} (${
         item.stock_code
       })</p>
 

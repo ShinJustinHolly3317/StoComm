@@ -29,7 +29,6 @@ async function stockNews(req, res) {
 
 async function stockRevenue(req, res) {
   const { stockCode } = req.params
-
   let revenueData = await Stock.getRevenue(stockCode)
 
   res.send({
@@ -39,52 +38,11 @@ async function stockRevenue(req, res) {
 
 async function stockGross(req, res) {
   const { stockCode } = req.params
-  const url = `https://goodinfo.tw/StockInfo/StockFinDetail.asp?RPT_CAT=IS_M_QUAR_ACC&STOCK_ID=${stockCode}}`
-  const grossSelector =
-    '#divFinDetail table tbody tr[bgcolor="white"][align="right"][valign="middle"]'
-  const titleSelector = '#divFinDetail table tbody tr.bg_h1'
+  let grossData = await Stock.getGross(stockCode)
 
-  const result = await axios.get(url, {
-    headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
-      'content-type': 'text/html; charset=UTF-8',
-      'x-requested-with': 'XMLHttpRequest',
-      'Accept-Encoding': 'br, gzip, deflate',
-      'Accept-Language': 'en-gb',
-      Accept: `test/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8`
-    }
+  res.send({
+    data: grossData
   })
-
-  const $ = cheerio.load(result.data)
-
-  const grossRawData = $(grossSelector)
-  const titleRawData = $(titleSelector)
-  const grossData = []
-  const titleList = []
-  const grossDataByQuarter = {}
-
-  // extract title name
-  for (let item of titleRawData[0].children) {
-    titleList.push(item.children[0].children[0].data)
-  }
-
-  // extract gross value and percentage
-  for (let item of grossRawData[3].children) {
-    grossData.push(item.children[0].children[0].data)
-  }
-  titleList.splice(0, 1)
-  grossData.splice(0, 1)
-
-  for (let i in titleList) {
-    grossDataByQuarter[titleList[i]] = [
-      grossData[2 * i],
-      `${grossData[2 * i + 1]} %`
-    ]
-  }
-
-  console.log(grossDataByQuarter)
-  res.send({ data: grossDataByQuarter })
 }
 
 async function getDayPrices(req, res) {

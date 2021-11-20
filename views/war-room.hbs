@@ -49,12 +49,12 @@
           data-bs-slide-to='4'
           aria-label='Slide 5'
         ></button>
-        {{! <button
+        <button
           type='button'
           data-bs-target='#carouselExampleDark'
           data-bs-slide-to='5'
           aria-label='Slide 6'
-        ></button> }}
+        ></button>
       </div>
       <div class='carousel-inner'>
 
@@ -114,9 +114,24 @@
           </div>
         </div>
 
-        {{! <div class='carousel-item'>
+        <div class='carousel-item'>
+          <div class="spinner-border gross-loading loading" role="status">
+            <span class="visually-hidden">Loading...</span>
+          </div>
+
           <div id="gross-chart" class="analysis-card"></div>
-        </div> }}
+
+          <div class="add-canvas-spacer mt-3 hidden"></div>
+          <div class="d-flex justify-content-around mt-3 add-canvas-area">
+            <p class="add-canvas-note my-auto">
+              將圖表加入畫布後即可在中央繪圖區作畫
+            </p>
+            <button
+            type='button'
+            class='btn btn-outline-secondary add-canvas'
+          >加入畫布</button>
+          </div>
+        </div> 
 
         <div class='carousel-item'>
           <div class="spinner-border chip-loading loading" role="status">
@@ -168,25 +183,12 @@
         <span class='visually-hidden'>Next</span>
       </button>
     </div>
-    <!--  -->
-
-    {{!-- <button
-      type='button'
-      class='btn btn-outline-secondary add-canvas'
-    >加入畫布</button> --}}
   </div>
 
   <!-- paiting canvas -->
   <div id='canvas-wrapper'>
     <div id='canvas'></div>
     <div class='tool-area'>
-      {{! <select name='tool' id='tool'>
-        <option value='brush'>筆刷</option>
-        <option value='line'>直線</option>
-        <option value='eraser'>橡皮擦</option>
-        <option value='text'>文字</option>
-        <option value='select'>選取</option>
-      </select> }}
 
       <div class='tool-area d-flex'>
         <div class='functional-area d-flex'>

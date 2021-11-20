@@ -7,8 +7,9 @@ async function insertRevenue(revenueData) {
     const qryString = `INSERT INTO revenue(stock_id, revenue, quarter, year) VALUES ?`
     const [result] = await db.query(qryString, [revenueData])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return {error}
   }
 }
 
@@ -17,8 +18,9 @@ async function insertGross(grossData) {
     const qryString = `INSERT INTO gross(stock_id, gross, quarter, year) VALUES ?`
     const [result] = await db.query(qryString, [grossData])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -32,23 +34,25 @@ async function getRevenue(stock_code) {
   try {
     const [result] = await db.query(qryString, [stock_code])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
 async function getGross(stock_code) {
   const qryString = `SELECT * FROM gross 
-  INNER JOIN stock ON revenue.stock_id=stock.stock_id
+  INNER JOIN stock ON gross.stock_id=stock.stock_id
   WHERE stock.stock_code = ?
-  ORDER BY date DESC
+  ORDER BY id DESC
   `
 
   try {
     const [result] = await db.query(qryString, [stock_code])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -63,8 +67,9 @@ async function getNews(stock_code) {
   try {
     const [result] = await db.query(qryString, [stock_code])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -77,8 +82,9 @@ async function insertNews(newsData, stockId) {
   try {
     const [result] = await db.query(qryString, [updateNewsData])
     return result.insertId
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -96,8 +102,9 @@ async function insertChip(chipData, stock_code) {
   try {
     const [result] = await db.query(qryString, [updateChipData])
     return result.insertId
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -111,8 +118,9 @@ async function getChip(stock_code) {
   try {
     const [result] = await db.query(qryString, [stock_code])
     return result
-  } catch (err) {
-    return console.log(err)
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -177,6 +185,7 @@ async function getYearPrice(stockCode) {
 module.exports = {
   insertRevenue,
   getRevenue,
+  getGross,
   getNews,
   insertNews,
   insertChip,

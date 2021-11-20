@@ -22,7 +22,7 @@ let chartIntervalId
 ;(async function () {
   company_name = await getCompanyName(STOCK_CODE)
   await renderRevenueChart(STOCK_CODE)
-  // await renderGrossChart(STOCK_CODE)
+  await renderGrossChart(STOCK_CODE)
   await renderRealPriceChart(realTimePriceCtx)
   await renderNews(STOCK_CODE)
   await renderChips(STOCK_CODE)
@@ -197,7 +197,6 @@ async function renderRevenueChart(id) {
   const response = await fetch(`/stockRevenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
-  console.log(revenueData)
   if (!revenueData.length) {
     document.querySelector('#revenue-chart').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
@@ -218,7 +217,7 @@ async function renderRevenueChart(id) {
   const chart = anychart.column()
 
   // set chart title text settings
-  chart.title(`${company_name}(${STOCK_CODE}) 月營收 (億)`)
+  chart.title(`${company_name}(${STOCK_CODE}) 季營收 (億)`)
 
   // create a column series and set the data
   var series = chart.column(revenueByMonth)
@@ -250,11 +249,12 @@ async function renderRevenueChart(id) {
 async function renderGrossChart(id) {
   const response = await fetch(`/stockGross/${id}`)
   const result = await response.json()
+  console.log(result);
   const grossData = result.data
 
   const grossByQuarter = []
-  for (let key of grossData) {
-    grossByQuarter.push([key, grossData[key][0]])
+  for (let item of grossData) {
+    grossByQuarter.push([item.year + item.quarter, item.gross / 100000])
   }
 
   // create a chart
@@ -285,6 +285,9 @@ async function renderGrossChart(id) {
 
   // initiate drawing the chart
   chart.draw()
+
+  // disble loading img
+  document.querySelector('.gross-loading').classList.add('hidden')
 }
 
 async function renderChips(stockCode) {
