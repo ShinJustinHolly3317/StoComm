@@ -25,7 +25,9 @@ async function insertGross(grossData) {
 async function getRevenue(stock_code) {
   const qryString = `SELECT * FROM revenue 
   INNER JOIN stock ON revenue.stock_id=stock.stock_id
-  WHERE stock.stock_code = ?`
+  WHERE stock.stock_code = ?
+  ORDER BY id DESC
+  `
 
   try {
     const [result] = await db.query(qryString, [stock_code])
@@ -38,7 +40,9 @@ async function getRevenue(stock_code) {
 async function getGross(stock_code) {
   const qryString = `SELECT * FROM gross 
   INNER JOIN stock ON revenue.stock_id=stock.stock_id
-  WHERE stock.stock_code = ?`
+  WHERE stock.stock_code = ?
+  ORDER BY date DESC
+  `
 
   try {
     const [result] = await db.query(qryString, [stock_code])
@@ -100,7 +104,9 @@ async function insertChip(chipData, stock_code) {
 async function getChip(stock_code) {
   const qryString = `SELECT * FROM chip_history 
   INNER JOIN stock ON chip_history.stock_id=stock.stock_id
-  WHERE stock.stock_code = ?`
+  WHERE stock.stock_code = ?
+  ORDER BY date DESC
+  `
 
   try {
     const [result] = await db.query(qryString, [stock_code])

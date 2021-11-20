@@ -178,12 +178,20 @@ async function socketController(io) {
       })
 
       socket.on('move draw', (drawingId, position) => {
-        console.log('move draw update', drawHistory[roomId][drawingId].location)
+        console.log(
+          'move draw update',
+          drawHistory[roomId][drawingId].moveLocation
+        )
         if (drawHistory[roomId][drawingId].toolType === 'image') {
           drawHistory[roomId][drawingId].location.x = position[0]
           drawHistory[roomId][drawingId].location.y = position[1]
         } else {
-          drawHistory[roomId][drawingId].moveLocation = position
+          if (!drawHistory[roomId][drawingId].moveLocation) {
+            drawHistory[roomId][drawingId].moveLocation = position
+          } else {
+            drawHistory[roomId][drawingId].moveLocation =
+              drawHistory[roomId][drawingId].moveLocation.concat(position)
+          }
         }
         
         socket.to(roomId).emit('update move draw', drawingId, position)
@@ -208,6 +216,8 @@ async function socketController(io) {
         } else {
           drawHistory[roomId][topLayerId] = commandLayer.drawObj
         }
+
+        // console.log('server history after undo',drawHistory[roomId][topLayerId])
 
         socket.to(roomId).emit('update undo', commandLayer)
       })

@@ -41,7 +41,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 83; i < stockList.length; i++) {
+  for (let i = 0; i < stockList.length; i++) {
     console.log('Round ID', i)
 
     console.log('Company:', stockList[i])
@@ -74,7 +74,7 @@ async function chipScrape(stockCode) {
   } catch (error) {
     // handle OTC
     const otcUrl = `
-      https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=100;period=day;symbol=${stockCode}.TWO?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=0jqb8o9go9qt5&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true
+      https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=100;period=week;symbol=${stockCode}.TWO?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=0jqb8o9go9qt5&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true
       `
     result = await axios.get(otcUrl, {
       headers: {
@@ -100,6 +100,7 @@ async function chipScrape(stockCode) {
         item.investmentTrustDiffVolK,
         item.dealerDiffVolK
       ])
+      break // only insert latest one
     }
 
     console.log('This round', rawChipData)
