@@ -211,10 +211,9 @@ async function checkFollowState(req, res) {
 
 async function editProfile (req, res){
   const userData = {}
-  const { user_name, user_id, user_email } = req.body
+  const { user_name, user_id } = req.body
   
   userData.name = user_name || ''
-  userData.email = user_email || ''
   userData.id = Number(user_id)
   userData.picture = req.file ? req.file.location : ''
   const result = await User.editProfile(userData)

@@ -5,6 +5,10 @@ const View = {
 }
 
 View.likeBtn.addEventListener('click', async (e) => {
+  if(!e.target.classList.contains('social-btn')){
+    return
+  }
+
   e.target.classList.toggle('hit-like')
 
   if (e.target.classList.contains('no-like')) {
@@ -32,6 +36,18 @@ View.likeBtn.addEventListener('click', async (e) => {
 View.dltBtn.addEventListener('click', async (e) => {
   const accessToken = localStorage.getItem('access_token')
   const ideaId = getQueryObject().id
+
+  const userpicRes = await Swal.fire({
+    title: '確定要刪除嗎? 刪除後無法復原!',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#315375',
+    cancelButtonColor: '#14c9ba',
+    confirmButtonText: '是的，我要把它刪掉!'
+  })
+  if (!userpicRes.isConfirmed) {
+    return
+  }
 
   const dltResponse = await fetch(`/api/1.0/ideas?ideaId=${ideaId}`, {
     method: 'DELETE',

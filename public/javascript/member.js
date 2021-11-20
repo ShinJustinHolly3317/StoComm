@@ -143,7 +143,6 @@ Controller.init()
 View.editBtn.addEventListener('click', async (e) => {
   const userData = await userAuth()
   View.editName.value = userData.data.name
-  View.editEmail.value = userData.data.email
   View.editId.value = userData.data.id
 })
 
@@ -152,39 +151,56 @@ View.submitEdit.addEventListener('click', async (e) => {
   const userFormData = new FormData(userData)
   const imgTypes = ['jpg', 'jpeg', 'png']
 
-  const fileCat = View.profilePicture.files[0].type.split('/')[0]
-  const fileType = View.profilePicture.files[0].type.split('/')[1]
-  const fileSize = View.profilePicture.files[0].size
+  console.log(View.profilePicture.files[0])
+  if (View.profilePicture.files[0]) {
+    const fileCat = View.profilePicture.files[0].type.split('/')[0]
+    const fileType = View.profilePicture.files[0].type.split('/')[1]
+    const fileSize = View.profilePicture.files[0].size
+
+    if (fileCat !== 'image') {
+      await Swal.fire({
+        icon: 'error',
+        title: '只能上傳圖片格式!!',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }
+
+    if (!imgTypes.includes(fileType)) {
+      await Swal.fire({
+        icon: 'error',
+        title: '只能上傳JPEG / PNG!!',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }
+
+    if (fileSize > 2000000) {
+      await Swal.fire({
+        icon: 'error',
+        title: '尺寸請勿超過 2 MB!!',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      return
+    }
+  } else {
+    const userpicRes = await Swal.fire({
+      title: '你沒有選擇圖片，確定繼續嗎?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#315375',
+      cancelButtonColor: '#14c9ba',
+      confirmButtonText: '是的，我沒有要改照片!'
+    })
+    if (!userpicRes.isConfirmed) {
+      return
+    }
+  }
+
   
-  if(fileCat !== 'image'){
-    await Swal.fire({
-      icon: 'error',
-      title: '只能上傳圖片格式!!',
-      showConfirmButton: false,
-      timer: 1500
-    })
-    return
-  }
-
-  if (!imgTypes.includes(fileType)) {
-    await Swal.fire({
-      icon: 'error',
-      title: '只能上傳JPEG / PNG!!',
-      showConfirmButton: false,
-      timer: 1500
-    })
-    return
-  }
-
-  if (fileSize > 2000000) {
-    await Swal.fire({
-      icon: 'error',
-      title: '尺寸請勿超過 2 MB!!',
-      showConfirmButton: false,
-      timer: 1500
-    })
-    return
-  }
 
   document.querySelector('.loading-img-area').classList.remove('hidden')
   const response = await fetch('/api/1.0/user/edit_user', {

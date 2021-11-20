@@ -269,16 +269,13 @@ async function editProfile(userData) {
   console.log('userData', userData)
   const qryString = `
     UPDATE user 
-    SET 
-    email = IF(?, ?, email), 
+    SET  
     name = IF(?, ?, name),
     picture = IF(?, ?, picture)
     WHERE id = ?
   `
   try {
     const [result] = await db.query(qryString, [
-      userData.email.length,
-      userData.email,
       userData.name.length,
       userData.name,
       userData.picture.length,

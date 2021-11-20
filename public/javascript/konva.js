@@ -789,9 +789,6 @@ function addImg(imageBase64, topLayerId, location) {
     // setting z index
     image.zIndex(topLayerId)
   }
-  console.log('add imgage id is:', topLayerId)
-  console.log('find image:', stage.find(`#0`))
-
   return {}
 }
 

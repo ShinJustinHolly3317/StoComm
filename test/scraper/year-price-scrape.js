@@ -64,38 +64,43 @@ async function yearPrice(stockId, stockCode) {
     let pricehistory = JSON.parse(
       result.data.split(`"ta":`)[1].split(',"ex"')[0]
     )
-    // const rawLatestPrice = pricehistory[pricehistory.length - 1]
-    // let date = rawLatestPrice.t.toString()
-    // const latestPrice = [
-    //   stockId,
-    //   date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
-    //   latestPrice.o,
-    //   latestPrice.h,
-    //   latestPrice.l,
-    //   latestPrice.c,
-    //   latestPrice.v
-    // ]
+
+    // scrape daily data
+    const rawLatestPrice = pricehistory[pricehistory.length - 1]
+    let date = rawLatestPrice.t.toString()
+    const latestPrice = [
+      stockId,
+      date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+      rawLatestPrice.o,
+      rawLatestPrice.h,
+      rawLatestPrice.l,
+      rawLatestPrice.c,
+      rawLatestPrice.v
+    ]
+    console.log(`Daily price data: stockID: ${stockCode}`)
+    console.log(`Daily price data: stockPrice: ${latestPrice}`)
+    const insertResult = await insertYearPrice([latestPrice])
+
+    // scrape entire year data
+    // const dataTable = pricehistory.map((item) => {
+    //   let date = item.t.toString()
+    //   return [
+    //     stockId,
+    //     date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
+    //     item.o,
+    //     item.h,
+    //     item.l,
+    //     item.c,
+    //     item.v
+    //   ]
+    // })
+
+    // if (!dataTable.length) {
+    //   missingStock.push(stockCode)
+    //   return
+    // }
+
     // const insertResult = await insertYearPrice(dataTable)
-
-    const dataTable = pricehistory.map((item) => {
-      let date = item.t.toString()
-      return [
-        stockId,
-        date.substr(0, 4) + '-' + date.substr(4, 2) + '-' + date.substr(6, 2),
-        item.o,
-        item.h,
-        item.l,
-        item.c,
-        item.v
-      ]
-    })
-
-    if (!dataTable.length) {
-      missingStock.push(stockCode)
-      return
-    }
-
-    const insertResult = await insertYearPrice(dataTable)
   } catch (error) {
     console.log('Error:', error)
     yearPrice(stockId, stockCode)

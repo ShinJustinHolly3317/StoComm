@@ -103,7 +103,7 @@ async function addLikes(req, res) {
   if (result.error) {
     return res.status(500).send({ error: 'Internal error' })
   } else if (result.overlimit){
-    return res.status(500).send({ overlimit: '天啊Spring 4竟然結束了!!' })
+    return res.status(500).send({ overlimit: '祝大家Demo順利!!' })
   }
 
   res.status(200).send({ data: result })
