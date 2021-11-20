@@ -502,6 +502,7 @@ socket.on('update my image', (topLayerId, canvasImg, location) => {
     userId: USER.id,
     drawLayerCounter: topLayerId.toString(),
     location,
+    moveLocation: [location.x, location.y],
     toolType: 'image',
     canvasImg
   }
@@ -537,6 +538,8 @@ socket.on('update delete all', () => {
   for (let key in drawHistory) {
     delete drawHistory[key]
   }
+  commandHistory.length = 0
+  undoHistory.length = 0
 })
 
 /* window listener */
@@ -769,6 +772,7 @@ function initLoadLayer() {
 }
 
 function addImg(imageBase64, topLayerId, location) {
+  console.log('redo add imagew');
   // console.log(window.innerWidth / 2 - (window.innerHeight - 150) / 2)
   var imageObj = new Image()
   imageObj.src = imageBase64
@@ -799,6 +803,24 @@ function undoLayer(commandLayer) {
     if (!stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0]) {
       return
     }
+
+    if (commandLayer.drawObj.moveLocation) {
+      let prevMoveY = commandLayer.drawObj.moveLocation.pop()
+      let prevMovex = commandLayer.drawObj.moveLocation.pop()
+
+      if (!commandLayer.drawObj.prevMoveLocation) {
+        console.log('prevMovex, prevMoveY', prevMovex, prevMoveY)
+        commandLayer.drawObj.prevMoveLocation = [prevMovex, prevMoveY]
+      } else {
+        console.log('fuckkk', prevMovex, prevMoveY)
+        commandLayer.drawObj.prevMoveLocation =
+          commandLayer.drawObj.prevMoveLocation.concat([
+            prevMovex,
+            prevMoveY
+          ])
+      }
+    }
+
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
     console.log(`${commandLayer.drawObj.drawLayerCounter} is deleted`)
@@ -811,20 +833,35 @@ function undoLayer(commandLayer) {
         commandLayer.drawObj.location
       )
 
-      setTimeout(() => {
-        if (!commandLayer.drawObj.moveLocation) {
-          return
-        }
+      // setTimeout(() => {
+      //   if (!commandLayer.drawObj.moveLocation) {
+      //     return
+      //   }
 
-        stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
-          x: commandLayer.drawObj.moveLocation[
-            commandLayer.drawObj.moveLocation.length - 2
-          ],
-          y: commandLayer.drawObj.moveLocation[
-            commandLayer.drawObj.moveLocation.length - 1
-          ]
-        })
-      }, 0)
+      //   stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+      //     x: commandLayer.drawObj.moveLocation[
+      //       commandLayer.drawObj.moveLocation.length - 2
+      //     ],
+      //     y: commandLayer.drawObj.moveLocation[
+      //       commandLayer.drawObj.moveLocation.length - 1
+      //     ]
+      //   })
+
+      //   let prevMoveY = commandLayer.drawObj.moveLocation.pop()
+      //   let prevMovex = commandLayer.drawObj.moveLocation.pop()
+
+      //   if(prevMovex !== undefined) {
+      //     if (!commandLayer.drawObj.prevMoveLocation) {
+      //       commandLayer.drawObj.prevMoveLocation = [prevMovex, prevMoveY]
+      //     } else {
+      //       commandLayer.drawObj.prevMoveLocation =
+      //         commandLayer.drawObj.prevMoveLocation.concat([
+      //           prevMovex,
+      //           prevMoveY
+      //         ])
+      //     }
+      //   }
+      // }, 0)
     } else {
       let layerObj = new Konva.Line({
         points: commandLayer.drawObj.location,
@@ -862,6 +899,33 @@ function undoLayer(commandLayer) {
 
     // add back drawhistory
     drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
+
+    setTimeout(() => {
+      if (!commandLayer.drawObj.moveLocation) {
+        return
+      }
+
+      stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+        x: commandLayer.drawObj.moveLocation[
+          commandLayer.drawObj.moveLocation.length - 2
+        ],
+        y: commandLayer.drawObj.moveLocation[
+          commandLayer.drawObj.moveLocation.length - 1
+        ]
+      })
+
+      let prevMoveY = commandLayer.drawObj.moveLocation.pop()
+      let prevMovex = commandLayer.drawObj.moveLocation.pop()
+
+      if(prevMovex !== undefined) {
+        if (!commandLayer.drawObj.prevMoveLocation) {
+          commandLayer.drawObj.prevMoveLocation = [prevMovex, prevMoveY]
+        } else {
+          commandLayer.drawObj.prevMoveLocation =
+            commandLayer.drawObj.prevMoveLocation.concat([prevMovex, prevMoveY])
+        }
+      }
+    }, 0)
   } else if (commandLayer.command === 'move') {
     let prevMoveY = commandLayer.drawObj.moveLocation.pop()
     let prevMovex = commandLayer.drawObj.moveLocation.pop()
@@ -876,6 +940,12 @@ function undoLayer(commandLayer) {
 
     console.log(prevMovex, prevMoveY)
     console.log('undo undohistory:', undoHistory)
+
+    console.log(
+      commandLayer.drawObj.moveLocation[
+        commandLayer.drawObj.moveLocation.length - 2
+      ]
+    )
 
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
       x: commandLayer.drawObj.moveLocation[
@@ -895,6 +965,22 @@ function redoLayer(commandLayer) {
     if (!stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0]) {
       return
     }
+
+    if (commandLayer.drawObj.prevMoveLocation) {
+      let prevMoveY = commandLayer.drawObj.prevMoveLocation.pop()
+      let prevMovex = commandLayer.drawObj.prevMoveLocation.pop()
+
+      if(prevMovex !== undefined){
+        if (!commandLayer.drawObj.moveLocation) {
+          commandLayer.drawObj.moveLocation = [prevMovex, prevMoveY]
+        } else {
+          console.log('redo concat', prevMovex, prevMoveY)
+          commandLayer.drawObj.moveLocation =
+            commandLayer.drawObj.moveLocation.concat([prevMovex, prevMoveY])
+        }
+      }
+    }
+
     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].destroy()
     delete drawHistory[commandLayer.drawObj.drawLayerCounter]
   } else if (commandLayer.command === 'create') {
@@ -906,20 +992,36 @@ function redoLayer(commandLayer) {
         commandLayer.drawObj.location
       )
 
-      setTimeout(() => {
-        if (!commandLayer.drawObj.moveLocation) {
-          return
-        }
+      // setTimeout(() => {
+      //   if (!commandLayer.drawObj.prevMoveLocation) {
+      //     return
+      //   }
 
-        stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
-          x: commandLayer.drawObj.prevMoveLocation[
-            commandLayer.drawObj.prevMoveLocation.length - 2
-          ],
-          y: commandLayer.drawObj.prevMoveLocation[
-            commandLayer.drawObj.prevMoveLocation.length - 1
-          ]
-        })
-      }, 0)
+      //   console.log(
+      //     'redo addimg ',
+      //     stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0]
+      //   )
+      //   stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+      //     x: commandLayer.drawObj.prevMoveLocation[
+      //       commandLayer.drawObj.prevMoveLocation.length - 2
+      //     ],
+      //     y: commandLayer.drawObj.prevMoveLocation[
+      //       commandLayer.drawObj.prevMoveLocation.length - 1
+      //     ]
+      //   })
+
+      //   let prevMoveY = commandLayer.drawObj.prevMoveLocation.pop()
+      //   let prevMovex = commandLayer.drawObj.prevMoveLocation.pop()
+
+      //   if (prevMovex !== undefined) {
+      //     if (!commandLayer.drawObj.moveLocation) {
+      //       commandLayer.drawObj.moveLocation = [prevMovex, prevMoveY]
+      //     } else {
+      //       commandLayer.drawObj.moveLocation =
+      //         commandLayer.drawObj.moveLocation.concat([prevMovex, prevMoveY])
+      //     }
+      //   }
+      // }, 0)
     } else {
       let layerObj = new Konva.Line({
         points: commandLayer.drawObj.location,
@@ -951,6 +1053,33 @@ function redoLayer(commandLayer) {
     }
     // add back drawhistory
     drawHistory[commandLayer.drawObj.drawLayerCounter] = commandLayer.drawObj
+
+    setTimeout(() => {
+      if (!commandLayer.drawObj.prevMoveLocation) {
+        return
+      }
+
+      stage.find(`#${commandLayer.drawObj.drawLayerCounter}`)[0].position({
+        x: commandLayer.drawObj.prevMoveLocation[
+          commandLayer.drawObj.prevMoveLocation.length - 2
+        ],
+        y: commandLayer.drawObj.prevMoveLocation[
+          commandLayer.drawObj.prevMoveLocation.length - 1
+        ]
+      })
+
+      let prevMoveY = commandLayer.drawObj.prevMoveLocation.pop()
+      let prevMovex = commandLayer.drawObj.prevMoveLocation.pop()
+
+      if (prevMovex !== undefined) {
+        if (!commandLayer.drawObj.moveLocation) {
+          commandLayer.drawObj.moveLocation = [prevMovex, prevMoveY]
+        } else {
+          commandLayer.drawObj.moveLocation =
+            commandLayer.drawObj.moveLocation.concat([prevMovex, prevMoveY])
+        }
+      }
+    }, 0)
   } else if (commandLayer.command === 'move') {
     console.log('undohistory:', commandLayer.drawObj.prevMoveLocation)
 
