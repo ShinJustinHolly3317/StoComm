@@ -41,14 +41,21 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 0; i < stockList.length; i++) {
-    console.log('gogogo', i)
+  for (let i = 10; i < stockList.length; i++) {
+    console.log('This round ID', i)
 
     let company = stockList[i][2].split('-')[0] // company name
-    company = company.replace(/[^\w\s]/gi, '')
-    console.log(company)
+    let chineseChar
+    if (company.match(/[\u4E00-\u9FFF]/g)) {
+      chineseChar = company.match(/[\u4E00-\u9FFF]/g).join('')
+    }
+    companySufix = company.replace(/[^\w\s]/gi, '')
 
-    await stockInfoInsert(stockList[i][0], stockList[i][1], company)
+    await stockInfoInsert(
+      stockList[i][0],
+      stockList[i][1],
+      chineseChar || '' + companySufix
+    )
     await sleep(Math.floor(Math.random() * 4000) + 8000)
     console.log('missingStock', missingStock)
   }
@@ -58,6 +65,7 @@ async function main() {
 }
 
 async function stockInfoInsert(stockId, stockCode, companyName) {
+  console.log('companyName', companyName)
   const encodedStr = encodeURI(companyName)
   const titleList = []
   const url = `https://api.cnyes.com/media/api/v1/search?q=${encodedStr}`
@@ -78,7 +86,12 @@ async function stockInfoInsert(stockId, stockCode, companyName) {
 
     const today = moment().format('YYYY-MM-DD')
     const rawNewsData = result.data.items.data
+    console.log(result.data)
     for (let item of rawNewsData) {
+      console.log(
+        'news date',
+        moment(item.publishAt * 1000).format('YYYY-MM-DD')
+      )
       if (today !== moment(item.publishAt * 1000).format('YYYY-MM-DD')) {
         console.log('old news');
         continue

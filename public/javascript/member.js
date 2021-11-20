@@ -126,10 +126,9 @@ const Controller = {
 
 Controller.init()
 
-// View.warRoomBtn.addEventListener('click', (e) => {
-//   // View.nameInput.value = userData.name
-//   View.warRoomModal.show()
-// })
+View.warRoomBtn.addEventListener('click', (e) => {
+  navWarRoomCheck.show()
+})
 
 
 // View.pagination.addEventListener('click', (e) => {
