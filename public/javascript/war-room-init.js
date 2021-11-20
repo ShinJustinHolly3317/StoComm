@@ -451,7 +451,14 @@ async function roleAuth(roomPermission) {
       //     }
       //   })
     } else if (result.data.role !== 'streamer') {
-      document.querySelector('.add-canvas').classList.add('hidden')
+      document.querySelectorAll('.add-canvas-area').forEach((item) => {
+        console.log(item)
+        item.classList.add('hidden')
+      })
+      document.querySelectorAll('.add-canvas-spacer').forEach((item) => {
+        console.log(item)
+        item.classList.remove('hidden')
+      })
 
       const openDraw = (await roomAuth()).open_draw
       if (openDraw) {

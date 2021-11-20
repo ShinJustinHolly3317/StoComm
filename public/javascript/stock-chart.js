@@ -39,8 +39,12 @@ let chartIntervalId
 // functions
 async function renderRealPriceChart(ctx) {
   // Get day prices info
-  const { prevClosePrice, limitUp, limitDown, stockPrice, timeStamps } =
+  const { prevClosePrice, limitUp, limitDown, stockPrice, timeStamps, noResult } =
     await fetchDayPrices(STOCK_CODE)
+
+  if(noResult){
+    return
+  }
 
   // stock price data (x:time, Y:price)
   const data = {
@@ -148,6 +152,19 @@ function tradingDuration() {
 
 async function fetchDayPrices(id) {
   const response = await fetch(`/dayPrices/${id}`)
+
+  if(response.status !== 200){
+    document.querySelector('#stock-real-price').classList.add('hidden')
+    document.querySelector('#stock-real-price').nextElementSibling.innerHTML = `
+      <div class="d-flex justify-content-center align-items-center" style="height: 400px;">
+        <h4 class="m-auto">查無此公司即時股價資訊</h4>
+      </div>
+    `
+    // disble loading img
+    document.querySelector('.stock-real-price-loading').classList.add('hidden')
+    return { noResult: true }
+  }
+
   const result = await response.json()
 
   // price info
@@ -406,6 +423,9 @@ async function yearPriceHistory() {
   // chart.scroller().enabled(false)
   chart.plot(0).xGrid().enabled(true)
   chart.plot(0).yGrid().enabled(true)
+
+  // disable legend title
+  chart.plot().legend(false)
 
   const yScale = chart.plot(0).yScale()
   const yTicks = yScale.ticks()

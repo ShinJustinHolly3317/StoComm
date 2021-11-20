@@ -8,7 +8,11 @@ const PostView = {
   analysisImg: document.querySelector('#analysis-img'),
   init: function () {
     canvas = localStorage.getItem('canvas')
-    this.analysisImg.src = canvas
+
+    if (canvas) {
+      this.analysisImg.src = canvas
+    }
+    
     closeLoading()
   },
   futureBtn: document.querySelector('.choose-future'),
