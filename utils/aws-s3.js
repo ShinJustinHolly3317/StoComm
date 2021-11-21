@@ -1,5 +1,5 @@
 // upload size limit
-const MAX_FILE_SIZE = 5e7
+const MAX_FILE_SIZE = 2e6
 
 // multer module
 const multer = require('multer')
