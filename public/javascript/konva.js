@@ -55,7 +55,7 @@ layer.add(selectionRectangle)
 let isPaint = false
 let localToolType = 'select'
 let localLayerObject
-let curSelectShape
+let curSelectShape = null
 
 stage.on('mousedown touchstart', async (e) => {
   localLayerObject = null // clear local drawing layer
@@ -172,7 +172,27 @@ stage.on('click tap', function (e) {
   }
 
   // if click on empty area - remove all selections
-  if (e.target === stage) {
+  // if (e.target === stage) {
+  //   if (!tr.nodes()[0]) {
+  //     return
+  //   }
+  //   tr.nodes()[0].draggable(false)
+  //   tr.nodes([])
+
+
+  //   console.log('curSelectShape', curSelectShape)
+    
+  //   // console.log('cursleectshape', stage.find(`#${0}`))
+  //   if (curSelectShape) {
+  //     // socket.emit('update drawing', curSelectShape)
+  //     // curSelectShape.draggable(false)
+  //     curSelectShape = null
+  //   }
+  //   return
+  // }
+
+  if(e.target !== curSelectShape && curSelectShape !== null){
+    console.log();
     if (!tr.nodes()[0]) {
       return
     }
