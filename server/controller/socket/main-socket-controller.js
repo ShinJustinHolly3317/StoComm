@@ -7,7 +7,6 @@ const Canvas = require('../../model/canvas-model')
 const Chat = require('../../model/chat-model')
 const WarRoom = require('../../model/war-room-model')
 const moment = require('moment')
-const e = require('express')
 let drawToolTurnOn = false
 
 async function socketController(io) {

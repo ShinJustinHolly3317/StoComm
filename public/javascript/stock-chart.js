@@ -151,7 +151,7 @@ function tradingDuration() {
 }
 
 async function fetchDayPrices(id) {
-  const response = await fetch(`/dayPrices/${id}`)
+  const response = await fetch(`/api/1.0/stock/day-prices/${id}`)
 
   if(response.status !== 200){
     document.querySelector('#stock-real-price').classList.add('hidden')
@@ -194,7 +194,7 @@ async function fetchDayPrices(id) {
 }
 
 async function renderRevenueChart(id) {
-  const response = await fetch(`/stockRevenue/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock-revenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
   if (!revenueData.length) {
@@ -247,7 +247,7 @@ async function renderRevenueChart(id) {
 }
 
 async function renderGrossChart(id) {
-  const response = await fetch(`/stockGross/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock-gross/${id}`)
   const result = await response.json()
   console.log(result);
   const grossData = result.data
@@ -291,7 +291,7 @@ async function renderGrossChart(id) {
 }
 
 async function renderChips(stockCode) {
-  const response = await fetch(`/stockChip/${stockCode}`)
+  const response = await fetch(`/api/1.0/stock/stock-chip/${stockCode}`)
   const chipData = await response.json()
   const foreign = []
   const investmentTrust = []
@@ -369,7 +369,7 @@ async function renderChips(stockCode) {
 }
 
 async function renderNews(id) {
-  const response = await fetch(`/stockNews/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock-news/${id}`)
   if (response.status === 404) {
     document.querySelector('.news-card').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
@@ -402,7 +402,7 @@ async function renderNews(id) {
 
 async function yearPriceHistory() {
   let table, mapping, chart
-  const url = `/yearPrice/${STOCK_CODE}`
+  const url = `/api/1.0/stock/year-price/${STOCK_CODE}`
   const resposne = await fetch(url)
   const result = await resposne.json()
 
@@ -465,7 +465,7 @@ async function yearPriceHistory() {
 }
 
 async function getCompanyName(stockCode) {
-  const response = await fetch(`/companyName/${stockCode}`)
+  const response = await fetch(`/api/1.0/stock/company-name/${stockCode}`)
 
   if (response.status !== 200) {
     // blocking user typing invalid stock code in URL
