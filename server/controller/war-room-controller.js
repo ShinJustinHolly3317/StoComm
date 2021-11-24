@@ -1,4 +1,3 @@
-const validator = require('validator')
 const WarRoom = require('../model/war-room-model')
 
 async function createWarRoom(req, res) {

@@ -1,0 +1,209 @@
+let clientList
+const ROOM_EXPIRED_CHECK = 60000
+const { TOKEN_SECRET } = process.env
+let multipleHostList = {}
+const drawHistory = {}
+const chatHistory = {}
+const onlineClients = {}
+const roomPermission = {}
+const Canvas = require('../../model/canvas-model')
+const Chat = require('../../model/chat-model')
+const WarRoom = require('../../model/war-room-model')
+const SocketEventLoad = require('./socket-event')
+const jwt = require('jsonwebtoken')
+
+// Functions
+async function socketConnection(io) {
+  io.use(async (socket, next) => {
+    // Only logged in people can send socket event
+    const accessToken = socket.handshake.auth.authentication
+    const visitorAccess = socket.handshake.auth.visitorAccess
+    const type = socket.handshake.auth.type
+
+    switch (type) {
+      case 'hot_rooms':
+        if (visitorAccess) {
+          next()
+        }
+        break
+      case 'war_room':
+        if (accessToken) {
+          // JWT token verification
+          try {
+            jwt.verify(accessToken, TOKEN_SECRET)
+            next()
+          } catch (error) {
+            console.log(error)
+            next(error)
+          }
+        }
+        break
+    }
+
+    // without visitor access or access token
+    const error = new Error('not authenticated')
+    next(error)
+  })
+
+  io.on('connection', mainSocketController)
+
+  async function mainSocketController(socket) {
+    socket.on('get all room clients', () => {
+      socket.emit('recieve all room clients', onlineClients)
+    })
+
+    socket.on('join room', async (roomId, userId, userName, userRole) => {
+      socket.join(roomId)
+
+      // Handle clients list
+      if (!onlineClients[roomId]) {
+        onlineClients[roomId] = {}
+        onlineClients[roomId][socket.id] = {}
+        onlineClients[roomId][socket.id].userId = userId // add new client id
+      } else {
+        onlineClients[roomId][socket.id] = {}
+        onlineClients[roomId][socket.id].userId = userId // add new client id
+      }
+
+      // Default drawing permission initialization
+      if (!roomPermission[roomId]) {
+        roomPermission[roomId] = {}
+        roomPermission[roomId].drawToolTurnOn = false
+      }
+
+      // Handle clients
+      if (userRole === 'streamer') {
+        const warRoomInfo = await WarRoom.getRoomInfo(roomId)
+        console.log('warRoomInfo', warRoomInfo[0].user_id)
+
+        if (warRoomInfo[0].user_id === userId) {
+          // Confirm room host
+          if (!onlineClients[roomId].hostId) {
+            onlineClients[roomId].hostId = userId
+          }
+
+          if (!multipleHostList[roomId]) {
+            multipleHostList[roomId] = 1
+          } else {
+            multipleHostList[roomId] += 1
+            console.log(multipleHostList[roomId])
+            if (multipleHostList[roomId] > 1) {
+              // Check multiple host
+              socket.emit('return host room')
+            }
+          }
+        } else {
+          socket.emit('return host room')
+        }
+      }
+
+      // Get all users id in this room, for debugging msg
+      const sockets = await io.in(roomId).fetchSockets()
+      clientList = sockets.map((item) => {
+        return item.id
+      })
+      console.log(`room clients ${clientList}`)
+      console.log(`user: ${socket.id} connected to this room ${roomId}`)
+
+      // Drawing event initialization
+      SocketEventLoad.drawEventLoad(
+        socket,
+        drawHistory,
+        roomId,
+        roomPermission,
+        onlineClients[roomId].hostId
+      )
+
+      // Chat room initialization
+      SocketEventLoad.chatEventLoad(socket, chatHistory, roomId, userName)
+
+      // Voice chat initialization
+      SocketEventLoad.peerjsLoad(socket, roomId)
+
+      // host left
+      socket.on('host leaving', () => {
+        socket.to(roomId).emit('update host leaving')
+      })
+
+      socket.on('disconnect', async () => {
+        console.log(
+          `${
+            onlineClients[roomId][socket.id].userId
+          } left this room(${roomId})!`
+        )
+
+        // delete left peer user
+        socket
+          .to(roomId)
+          .emit('user-disconnected', onlineClients[roomId][socket.id].userId)
+
+        // user left notification
+        socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
+
+        // If host leave, delete host id
+        if (
+          onlineClients[roomId][socket.id].userId ===
+          onlineClients[roomId].hostId
+        ) {
+          multipleHostList[roomId] -= 1
+        }
+
+        console.log('going to delete', onlineClients[roomId][socket.id])
+        delete onlineClients[roomId][socket.id]
+
+        if (Object.keys(onlineClients[roomId]).length - 1 === 0) {
+          //If it's still on people in this room after 1 mins, clear this rooms
+          setTimeout(() => {
+            if (Object.keys(onlineClients[roomId]).length - 1 === 0) {
+              WarRoom.endWarRoom(roomId, 1)
+            }
+          }, ROOM_EXPIRED_CHECK)
+        }
+
+        // store history data after each user left
+        if (Object.keys(drawHistory[roomId]).length) {
+          // store drawing history
+          console.log(drawHistory[roomId]['0'].location)
+          await Canvas.insertDrawHistory(cleanDrawHistory(roomId), roomId)
+        }
+        if (chatHistory[roomId].length) {
+          // store chat history
+          await Chat.insertChatHistory(cleanChatHistory(roomId), roomId)
+        }
+      })
+    })
+  }
+}
+
+function cleanDrawHistory(roomId) {
+  // arrange drawing history data that it fits mysql column
+  const cleanHistory = []
+
+  for (let layerId in drawHistory[roomId]) {
+    cleanHistory.push([
+      drawHistory[roomId][layerId].userId,
+      layerId,
+      roomId,
+      drawHistory[roomId][layerId].toolType,
+      5,
+      '#df4b26',
+      drawHistory[roomId][layerId].canvasImg || null,
+      JSON.stringify(drawHistory[roomId][layerId].location)
+    ])
+  }
+
+  return cleanHistory
+}
+
+function cleanChatHistory(roomId) {
+  // arrange chat history data that it fits mysql column
+  const cleanHistory = []
+
+  for (let item of chatHistory[roomId]) {
+    cleanHistory.push([item[0], roomId, item[2], item[3]])
+  }
+
+  return cleanHistory
+}
+
+module.exports = socketConnection

@@ -44,8 +44,8 @@ const routes = require('./server/routes')
 app.use(routes)
 
 // handle draw history
-const socketController = require('./server/controller/socket/main-socket-controller')
-socketController(io)
+const socketConnection = require('./server/controller/socket/socket-connection')
+socketConnection(io)
 
 // Page not found
 app.use(function (req, res, next) {

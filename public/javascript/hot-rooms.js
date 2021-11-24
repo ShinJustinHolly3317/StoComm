@@ -12,9 +12,8 @@ async function fetchOnlineRooms(onlineClients) {
   if (!onlineRooms.length) {
     View.warRooms.innerHTML = `<h5 class="text-center">目前沒有人開討論室喔!</h5>`
   } else {
-    let warRoomHtml = ''
-    console.log(onlineClients)
     console.log(onlineRooms)
+    let warRoomHtml = ''
     onlineRooms.forEach((item) => {
       let clients
       if (onlineClients[item.id].hostId) {
@@ -92,7 +91,7 @@ async function renderRealPriceChart(stockCode, id) {
 }
 
 async function fetchDayPrices(id) {
-  const response = await fetch(`/dayPrices/${id}`)
+  const response = await fetch(`/api/1.0/stock/day-prices/${id}`)
   const result = await response.json()
 
   // price info
@@ -116,7 +115,12 @@ async function fetchDayPrices(id) {
 }
 
 async function socketInit() {
-  const socket = io()
+  const socket = io({
+    auth: {
+      visitorAccess: true,
+      type: 'hot_rooms'
+    }
+  })
 
   socket.on('recieve all room clients', async (roomClients) => {
     if (!View.warRooms.children.length) {
@@ -124,11 +128,14 @@ async function socketInit() {
       await fetchOnlineRooms(roomClients)
       closeLoading()
     }
-    console.log(roomClients)
   })
 
   socket.on('connect', () => {
-    console.log('socket connected')
     socket.emit('get all room clients')
+  })
+
+  socket.on('connect_error', async (err) => {
+    closeLoading()
+    return
   })
 }

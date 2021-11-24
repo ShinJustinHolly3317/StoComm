@@ -1,8 +1,5 @@
 const View = {
   warRoomBtn: document.querySelector('.js-start-war-btn'),
-  // warRoomModal: new bootstrap.Modal(document.querySelector('#war-room-check'), {
-  //   keyboard: false
-  // }),
   nameInput: document.querySelector('#user-name'),
   createBtn: document.querySelector('#js-create-war-room-btn'),
   createFormData: document.querySelector('.war-room-check-data'),
@@ -49,6 +46,18 @@ const Controller = {
     View.followingInfoEle[0].innerText = follwingResult.data.followers
     View.followingInfoEle[1].innerText = follwingResult.data.following
     View.profileEle.src = userData.picture
+
+    if (ideasResult.error) {
+      await Swal.fire({
+        icon: 'error',
+        title: '伺服器忙碌中，請稍後!!',
+        showConfirmButton: false,
+        timer: 1500
+      })
+      window.location.reload()
+      closeLoading()
+      return
+    }
 
     if (!ideasResult.data.length) {
       View.ideasListEle.innerHTML = `
@@ -130,15 +139,6 @@ View.warRoomBtn.addEventListener('click', (e) => {
   navWarRoomCheck.show()
 })
 
-
-// View.pagination.addEventListener('click', (e) => {
-//   if (e.target.classList.contains('page-link')) {
-//     View.page = Number(e.target.innerText) - 1
-//     Controller.init()
-//     e.target.parentElement.classList.add('active')
-//   }
-// })
-
 View.editBtn.addEventListener('click', async (e) => {
   const userData = await userAuth()
   View.editName.value = userData.data.name
@@ -150,7 +150,6 @@ View.submitEdit.addEventListener('click', async (e) => {
   const userFormData = new FormData(userData)
   const imgTypes = ['jpg', 'jpeg', 'png']
 
-  console.log(View.profilePicture.files[0])
   if (View.profilePicture.files[0]) {
     const fileCat = View.profilePicture.files[0].type.split('/')[0]
     const fileType = View.profilePicture.files[0].type.split('/')[1]
@@ -199,7 +198,15 @@ View.submitEdit.addEventListener('click', async (e) => {
     }
   }
 
-  
+  if(userFormData.get('user_name').length > 32){
+    await Swal.fire({
+      icon: 'error',
+      title: '綽號字數請勿超過32位!!',
+      showConfirmButton: false,
+      timer: 1500
+    })
+    return
+  }
 
   document.querySelector('.loading-img-area').classList.remove('hidden')
   const response = await fetch('/api/1.0/user/edit_user', {
@@ -220,5 +227,8 @@ View.submitEdit.addEventListener('click', async (e) => {
       timer: 1500
     })
     window.location.href = '/member'
+  } else {
+    closeLoading()
+    return
   }
 })

@@ -114,6 +114,7 @@ div#war-room-check label {
   background-color: white;
   border-radius: 20px;
   width: 100%;
+  max-width: 42vw;
   height: 60vh;
   max-height: 500px;
   margin: 20px auto;
@@ -137,6 +138,13 @@ div#war-room-check label {
   margin: 0 10px;
 }
 
+.ideas-card h3{
+  width: 70%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
 
 /* user */
 .user-name {

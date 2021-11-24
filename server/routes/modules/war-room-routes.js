@@ -3,8 +3,6 @@ const multer = require('multer')
 const upload = multer()
 
 const {
-  wrapAsync,
-  checkUserExist,
   authentication
 } = require('../../../utils/utils')
 

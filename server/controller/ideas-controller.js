@@ -1,6 +1,5 @@
 const Ideas = require('../model/ideas-model')
 const moment = require('moment')
-const fs = require('fs')
 
 // AWS S3
 const AWS = require('aws-sdk')
@@ -22,7 +21,7 @@ async function createIdeas(req, res) {
   ideasData.image = process.env.S3_IDEAS_PATH + '/' + imgName
   const insertId = await Ideas.createIdeas(ideasData)
   if (insertId.error) {
-    return res.status(500).send({ error: '發表觀點失敗，請重新發表' })
+    return res.status(500).send({ error: 'Server Error' })
   }
 
   const uploadParams = {
@@ -35,9 +34,9 @@ async function createIdeas(req, res) {
   }
 
   // upload to S3
-  s3.upload(uploadParams, function (err, data) {
-    if (err) {
-      console.log('Error', err)
+  s3.upload(uploadParams, function (error, data) {
+    if (error) {
+      console.log('Error', error)
     }
     if (data) {
       console.log('Upload Success', data.Location)
@@ -51,7 +50,7 @@ async function getIdeas(req, res) {
   const { userId,page } = req.query
   const result = await Ideas.getIdeas(userId, page)
   if (result.error) {
-    return res.status(500).send({ error: '無法找到資料，請重試' })
+    return res.status(500).send({ error: 'Server Error' })
   }
 
   // change date format
@@ -64,10 +63,9 @@ async function getIdeas(req, res) {
 
 async function getIdea(req, res) {
   const { ideaId } = req.params
-
   const result = await Ideas.getIdea(ideaId)
   if (insertId.error) {
-    return res.status(500).send({ error: '無法找到資料，請重試' })
+    return res.status(500).send({ error: 'Server Error' })
   }
   
   // formating time data
@@ -84,7 +82,7 @@ async function getHotIdeas(req, res) {
   })
 
   if (result.error) {
-    return res.status(500).send({ error: '無法找到資料，請重試' })
+    return res.status(500).send({ error: 'Server Error' })
   }
 
   // change date format
@@ -101,9 +99,9 @@ async function addLikes(req, res) {
   const result = await Ideas.addLikes(userId, ideaId, isLiked)
 
   if (result.error) {
-    return res.status(500).send({ error: 'Internal error' })
+    return res.status(500).send({ error: 'Server error' })
   } else if (result.overlimit){
-    return res.status(500).send({ overlimit: '祝大家Demo順利!!' })
+    return res.status(500).send({ overlimit: true })
   }
 
   res.status(200).send({ data: result })
@@ -115,7 +113,7 @@ async function getIdeaLikes(req, res) {
   const result = await Ideas.getIdeaLikes(ideaId)
 
   if (result.error) {
-    return res.status(500).send({ error: 'Internal error' })
+    return res.status(500).send({ error: 'Server error' })
   }
 
   res.status(200).send({ data: result })
@@ -128,7 +126,7 @@ async function deleteIdea(req, res) {
 
   if (result.error) {
     console.log(result.error)
-    return res.status(500).send({ error: 'Internal error' })
+    return res.status(500).send({ error: 'Server error' })
   } else if(result.forbidden){
     console.log(result.forbidden)
     return res.status(403).send({ error: result.forbidden })

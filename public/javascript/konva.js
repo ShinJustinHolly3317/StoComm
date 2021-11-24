@@ -697,7 +697,7 @@ delBtn.addEventListener('click', async (e) => {
     confirmButtonColor: '#315375'
   })
   if (result.isConfirmed) {
-    socket.emit('delete all')
+    socket.emit('delete all', localStorage.getItem('user').id)
   }
 })
 

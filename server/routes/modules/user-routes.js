@@ -4,7 +4,6 @@ const upload = multer()
 const uploadS3 = require('../../../utils/aws-s3')
 
 const {
-  wrapAsync,
   checkUserExist,
   authentication
 } = require('../../../utils/utils')

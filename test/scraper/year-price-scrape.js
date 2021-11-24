@@ -1,11 +1,7 @@
 require('dotenv').config()
-const cheerio = require('cheerio')
 const axios = require('axios')
-const moment = require('moment')
-// MySQL
-const mysqlConn = require('../../server/model/config/mysqlConnection')
 
-// user agent list
+// User agent list
 const USER_AGNET = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
   'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36 ',
@@ -14,7 +10,7 @@ const USER_AGNET = [
   'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36 '
 ]
 
-// model
+// Model
 const {
   insertYearPrice,
   getStockList,
@@ -22,12 +18,11 @@ const {
 
 // Require mysql connection
 require('dotenv').config()
-const db = require('../../server/model/config/mysqlConnection')
 
-// missing counter
+// Missing collector
 const missingStock = []
 
-// functions
+// Functions
 async function main() {
   const stockList = await getStockList()
 
@@ -45,7 +40,6 @@ async function main() {
   process.exit()
 }
 
-// functions
 async function yearPrice(stockId, stockCode) {
   const url = `https://tw.quote.finance.yahoo.net/quote/q?type=ta&perd=d&mkt=10&sym=${stockCode}&v=1&callback=jQuery111303695803332513008_1634658404346&_=1634658404347`
 
@@ -65,7 +59,7 @@ async function yearPrice(stockId, stockCode) {
       result.data.split(`"ta":`)[1].split(',"ex"')[0]
     )
 
-    // scrape daily data
+    // Scrape daily data
     const rawLatestPrice = pricehistory[pricehistory.length - 1]
     let date = rawLatestPrice.t.toString()
     const latestPrice = [
@@ -81,7 +75,7 @@ async function yearPrice(stockId, stockCode) {
     console.log(`Daily price data: stockPrice: ${latestPrice}`)
     const insertResult = await insertYearPrice([latestPrice])
 
-    // scrape entire year data
+    // Scrape entire year data
     // const dataTable = pricehistory.map((item) => {
     //   let date = item.t.toString()
     //   return [
@@ -108,7 +102,7 @@ async function yearPrice(stockId, stockCode) {
 }
 
 function sleep(ms) {
-  return new Promise((resolve, resject) => setTimeout(resolve, ms))
+  return new Promise((resolve, reject) => setTimeout(resolve, ms))
 }
 
 main()

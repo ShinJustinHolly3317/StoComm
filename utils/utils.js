@@ -1,8 +1,3 @@
-const crypto = require('crypto')
-const fs = require('fs')
-const multer = require('multer')
-const path = require('path')
-const port = process.env.PORT
 const User = require('../server/model/user-model')
 const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
@@ -18,7 +13,6 @@ async function checkUserExist(req, res) {
       name: searchResult[0].name,
       email: searchResult[0].email,
       provider: searchResult[0].provider,
-      name: searchResult[0].name,
       email: searchResult[0].email,
       picture: searchResult[0].picture,
       id: searchResult[0].id,
@@ -27,14 +21,6 @@ async function checkUserExist(req, res) {
     })
   } else {
     res.send({ searchResult: false })
-  }
-}
-
-function wrapAsync(fn) {
-  return function (req, res, next) {
-    // Make sure to `.catch()` any errors and pass them along to the `next()`
-    // middleware in the chain, in this case the error handler.
-    fn(req, res, next).catch(next)
   }
 }
 
@@ -76,4 +62,8 @@ async function authentication(req, res, next) {
   }
 }
 
-module.exports = { checkUserExist, wrapAsync, authentication }
+function textLenCheck(str) {
+  return str.replace(/[\u4E00-\u9FFF]/g, 'xx').length
+}
+
+module.exports = { checkUserExist, authentication, textLenCheck }

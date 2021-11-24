@@ -1,6 +1,7 @@
 const validator = require('validator')
 const User = require('../model/user-model')
 const fs = require('fs')
+const { textLenCheck } = require('../../utils/utils')
 
 // AWS S3
 const AWS = require('aws-sdk')
@@ -61,12 +62,21 @@ async function signUp(req, res) {
   if (!name || !email || !password) {
     res
       .status(400)
-      .send({ error: 'Request Error: name, email and password are required.' })
+      .send({ error: '綽號、Email、密碼為必填資料!' })
     return
   }
 
   if (!validator.isEmail(email)) {
-    res.status(400).send({ error: 'Request Error: Invalid email format' })
+    res.status(400).send({ error: 'Email的格式錯誤!' })
+    return
+  }
+
+  if (textLenCheck(email) > 32) {
+    res.status(400).send({ error: 'too long', type: 'email' })
+    return
+  }
+  if (textLenCheck(name) > 32) {
+    res.status(400).send({ error: 'too long', type: 'name' })
     return
   }
 
@@ -212,14 +222,21 @@ async function checkFollowState(req, res) {
 async function editProfile (req, res){
   const userData = {}
   const { user_name, user_id } = req.body
-  
+
   userData.name = user_name || ''
   userData.id = Number(user_id)
   userData.picture = req.file ? req.file.location : ''
+
+  // Prevent over length name
+  if (textLenCheck(userData.name) > 32) {
+    res.status(400).send({ error: 'Name is too long!' })
+    return
+  }
+
   const result = await User.editProfile(userData)
-  
-  if(result.error) {
-    res.status(500).send({ error: 'Server Problem'})
+
+  if (result.error) {
+    res.status(500).send({ error: 'Server Problem' })
   } else {
     res.status(200).send({ data: result.insertId })
   }

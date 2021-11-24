@@ -39,7 +39,12 @@ if (!ROOM_ID) {
 document.querySelector('.loading-img-area').classList.remove('hidden')
 
 // Initialize socket
-const socket = io()
+const socket = io({
+  auth: {
+    authentication: localStorage.getItem('access_token'),
+    type:'war_room'
+  }
+})
 let socketId
 socket.on('connect', async () => {
   socketId = socket.id
@@ -113,6 +118,12 @@ socket.on('return host room', () => {
   }).then(() => {
     window.location.href = '/hot-rooms'
   })
+})
+
+socket.on('connect_error', async (err) => {
+  closeLoading()
+  // sweet alert to ask people out
+  return
 })
 
 // listener

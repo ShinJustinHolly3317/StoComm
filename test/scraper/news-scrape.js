@@ -1,16 +1,8 @@
 require('dotenv').config()
 const axios = require('axios')
-const express = require('express')
-const app = express()
-const port = 3000
-const URL = 'https://tw.stock.yahoo.com/rank/turnover'
-const cheerio = require('cheerio')
 const moment = require('moment')
-const puppeteer = require('puppeteer')
-// MySQL
-const mysqlConn = require('../../server/model/config/mysqlConnection')
 
-// user agent list
+// User agent list
 const USER_AGNET = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
   'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36 ',
@@ -19,25 +11,19 @@ const USER_AGNET = [
   'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36 '
 ]
 
-// model
+// Model
 const {
-  insertRevenue,
-  getRevenue,
-  getNews,
   insertNews,
-  insertChip,
-  getChip,
   getStockList
 } = require('../../server/model/stock_info_model')
 
 // Require mysql connection
 require('dotenv').config()
-const db = require('../../server/model/config/mysqlConnection')
 
-// missing counter
+// Missing collector
 const missingStock = []
 
-// functions
+// Functions
 async function main() {
   const stockList = await getStockList()
 
@@ -118,8 +104,8 @@ async function stockInfoInsert(stockId, stockCode, companyName) {
 }
 
 function sleep(ms) {
-  return new Promise((resolve, resject) => setTimeout(resolve, ms))
+  return new Promise((resolve, reject) => setTimeout(resolve, ms))
 }
 
-// Main
+// Main 
 main()

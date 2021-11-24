@@ -5,7 +5,7 @@ const moment = require('moment')
 // MySQL
 const mysqlConn = require('../../server/model/config/mysqlConnection')
 
-// user agent list
+// User agent list
 const USER_AGNET = [
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
   'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/47.0.2526.111 Safari/537.36 ',
@@ -14,25 +14,20 @@ const USER_AGNET = [
   'Mozilla/5.0 (X11; CrOS x86_64 8172.45.0) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.64 Safari/537.36 '
 ]
 
-// model
+// Model
 const {
   insertRevenue,
-  getRevenue,
-  getNews,
-  insertNews,
-  insertChip,
-  getChip,
   getStockList,
   insertGross
 } = require('../../server/model/stock_info_model')
 
-// quarter
+// Quarter
 const quarters = ['Q4', 'Q3', 'Q2', 'Q1']
 
-// missing counter
+// Missing collector
 const missingStock = []
 
-// function
+// Functions
 async function main() {
   const stockList = await getStockList()
 
@@ -113,8 +108,7 @@ async function getAllStockId() {
   const url = `https://histock.tw/stock/rank.aspx?p=all`
   const result = await axios.get(url, {
     headers: {
-      'user-agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4280.141 Safari/537.36',
+      'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
       'content-type': 'text/html; charset=UTF-8',
       'sec-ch-ua-platform': 'Windows',
       'sec-fetch-dest': 'empty',
@@ -154,4 +148,8 @@ function sleep(ms) {
   return new Promise((resolve, reject) => setTimeout(resolve, ms))
 }
 
+// Main function
 main()
+
+// scrape all listed company
+//getAllStockId()

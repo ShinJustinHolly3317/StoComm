@@ -190,6 +190,14 @@ a[title='AnyChart - JavaScript Charts designed to be embedded and integrated, v8
   margin: 0 10px;
 }
 
+.ideas-card h3{
+  width: 70%;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+  overflow: hidden;
+}
+
 .user-name {
   display: flex;
   align-items: center;

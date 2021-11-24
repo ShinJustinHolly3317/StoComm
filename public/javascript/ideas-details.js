@@ -107,8 +107,8 @@ async function likeIdea() {
     console.log(result)
     if (result.overlimit) {
       await Swal.fire({
-        imageUrl: 'https://i.imgur.com/6yEQ9ZM.gif',
-        title: result.overlimit,
+        imageUrl: 'https://media.giphy.com/media/nbQhrNzt8tSqaKwhRt/giphy.gif',
+        title: '你已經按太多讚啦!!',
         confirmButtonColor: '#315375'
       })
       return { error: result.overlimit }

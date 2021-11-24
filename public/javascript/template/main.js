@@ -33,7 +33,6 @@ quickWarRoomBtn.addEventListener('click', async (e) => {
       Authorization: 'Bearer ' + accessToken
     }
   })
-  console.log(userResponse.status)
   if (userResponse.status !== 200) {
     loginModal.show()
   } else {
@@ -206,12 +205,24 @@ signUpBtn.addEventListener('click', async (e) => {
     case 500:
     case 403:
     case 400:
-      await Swal.fire({
-        icon: 'error',
-        title: result.error,
-        confirmButtonColor: '#315375'
-      })
-      break
+      const errorCat = result.error
+      if(errorCat === 'too long'){
+        const errorType = result.type
+        await Swal.fire({
+          icon: 'error',
+          title: `${errorType} 太長拉`,
+          confirmButtonColor: '#315375'
+        })
+        return
+      } else {
+        await Swal.fire({
+          icon: 'error',
+          title: result.error,
+          confirmButtonColor: '#315375'
+        })
+        return
+      }
+
     case 200:
       await Swal.fire({
         title: '註冊成功!',

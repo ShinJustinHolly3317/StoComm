@@ -12,7 +12,7 @@ const PostView = {
     if (canvas) {
       this.analysisImg.src = canvas
     }
-    
+
     closeLoading()
   },
   futureBtn: document.querySelector('.choose-future'),
@@ -21,23 +21,17 @@ const PostView = {
 }
 
 PostView.futureBtn.addEventListener('click', (e) => {
-
   if (e.target.classList.contains('bull-btn')) {
-    
     PostView.bullCheck.classList.add('checked')
     PostView.bearCheck.classList.remove('checked')
-    
-
   } else if (e.target.classList.contains('bear-btn')) {
-    
     PostView.bearCheck.classList.add('checked')
     PostView.bullCheck.classList.remove('checked')
-
   }
 })
 
 PostView.toggleBtns.addEventListener('click', (e) => {
-  if(e.target.tagName !== 'A') return
+  if (e.target.tagName !== 'A') return
 
   // Handle textarea
   let toggleTyps = e.target.attributes['toggle-type'].value
@@ -54,17 +48,23 @@ PostView.toggleBtns.addEventListener('click', (e) => {
   // Handle tab
   document.querySelector('.nav-link.active').classList.toggle('active')
   e.target.classList.toggle('active')
-
-  // if(document.querySelectorAll('.hidden.analysis').length < 5) {
-  //   // if any textarea displayed
-  //   PostView.publishBtn.classList.remove('hidden')
-  // } else {
-  //   PostView.publishBtn.classList.add('hidden')
-  // }
 })
 
-PostView.closeBtn.addEventListener('click', (e) => {
-  PostView.closeModal.show()
+PostView.closeBtn.addEventListener('click', async (e) => {
+  // PostView.closeModal.show()
+  const swalResult = await Swal.fire({
+    title: '即將離開',
+    text: '即將離開頁面，內容將不會保存，確定要離開嗎?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#adb5bd',
+    confirmButtonText: '沒錯，我要離開',
+    cancelButtonText: '沒事，我按錯了'
+  })
+  if (swalResult.isConfirmed) {
+    window.location.href = '/hot-rooms'
+  }
 })
 
 PostView.publishBtn.addEventListener('click', async (e) => {
@@ -78,16 +78,22 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   textData.image = document.querySelector('#analysis-img').src
 
   // check text title length
-  if (textLenCheck(textData.title) >= 24) {
+  if (textLenCheck(textData.title) >= 32) {
     // Check title length
-    await Swal.fire({
-      icon: 'error',
-      title: '字數請勿超過32位!!',
-      showConfirmButton: false,
-      timer: 1500
+    const swalResult = await Swal.fire({
+      title: '標題字數太長',
+      text: '標題字數太長會影響閱讀體驗，您仍然可以發表，確定要發表嗎?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#3085d6',
+      cancelButtonColor: '#adb5bd',
+      confirmButtonText: '沒錯，我要發文了',
+      cancelButtonText: '我再想想好了'
     })
-    window.location.reload()
-    return
+    closeLoading()
+    if (!swalResult.isConfirmed){
+      return
+    }
   }
 
   if (!textData.title) {
@@ -96,13 +102,12 @@ PostView.publishBtn.addEventListener('click', async (e) => {
       title: '請至少輸入標題!',
       confirmButtonColor: '#315375'
     })
-    window.location.reload()
+    closeLoading()
     return
   }
 
   for (let item of textDataEle) {
     let analysisType = item.id
-    console.log(analysisType)
     textData.content[analysisType] = item.value
   }
   textData.content = JSON.stringify(textData.content)
@@ -111,17 +116,18 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   if (!getQueryObject().stockCode) {
     await Swal.fire({
       icon: 'error',
-      title: '你網址怪怪的!',
+      title: '您已遺失正確的網址，即將轉跳首頁!',
       confirmButtonColor: '#315375'
     })
-    window.location.reload()
+    window.location.href = '/'
     return
   }
 
   textData.user_id = JSON.parse(localStorage.getItem('user')).id
 
   // check bear or bull
-  const isBull = document.querySelector('.checked').getAttribute('id') === 'bullish'
+  const isBull =
+    document.querySelector('.checked').getAttribute('id') === 'bullish'
   if (isBull) {
     textData.future = 'bull'
   } else {
@@ -137,13 +143,13 @@ PostView.publishBtn.addEventListener('click', async (e) => {
   })
 
   closeLoading()
-  
+
   if (response.status === 200) {
     await Swal.fire({
       title: '發表成功!',
       confirmButtonColor: '#315375'
     })
-    
+
     window.location.href = '/member'
   } else {
     await Swal.fire({

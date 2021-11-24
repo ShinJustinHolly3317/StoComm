@@ -1,14 +1,6 @@
 require('dotenv').config()
 const axios = require('axios')
-const express = require('express')
-const app = express()
-const port = 3000
-const URL = 'https://tw.stock.yahoo.com/rank/turnover'
-const cheerio = require('cheerio')
 const moment = require('moment')
-const puppeteer = require('puppeteer')
-// MySQL
-const mysqlConn = require('../../server/model/config/mysqlConnection')
 
 // user agent list
 const USER_AGNET = [
@@ -21,18 +13,12 @@ const USER_AGNET = [
 
 // model
 const {
-  insertRevenue,
-  getRevenue,
-  getNews,
-  insertNews,
   insertChip,
-  getChip,
   getStockList
 } = require('../../server/model/stock_info_model')
 
 // Require mysql connection
 require('dotenv').config()
-const db = require('../../server/model/config/mysqlConnection')
 
 // missing counter
 const missingStock = []
@@ -62,8 +48,7 @@ async function chipScrape(stockCode) {
   try {
     result = await axios.get(url, {
       headers: {
-        'user-agent':
-          'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/95.0.4638.54 Safari/537.36',
+        'user-agent': USER_AGNET[Math.floor(Math.random() * 4)],
         'content-type': 'text/html; charset=UTF-8',
         'x-requested-with': 'XMLHttpRequest',
         'Accept-Encoding': 'br, gzip, deflate',
@@ -109,7 +94,8 @@ async function chipScrape(stockCode) {
 }
 
 function sleep(ms) {
-  return new Promise((resolve, resject) => setTimeout(resolve, ms))
+  return new Promise((resolve, reject) => setTimeout(resolve, ms))
 }
 
+// Main function
 main()

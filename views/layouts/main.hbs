@@ -108,6 +108,7 @@
                 id="war-room-title"
                 value=""
                 name="war_room_title"
+                autocomplete="on"
               />
 
               <label for="inputPassword" class="col-sm-12 col-form-label mt-3 input-label"
@@ -117,9 +118,11 @@
                 class="form-control"
                 id="stock-name-code"
                 placeholder="請輸入股票名稱或代碼"
-                name="stock_name_code"/>
+                name="stock_name_code"
+                autocomplete="on"
+                />
 
-              <input type="hidden" id="user_id" name="user_id">
+              <input type="hidden" id="user_id" name="user_id" autocomplete="name">
 
               <div class="d-flex">
                 <button type="submit" class="btn btn-outline-primary ms-auto mb-2 mt-4 rounded-pill" id="js-create-war-room-btn">送出</button>
@@ -169,6 +172,7 @@
                     id="nav-user-email"
                     placeholder="請輸入email..."
                     value=""
+                    autocomplete="email"
                   />
                 </div>
               </div>
@@ -184,6 +188,7 @@
                     name="password"
                     id="nav-user-password"
                     placeholder="請輸入密碼..."
+                    autocomplete="new-password"
                   />
                 </div>
               </div>
@@ -235,6 +240,7 @@
                 value=""
                 placeholder="請輸入email..."
                 name="email"
+                autocomplete="email"
               />
 
               <label for="signup-user-name" class="col-sm-2 col-form-label mt-3 input-label"
@@ -246,6 +252,7 @@
                 value=""
                 placeholder="請輸入綽號..."
                 name="name"
+                autocomplete="name"
               />
 
               <label for="signup-user-password" class="col-sm-2 col-form-label mt-3 input-label"
@@ -255,7 +262,9 @@
                 class="form-control"
                 id="signup-user-password"
                 placeholder="請輸入密碼..."
-                name="password"/>
+                name="password"
+                autocomplete="new-password"
+                />
               
               <div class="d-flex">
                 <button type="submit" class="btn btn-outline-primary mb-2 mt-4 ms-auto rounded-pill" id="js-signup-btn">送出</button>

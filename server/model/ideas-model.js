@@ -32,6 +32,7 @@ async function getIdeas(userId, page) {
   LEFT JOIN idea_likes ON idea_likes.idea_id = ideas.id
   WHERE user.id = ?
   GROUP BY ideas.id
+  ORDER BY ideas.date DESC
   LIMIT 10 OFFSET ?
   `
   const countQry = `

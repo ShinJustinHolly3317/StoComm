@@ -1,5 +1,4 @@
 const axios = require('axios')
-const cheerio = require('cheerio')
 const moment = require('moment')
 
 // model
@@ -46,6 +45,7 @@ async function stockGross(req, res) {
 }
 
 async function getDayPrices(req, res) {
+  // Directly use yahoo finance API
   const { stockCode } = req.params
   const dayPricesUrl = `https://tw.stock.yahoo.com/_td-stock/api/resource/FinanceChartService.ApacLibraCharts;autoRefresh=1634548365569;symbols=%5B%22${stockCode}.TW%22%5D;type=tick?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern%2CuseVersionSwitch%2CuseNewQuoteTabColor%2ChideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=2vk2nmlgmqegi&region=TW&site=finance&tz=Asia%2FTaipei&ver=1.2.1173&returnMeta=true`
 
