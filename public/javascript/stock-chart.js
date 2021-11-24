@@ -197,7 +197,7 @@ async function renderRevenueChart(id) {
   const response = await fetch(`/api/1.0/stock/stock-revenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
-  if (!revenueData.length) {
+  if (response.status !== 200) {
     document.querySelector('#revenue-chart').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
         <h4 class="m-auto">查無此公司財務資訊</h4>
@@ -249,8 +249,18 @@ async function renderRevenueChart(id) {
 async function renderGrossChart(id) {
   const response = await fetch(`/api/1.0/stock/stock-gross/${id}`)
   const result = await response.json()
-  console.log(result);
   const grossData = result.data
+
+  if (response.status !== 200) {
+    document.querySelector('#gross-chart').innerHTML = `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="m-auto">查無此公司財務資訊</h4>
+      </div>
+    `
+    // disble loading img
+    document.querySelector('.gross-loading').classList.add('hidden')
+    return
+  }
 
   const grossByQuarter = []
   for (let item of grossData) {
@@ -297,7 +307,7 @@ async function renderChips(stockCode) {
   const investmentTrust = []
   const dealer = []
 
-  if (!chipData.length) {
+  if (response.status !== 200) {
     document.querySelector('#chip-chart').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
         <h4 class="m-auto">查無此公司籌碼資訊</h4>
@@ -370,7 +380,7 @@ async function renderChips(stockCode) {
 
 async function renderNews(id) {
   const response = await fetch(`/api/1.0/stock/stock-news/${id}`)
-  if (response.status === 404) {
+  if (response.status !== 200) {
     document.querySelector('.news-card').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
         <h4 class="m-auto">查無此公司新聞資訊</h4>
@@ -403,8 +413,20 @@ async function renderNews(id) {
 async function yearPriceHistory() {
   let table, mapping, chart
   const url = `/api/1.0/stock/year-price/${STOCK_CODE}`
-  const resposne = await fetch(url)
-  const result = await resposne.json()
+  const response = await fetch(url)
+
+  if (response.status !== 200) {
+    document.querySelector('#year-history').innerHTML = `
+      <div class="d-flex justify-content-center align-items-center h-100">
+        <h4 class="m-auto">查無此公司股價走勢資訊</h4>
+      </div>
+    `
+    // disble loading img
+    document.querySelector('.year-history-loading').classList.add('hidden')
+    return
+  }
+
+  const result = await response.json()
 
   table = anychart.data.table()
   table.addData(result.data)

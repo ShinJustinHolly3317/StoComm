@@ -50,7 +50,7 @@ async function chatEventLoad(socket, chatHistory, roomId, userName) {
 /**
  * Initialization of drawing socket event
  */
-async function drawEventLoad(socket, drawHistory, roomId, roomPermission, hostId) {
+async function drawEventLoad(socket, drawHistory, roomId, roomPermission, hostId, io) {
   if (!drawHistory[roomId]) {
     // initialize draw history
     drawHistory[roomId] = {}

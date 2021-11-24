@@ -88,13 +88,14 @@ async function getHotIdeas(filter, page, condition = {}) {
       }
       case 'followers': {
         qryString = `
-        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
+        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, count(follow_status.following_id) as followers, total_likes
         FROM ideas
+        INNER JOIN follow_status on follow_status.following_id = ideas.user_id
         INNER JOIN user ON user.id = ideas.user_id
         INNER JOIN stock ON stock.stock_id = ideas.stock_id
-        LEFT JOIN idea_likes ON idea_likes.idea_id = ideas.id
+        LEFT JOIN (select idea_id, sum(idea_likes.likes_num) as total_likes from idea_likes group by idea_likes.idea_id) as idea_likes ON idea_likes.idea_id = ideas.id
         GROUP BY ideas.id
-        ORDER BY user.followers DESC
+        ORDER BY followers DESC
         LIMIT 10 OFFSET ?
         `
         break

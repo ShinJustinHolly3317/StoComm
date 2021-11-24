@@ -19,11 +19,6 @@ app.set('view engine', 'hbs')
 
 // static files
 app.use(express.static('public'))
-app.use('/frontend', express.static(__dirname + '/node_modules'))
-app.use(
-  '/peerjsmod',
-  express.static(__dirname + '/node_modules/peerjs/dist/peerjs.min.js')
-)
 
 // socket
 const http = require('http')

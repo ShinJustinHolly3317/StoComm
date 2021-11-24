@@ -13,17 +13,15 @@ const s3 = new AWS.S3({
 async function createIdeas(req, res) {
   const ideasData = req.body
 
-  // upload
+  // upload to server
   const image64 = ideasData.image.replace('data:image/jpeg;base64,', '')
   const buffdata = new Buffer.from(image64, 'base64')
-
   const imgName = moment().unix()
   ideasData.image = process.env.S3_IDEAS_PATH + '/' + imgName
   const insertId = await Ideas.createIdeas(ideasData)
   if (insertId.error) {
     return res.status(500).send({ error: 'Server Error' })
   }
-
   const uploadParams = {
     Bucket: process.env.S3_BUCKET_NAME + '/ideas',
     Key: imgName.toString(),
@@ -62,21 +60,38 @@ async function getIdeas(req, res) {
 }
 
 async function getIdea(req, res) {
-  const { ideaId } = req.params
-  const result = await Ideas.getIdea(ideaId)
-  if (insertId.error) {
-    return res.status(500).send({ error: 'Server Error' })
-  }
-  
-  // formating time data
-  result[0].date = moment(result[0].date).format('YYYY-MM-DD')
+  const { id } = req.query
+  const ideaData = await Ideas.getIdea(id)
+  const analysisList = [
+    '基本分析',
+    '財務分析',
+    '籌碼分析',
+    '技術分析',
+    '你的獨特觀點'
+  ]
 
-  res.status(200).send({ data: result })
+  // formating time data
+  ideaData[0].date = moment(ideaData[0].date).format('YYYY-MM-DD')
+  let content = JSON.parse(ideaData[0].content)
+  let contentKeys = Object.keys(content)
+  let tempContent = {}
+  for (let i in contentKeys) {
+    // delete empty content
+    if (!content[contentKeys[i]]) {
+      continue
+    }
+    tempContent[analysisList[i]] = content[contentKeys[i]]
+  }
+  ideaData[0].content = tempContent
+
+  res.render('ideas-details', {
+    style: 'ideas-details.css',
+    ideaData: ideaData[0]
+  })
 }
 
 async function getHotIdeas(req, res) {
-  const {filter, page, userId, limit} = req.query
-
+  const {filter, page, userId} = req.query
   const { result, totalCount } = await Ideas.getHotIdeas(filter, page, {
     userId
   })
@@ -95,7 +110,6 @@ async function getHotIdeas(req, res) {
 
 async function addLikes(req, res) {
   const {userId, ideaId, isLiked} = req.query
-
   const result = await Ideas.addLikes(userId, ideaId, isLiked)
 
   if (result.error) {
@@ -109,7 +123,6 @@ async function addLikes(req, res) {
 
 async function getIdeaLikes(req, res) {
   const { ideaId } = req.query
-
   const result = await Ideas.getIdeaLikes(ideaId)
 
   if (result.error) {
@@ -121,7 +134,6 @@ async function getIdeaLikes(req, res) {
 
 async function deleteIdea(req, res) {
   const { ideaId } = req.query
-
   const result = await Ideas.deleteIdea(ideaId, req.user.id)
 
   if (result.error) {
@@ -138,9 +150,9 @@ async function deleteIdea(req, res) {
 module.exports = {
   createIdeas,
   getIdeas,
-  getIdea,
   getHotIdeas,
   addLikes,
   getIdeaLikes,
-  deleteIdea
+  deleteIdea,
+  getIdea
 }

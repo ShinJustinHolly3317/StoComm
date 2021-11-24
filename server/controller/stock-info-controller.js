@@ -1,14 +1,11 @@
 const axios = require('axios')
 const moment = require('moment')
-
-// model
 const Stock = require('../model/stock_info_model')
 
 // functions
 async function stockNews(req, res) {
   const { stockCode } = req.params
   const titleList = []
-
   const newsResult = await Stock.getNews(stockCode)
 
   if (newsResult.length) {
@@ -22,7 +19,7 @@ async function stockNews(req, res) {
 
     return res.status(200).send({ data: titleList })
   } else {
-    return res.status(404).send({ data: '' })
+    return res.status(404).send({ error: 'News of this company not found' })
   }
 }
 
@@ -30,18 +27,26 @@ async function stockRevenue(req, res) {
   const { stockCode } = req.params
   let revenueData = await Stock.getRevenue(stockCode)
 
-  res.send({
-    data: revenueData
-  })
+  if (revenueData.length) {
+    return res.status(200).send({
+      data: revenueData
+    })
+  } else {
+    return res.status(404).send({ error: 'Revenue of this company not found' })
+  }
 }
 
 async function stockGross(req, res) {
   const { stockCode } = req.params
   let grossData = await Stock.getGross(stockCode)
 
-  res.send({
-    data: grossData
-  })
+  if (grossData.length) {
+    return res.status(200).send({
+      data: grossData
+    })
+  } else {
+    return res.status(404).send({ error: 'Gross of this company not found' })
+  }
 }
 
 async function getDayPrices(req, res) {
@@ -51,18 +56,16 @@ async function getDayPrices(req, res) {
 
   try {
     const result = await axios.get(dayPricesUrl)
-    res.send(result.data)
+    res.status(200).send(result.data)
   } catch (error) {
     console.log(error)
     res.status(500).send({ error })
   }
-  
 }
 
 async function getYearPrice(req, res) {
   const { stockCode } = req.params
   const result = await Stock.getYearPrice(stockCode)
-
   const dataTable = result.map((item) => {
     let date = moment(item.date).format('YYYY-MM-DD')
     return [
@@ -75,13 +78,18 @@ async function getYearPrice(req, res) {
     ]
   })
 
-  res.send({ data: dataTable })
+  if (dataTable.length) {
+    return res.status(200).send({ data: dataTable })
+  } else {
+    return res
+      .status(404)
+      .send({ error: 'Year price of this company not found' })
+  }
 }
 
 async function stockChip(req, res) {
   let { stockCode } = req.params
   let chipData = await Stock.getChip(stockCode)
-
   const updateChipData = chipData.map((item) => {
     return [
       moment(item.date).format('YYYY-MM-DD'),
@@ -91,7 +99,13 @@ async function stockChip(req, res) {
     ]
   })
 
-  res.send(updateChipData)
+  if (updateChipData.length) {
+    return res.status(200).send(updateChipData)
+  } else {
+    return res
+      .status(404)
+      .send({ error: 'Chip data of this company not found' })
+  }
 }
 
 async function getCompanyName(req, res) {
@@ -99,7 +113,7 @@ async function getCompanyName(req, res) {
   const companyName = await Stock.getCompanyName(stockCode)
 
   if (companyName.error) {
-    res.status(404).send({ error: '無此代號' })
+    res.status(404).send({ error: 'This company not found' })
   } else {
     res.status(200).send({ data: companyName })
   }

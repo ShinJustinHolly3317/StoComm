@@ -59,7 +59,7 @@ View.dltBtn.addEventListener('click', async (e) => {
   if (dltResponse.status === 500) {
     await Swal.fire({
       icon: 'error',
-      title: '伺服器出錯了!',
+      title: '伺服器忙碌中，請再試一次!',
       confirmButtonColor: '#315375'
     })
   } else if (dltResponse.status === 500) {
@@ -115,7 +115,7 @@ async function likeIdea() {
     } else if (result.error){
       await Swal.fire({
         icon: 'error',
-        title: '伺服器出錯了!',
+        title: '伺服器忙碌中，請再試一次!',
         confirmButtonColor: '#315375'
       })
       return { error: result.error }
@@ -147,7 +147,6 @@ async function getIdeaLikes() {
   const response = await fetch(`/api/1.0/ideas/idea_like?ideaId=${ideaId}`)
 
   if (response.status !== 200) {
-    console.log('problems when getting likes data', response.status)
     return
   }
 

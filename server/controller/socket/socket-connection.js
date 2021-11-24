@@ -45,9 +45,9 @@ async function socketConnection(io) {
     next(error)
   })
 
-  io.on('connection', mainSocketController)
 
-  async function mainSocketController(socket) {
+
+  io.on('connection', async (socket) => { 
     socket.on('get all room clients', () => {
       socket.emit('recieve all room clients', onlineClients)
     })
@@ -111,7 +111,8 @@ async function socketConnection(io) {
         drawHistory,
         roomId,
         roomPermission,
-        onlineClients[roomId].hostId
+        onlineClients[roomId].hostId,
+        io
       )
 
       // Chat room initialization
@@ -163,7 +164,6 @@ async function socketConnection(io) {
         // store history data after each user left
         if (Object.keys(drawHistory[roomId]).length) {
           // store drawing history
-          console.log(drawHistory[roomId]['0'].location)
           await Canvas.insertDrawHistory(cleanDrawHistory(roomId), roomId)
         }
         if (chatHistory[roomId].length) {
@@ -172,7 +172,7 @@ async function socketConnection(io) {
         }
       })
     })
-  }
+  })
 }
 
 function cleanDrawHistory(roomId) {
