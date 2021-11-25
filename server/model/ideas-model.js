@@ -1,7 +1,6 @@
 // Require mysql connection
 const db = require('./config/mysqlConnection')
 const moment = require('moment')
-const { search } = require('../routes/modules/render')
 
 async function createIdeas(ideasData) {
   try {
@@ -14,9 +13,9 @@ async function createIdeas(ideasData) {
     ideasData.date = moment().format('YYYY-MM-DD')
     delete ideasData['stock_code']
 
-    const [result] = await db.query('INSERT INTO ideas SET ?', [ideasData])
-    const insertId = result.insertId
-    return insertId
+    await db.query('INSERT INTO ideas SET ?', [ideasData])
+    
+    return { message: 'success' }
   } catch (error) {
     console.log(error)
     return { error }
@@ -24,8 +23,8 @@ async function createIdeas(ideasData) {
 }
 
 async function getIdeas(userId, page) {
-  const qryString = `
-  SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
+  const getQry = `
+  SELECT ideas.*, user.name AS user_name, user.picture AS user_picture, stock.stock_code AS stock_code, stock.company_name AS company_name, sum(idea_likes.likes_num) AS total_likes
   FROM ideas
   INNER JOIN user ON user.id = ideas.user_id
   INNER JOIN stock ON stock.stock_id = ideas.stock_id
@@ -36,12 +35,12 @@ async function getIdeas(userId, page) {
   LIMIT 10 OFFSET ?
   `
   const countQry = `
-    SELECT COUNT(*) as total FROM ideas WHERE user_id = ?
+    SELECT COUNT(*) AS total FROM ideas WHERE user_id = ?
   `
 
   const offset = page ? page * 10 : 0
   try {
-    const [result] = await db.query(qryString, [userId, offset])
+    const [result] = await db.query(getQry, [userId, offset])
     const countResult = await db.query(countQry, [userId])
     return { data: result, totalCount: countResult[0][0].total }
   } catch (error) {
@@ -51,15 +50,15 @@ async function getIdeas(userId, page) {
 }
 
 async function getIdea(ideaId) {
-  const qryString = `
-    SELECT ideas.*, user.name as user_name, user.picture as user_picture,stock.stock_code as stock_code, stock.company_name as company_name
+  const getQry = `
+    SELECT ideas.*, user.name AS user_name, user.picture AS user_picture,stock.stock_code as stock_code, stock.company_name AS company_name
     FROM ideas
     INNER JOIN user ON user.id = ideas.user_id
     INNER JOIN stock ON stock.stock_id = ideas.stock_id
     WHERE ideas.id = ?
   `
   try {
-    const [result] = await db.query(qryString, [ideaId])
+    const [result] = await db.query(getQry, [ideaId])
     return result
   } catch (error) {
     console.log(error)
@@ -68,14 +67,14 @@ async function getIdea(ideaId) {
 }
 
 async function getHotIdeas(filter, page, condition = {}) {
-  let qryString
+  let getQry
   let countQry
 
   try {
     switch (filter) {
       case 'time': {
-        qryString = `
-        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
+        getQry = `
+        SELECT ideas.*, user.name AS user_name, user.picture AS user_picture, stock.stock_code AS stock_code, stock.company_name AS company_name, SUM(idea_likes.likes_num) AS total_likes
         FROM ideas
         INNER JOIN user ON user.id = ideas.user_id
         INNER JOIN stock ON stock.stock_id = ideas.stock_id
@@ -87,13 +86,13 @@ async function getHotIdeas(filter, page, condition = {}) {
         break
       }
       case 'followers': {
-        qryString = `
-        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, count(follow_status.following_id) as followers, total_likes
+        getQry = `
+        SELECT ideas.*, user.name AS user_name, user.picture AS user_picture, stock.stock_code AS stock_code, stock.company_name AS company_name, COUNT(follow_status.following_id) AS followers, total_likes
         FROM ideas
-        INNER JOIN follow_status on follow_status.following_id = ideas.user_id
+        INNER JOIN follow_status ON follow_status.following_id = ideas.user_id
         INNER JOIN user ON user.id = ideas.user_id
         INNER JOIN stock ON stock.stock_id = ideas.stock_id
-        LEFT JOIN (select idea_id, sum(idea_likes.likes_num) as total_likes from idea_likes group by idea_likes.idea_id) as idea_likes ON idea_likes.idea_id = ideas.id
+        LEFT JOIN (select idea_id, SUM(idea_likes.likes_num) AS total_likes from idea_likes group by idea_likes.idea_id) AS idea_likes ON idea_likes.idea_id = ideas.id
         GROUP BY ideas.id
         ORDER BY followers DESC
         LIMIT 10 OFFSET ?
@@ -101,8 +100,8 @@ async function getHotIdeas(filter, page, condition = {}) {
         break
       }
       case 'likes': {
-        qryString = `
-        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
+        getQry = `
+        SELECT ideas.*, user.name AS user_name, user.picture AS user_picture, stock.stock_code AS stock_code, stock.company_name AS company_name, SUM(idea_likes.likes_num) AS total_likes
         FROM ideas
         INNER JOIN user ON user.id = ideas.user_id
         INNER JOIN stock ON stock.stock_id = ideas.stock_id 
@@ -114,11 +113,11 @@ async function getHotIdeas(filter, page, condition = {}) {
         break
       }
       case 'byFollowing': {
-        qryString = `
-        SELECT ideas.*, user.name as user_name, user.picture as user_picture, stock.stock_code as stock_code, stock.company_name as company_name, sum(idea_likes.likes_num) as total_likes
+        getQry = `
+        SELECT ideas.*, user.name AS user_name, user.picture AS user_picture, stock.stock_code AS stock_code, stock.company_name AS company_name, SUM(idea_likes.likes_num) AS total_likes
         FROM ideas
         INNER JOIN stock ON stock.stock_id = ideas.stock_id
-        INNER JOIN (select follow_status.following_id as following_id from follow_status where follow_status.user_id = ?) as follow_status on follow_status.following_id = ideas.user_id
+        INNER JOIN (SELECT follow_status.following_id AS following_id FROM follow_status WHERE follow_status.user_id = ?) AS follow_status ON follow_status.following_id = ideas.user_id
         INNER JOIN user ON user.id = ideas.user_id
         LEFT JOIN idea_likes ON idea_likes.idea_id = ideas.id
         GROUP BY ideas.id
@@ -134,18 +133,18 @@ async function getHotIdeas(filter, page, condition = {}) {
     let binding
     if (filter !== 'byFollowing') {
       countQry = `
-        SELECT COUNT(*) as total FROM ideas;
+        SELECT COUNT(*) AS total FROM ideas;
       `
       binding = [offset]
     } else {
       countQry = `
-        SELECT COUNT(*) as total FROM ideas 
-        INNER JOIN (select follow_status.following_id as following_id from follow_status where follow_status.user_id = ?) as follow_status on follow_status.following_id = ideas.user_id
+        SELECT COUNT(*) AS total FROM ideas 
+        INNER JOIN (SELECT follow_status.following_id AS following_id FROM follow_status WHERE follow_status.user_id = ?) AS follow_status ON follow_status.following_id = ideas.user_id
       `
       binding = [userId, offset]
     }
 
-    const [result] = await db.query(qryString, binding)
+    const [result] = await db.query(getQry, binding)
     const [countResult] = await db.query(countQry, userId)
     const totalCount = countResult[0].total
 
@@ -156,7 +155,7 @@ async function getHotIdeas(filter, page, condition = {}) {
   }
 }
 
-async function addLikes(userId, ideaId, isLiked) {
+async function addLikes(userId, ideaId) {
   const searchLikes = `
   SELECT * FROM idea_likes 
   WHERE user_id = ?
@@ -180,19 +179,19 @@ async function addLikes(userId, ideaId, isLiked) {
 
     if (likesResult.length) {
       const totalLikes = likesResult[0].likes_num
-      
+
       if (totalLikes >= 10) {
-        // like max is 30, demo is 10
+        // like max is 30
         await conn.query('ROLLBACK')
         return { overlimit: 'max limit is 30' }
       }
-      const [result] = await conn.query(addLike, [userId, ideaId])
+      await conn.query(addLike, [userId, ideaId])
       conn.query('COMMIT')
-      return {isnertId: result.insertId, totalLikes}
+      return { message: 'success', totalLikes }
     } else {
-      const [result] = await conn.query(createLike, [[[userId, ideaId, 1]]])
+      await conn.query(createLike, [[[userId, ideaId, 1]]])
       await conn.query('COMMIT')
-      return result.insertId
+      return { message: 'success' }
     }
   } catch (error) {
     await conn.query('ROLLBACK')
@@ -218,7 +217,7 @@ async function getIdeaLikes(ideaId) {
   }
 }
 
-async function deleteIdea(ideaId, userId){
+async function deleteIdea(ideaId, userId) {
   const checkAuthor = `
   SELECT user_id FROM ideas WHERE id = ?
   `
@@ -230,19 +229,19 @@ async function deleteIdea(ideaId, userId){
   `
 
   const conn = await db.getConnection()
-  try{
+  try {
     await conn.query('BEGIN')
 
     const [checkResult] = await conn.query(checkAuthor, [ideaId, userId])
-    if(checkResult[0].user_id !== Number(userId)){
+    if (checkResult[0].user_id !== Number(userId)) {
       return { forbidden: '你並不是作者，請勿亂刪別人文章!' }
     }
 
-    const [dltLikeResult] = await conn.query(dltLikeQry, [ideaId])
-    const [dltIdearesult] = await conn.query(dltIdeaQry, [ideaId])
+    await conn.query(dltLikeQry, [ideaId])
+    await conn.query(dltIdeaQry, [ideaId])
     await conn.query('COMMIT')
-    return dltIdearesult
-  } catch(error){
+    return { message: 'success' }
+  } catch (error) {
     await conn.query('ROLLBACK')
     console.error(error)
     return { error }

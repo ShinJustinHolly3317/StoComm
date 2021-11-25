@@ -456,6 +456,10 @@ socket.on('init load data', (remoteDrawHistory) => {
 
   for (let key in remoteDrawHistory) {
     if (remoteDrawHistory[key].toolType === 'image') {
+      console.log(
+        'remoteDrawHistory[key].location',
+        remoteDrawHistory[key].location
+      )
       addImg(
         remoteDrawHistory[key].canvasImg,
         key,
@@ -696,8 +700,9 @@ delBtn.addEventListener('click', async (e) => {
     title: '確定要刪除所有圖層嗎?',
     confirmButtonColor: '#315375'
   })
+  console.log(localStorage.getItem('user'))
   if (result.isConfirmed) {
-    socket.emit('delete all', localStorage.getItem('user').id)
+    socket.emit('delete all', JSON.parse(localStorage.getItem('user')).id)
   }
 })
 

@@ -89,17 +89,16 @@ document
       body: createData
     })
     const roomresult = await roomResponse.json()
-    console.log(roomresult)
 
     if (roomResponse.status !== 200) {
       await Swal.fire({
         icon: 'error',
-        title: roomresult.error,
+        title: '無此代號或名稱',
         confirmButtonColor: '#315375'
       })
       return
     }
-
+    
     const roomId = roomresult.data.insertId
     const stockCode = roomresult.data.stock_code
     window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
@@ -138,10 +137,25 @@ navLoginBtn.addEventListener('click', async (e) => {
 
   switch (response.status) {
     case 500:
-    case 403:
       await Swal.fire({
         icon: 'error',
-        title: result.error,
+        title: '伺服器忙碌中，請重新再試!',
+        confirmButtonColor: '#315375'
+      })
+      break
+    case 403:
+      let errorMsg
+      switch (result.error) {
+        case 'no signup':
+          errorMsg = '查無此帳號!'
+          break
+        case 'wrong password':
+          errorMsg = '密碼錯誤!'
+          break
+      }
+      await Swal.fire({
+        icon: 'error',
+        title: errorMsg,
         confirmButtonColor: '#315375'
       })
       break
@@ -203,26 +217,49 @@ signUpBtn.addEventListener('click', async (e) => {
 
   switch (response.status) {
     case 500:
+      await Swal.fire({
+        icon: 'error',
+        title: `伺服器忙碌中，請重新再試!`,
+        confirmButtonColor: '#315375'
+      })
+      return
     case 403:
+      let errorMsg
+      if (result.error === 'email exist') {
+        errorMsg = '帳號已經有人註冊了!'
+      }
+      await Swal.fire({
+        icon: 'error',
+        title: errorMsg,
+        confirmButtonColor: '#315375'
+      })
+      return
     case 400:
       const errorCat = result.error
-      if(errorCat === 'too long'){
-        const errorType = result.type
-        await Swal.fire({
-          icon: 'error',
-          title: `${errorType} 太長拉`,
-          confirmButtonColor: '#315375'
-        })
-        return
-      } else {
-        await Swal.fire({
-          icon: 'error',
-          title: result.error,
-          confirmButtonColor: '#315375'
-        })
-        return
+      switch(errorCat){
+        case 'too long':
+          const errorTarget = result.target
+          await Swal.fire({
+            icon: 'error',
+            title: `${errorTarget} 太長拉`,
+            confirmButtonColor: '#315375'
+          })
+          return
+        case 'empty input':
+          await Swal.fire({
+            icon: 'error',
+            title: `不能有欄位是空的喔!`,
+            confirmButtonColor: '#315375'
+          })
+          return
+        case 'wrong format':
+          await Swal.fire({
+            icon: 'error',
+            title: `Email 格式錯誤!`,
+            confirmButtonColor: '#315375'
+          })
+          return
       }
-
     case 200:
       await Swal.fire({
         title: '註冊成功!',

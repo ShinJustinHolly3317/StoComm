@@ -27,27 +27,20 @@ async function socketConnection(io) {
         }
         break
       case 'war_room':
-        if (accessToken) {
-          // JWT token verification
-          try {
-            jwt.verify(accessToken, TOKEN_SECRET)
-            next()
-          } catch (error) {
-            console.log(error)
-            next(error)
-          }
+        // JWT token verification
+        try {
+          jwt.verify(accessToken, TOKEN_SECRET)
+          next()
+        } catch (error) {
+          console.log(error)
+          next(error)
         }
+
         break
     }
-
-    // without visitor access or access token
-    const error = new Error('not authenticated')
-    next(error)
   })
 
-
-
-  io.on('connection', async (socket) => { 
+  io.on('connection', async (socket) => {
     socket.on('get all room clients', () => {
       socket.emit('recieve all room clients', onlineClients)
     })
@@ -74,7 +67,6 @@ async function socketConnection(io) {
       // Handle clients
       if (userRole === 'streamer') {
         const warRoomInfo = await WarRoom.getRoomInfo(roomId)
-        console.log('warRoomInfo', warRoomInfo[0].user_id)
 
         if (warRoomInfo[0].user_id === userId) {
           // Confirm room host
@@ -86,7 +78,6 @@ async function socketConnection(io) {
             multipleHostList[roomId] = 1
           } else {
             multipleHostList[roomId] += 1
-            console.log(multipleHostList[roomId])
             if (multipleHostList[roomId] > 1) {
               // Check multiple host
               socket.emit('return host room')
@@ -102,8 +93,6 @@ async function socketConnection(io) {
       clientList = sockets.map((item) => {
         return item.id
       })
-      console.log(`room clients ${clientList}`)
-      console.log(`user: ${socket.id} connected to this room ${roomId}`)
 
       // Drawing event initialization
       SocketEventLoad.drawEventLoad(
@@ -127,12 +116,6 @@ async function socketConnection(io) {
       })
 
       socket.on('disconnect', async () => {
-        console.log(
-          `${
-            onlineClients[roomId][socket.id].userId
-          } left this room(${roomId})!`
-        )
-
         // delete left peer user
         socket
           .to(roomId)
@@ -149,7 +132,6 @@ async function socketConnection(io) {
           multipleHostList[roomId] -= 1
         }
 
-        console.log('going to delete', onlineClients[roomId][socket.id])
         delete onlineClients[roomId][socket.id]
 
         if (Object.keys(onlineClients[roomId]).length - 1 === 0) {

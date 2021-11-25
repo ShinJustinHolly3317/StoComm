@@ -31,7 +31,7 @@ async function main() {
     console.log('Round ID', i)
 
     console.log('Company:', stockList[i])
-    await chipScrape(stockList[i][1])
+    await chipScrape(stockList[i][0],stockList[i][1])
     await sleep(Math.floor(Math.random() * 4000) + 8000)
     console.log('missingStock', missingStock)
   }
@@ -40,7 +40,7 @@ async function main() {
   process.exit()
 }
 
-async function chipScrape(stockCode) {
+async function chipScrape(stockId, stockCode) {
   const url = `https://tw.stock.yahoo.com/_td-stock/api/resource/StockServices.tradesWithQuoteStats;limit=60;period=week;symbol=${stockCode}.TW?bkt=tw-qsp-exp-no4&device=desktop&ecma=modern&feature=ecmaModern,useVersionSwitch,useNewQuoteTabColor,hideMarketInfo&intl=tw&lang=zh-Hant-TW&partner=none&prid=3pf2d09gnvivj&region=TW&site=finance&tz=Asia/Taipei&ver=1.2.1177&returnMeta=true`
   const rawChipData = []
   let result
@@ -80,6 +80,7 @@ async function chipScrape(stockCode) {
 
     for (let item of result.data.data.list) {
       rawChipData.push([
+        stockId,
         moment(item.date).format('YYYY-MM-DD'),
         item.foreignDiffVolK,
         item.investmentTrustDiffVolK,

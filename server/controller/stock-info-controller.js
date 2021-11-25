@@ -3,7 +3,7 @@ const moment = require('moment')
 const Stock = require('../model/stock_info_model')
 
 // functions
-async function stockNews(req, res) {
+async function getStockNews(req, res) {
   const { stockCode } = req.params
   const titleList = []
   const newsResult = await Stock.getNews(stockCode)
@@ -23,7 +23,7 @@ async function stockNews(req, res) {
   }
 }
 
-async function stockRevenue(req, res) {
+async function getStockRevenue(req, res) {
   const { stockCode } = req.params
   let revenueData = await Stock.getRevenue(stockCode)
 
@@ -36,7 +36,7 @@ async function stockRevenue(req, res) {
   }
 }
 
-async function stockGross(req, res) {
+async function getStockGross(req, res) {
   const { stockCode } = req.params
   let grossData = await Stock.getGross(stockCode)
 
@@ -87,7 +87,7 @@ async function getYearPrice(req, res) {
   }
 }
 
-async function stockChip(req, res) {
+async function getStockChip(req, res) {
   let { stockCode } = req.params
   let chipData = await Stock.getChip(stockCode)
   const updateChipData = chipData.map((item) => {
@@ -120,11 +120,11 @@ async function getCompanyName(req, res) {
 }
 
 module.exports = {
-  stockNews,
-  stockRevenue,
-  stockGross,
+  getStockNews,
+  getStockRevenue,
+  getStockGross,
   getDayPrices,
   getYearPrice,
-  stockChip,
+  getStockChip,
   getCompanyName
 }

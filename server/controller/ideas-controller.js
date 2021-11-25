@@ -109,8 +109,8 @@ async function getHotIdeas(req, res) {
 }
 
 async function addLikes(req, res) {
-  const {userId, ideaId, isLiked} = req.query
-  const result = await Ideas.addLikes(userId, ideaId, isLiked)
+  const {userId, ideaId} = req.query
+  const result = await Ideas.addLikes(userId, ideaId)
 
   if (result.error) {
     return res.status(500).send({ error: 'Server error' })

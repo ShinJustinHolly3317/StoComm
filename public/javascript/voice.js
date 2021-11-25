@@ -346,10 +346,12 @@ async function initPeer() {
   }
 
   async function getUserPic(userId) {
-    const response = await fetch(`/api/1.0/user/user_data?userId=${userId}`)
+    const response = await fetch(`/api/1.0/user/user_info?userId=${userId}`)
     const result = await response.json()
-    const picUrl = result.data.picture
-
+    let picUrl
+    if(result.data.length){
+      picUrl = result.data[0].picture
+    }
     return picUrl
   }
 }

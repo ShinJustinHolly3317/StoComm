@@ -28,16 +28,15 @@ async function login(req, res) {
   }
 
   if (result.error) {
-    const status_code = result.status ? result.status : 403
-    res.status(status_code).send({ error: result.error })
-    return
+    switch (result.type) {
+      case 'user error':
+        return res.status(403).send({ error: result.error })
+      case 'internal error':
+        return res.status(500).send({ error: result.error })
+    }
   }
 
   const user = result.user
-  if (!user) {
-    res.status(500).send({ error: 'Database Query Error' })
-    return
-  }
 
   res.status(200).send({
     data: {
@@ -60,42 +59,47 @@ async function signUp(req, res) {
   const { email, password } = req.body
 
   if (!name || !email || !password) {
-    res
-      .status(400)
-      .send({ error: '綽號、Email、密碼為必填資料!' })
+    res.status(400).send({ error: 'empty input', type: 'user error' })
     return
   }
 
   if (!validator.isEmail(email)) {
-    res.status(400).send({ error: 'Email的格式錯誤!' })
+    res.status(400).send({ error: 'wrong format', type: 'user error' })
     return
   }
 
   if (textLenCheck(email) > 32) {
-    res.status(400).send({ error: 'too long', type: 'email' })
+    res
+      .status(400)
+      .send({ error: 'too long', type: 'user error', target: 'email' })
     return
   }
   if (textLenCheck(name) > 32) {
-    res.status(400).send({ error: 'too long', type: 'name' })
+    res
+      .status(400)
+      .send({ error: 'too long', type: 'user error', target: 'name' })
     return
   }
 
   name = validator.escape(name)
 
   const result = await User.signUp(name, email, password)
+
   if (result.error) {
-    res.status(403).send({ error: result.error })
-    return
+    switch (result.type) {
+      case 'user error':
+        return res.status(403).send({ error: result.error })
+      case 'internal error':
+        return res.status(500).send({ error: result.error })
+    }
   }
 
   const user = result.user
-  if (!user) {
-    res.status(500).send({ error: 'Database Query Error' })
-    return
-  }
 
   // upload default image
-  const defaultImg = fs.createReadStream(__dirname + '/../../public/img/profile-icon.png')
+  const defaultImg = fs.createReadStream(
+    __dirname + '/../../public/img/profile-icon.png'
+  )
   const uploadParams = {
     Bucket: process.env.S3_BUCKET_NAME + '/users',
     Key: user.id + '-profile',
@@ -108,7 +112,7 @@ async function signUp(req, res) {
   s3.upload(uploadParams, function (err, data) {
     if (err) {
       console.log('Error', err)
-      res.status(500).send({error: '伺服器內部出錯了'})
+      res.status(500).send({ error: 'server error' })
       return
     }
     if (data) {
@@ -131,49 +135,14 @@ async function signUp(req, res) {
   })
 }
 
-async function userData(req, res) {
+async function getUserInfo(req, res) {
   const { userId } = req.query
-  const result = await User.getUserDetail(userId)
+  const result = await User.getUserInfo(userId)
 
   if (result.error) {
     res.status(500).send({ error: result.error })
   } else {
     res.send({ data: result })
-  }
-}
-
-async function setUserPermisstion(req, res) {
-  const permissionType = req.body.type
-  const { isAllow, userId, usersId } = req.body
-
-  try {
-    switch (permissionType) {
-      case 'is_drawable':
-        if (isAllow) {
-          User.allowUserDraw(userId)
-        } else {
-          User.denyUserDraw(userId)
-        }
-        break
-      case 'is_mic_on':
-        if (isAllow) {
-          User.allowUserMic(userId)
-        } else {
-          User.denyUserMic(userId)
-        }
-        break
-      case 'is_allDrawable':
-        if (isAllow) {
-          User.allowAllUserDraw(usersId)
-        } else {
-          User.denyAllUserDraw(usersId)
-        }
-        break
-    }
-    res.status(200).send({ message: 'user permission set successfully!' })
-  } catch (error) {
-    console.error(error)
-    return { error }
   }
 }
 
@@ -190,7 +159,7 @@ async function followUser(req, res) {
     return
   }
 
-  res.status(200).send({ message: 'update follow data successfully'})
+  res.status(200).send({ message: 'update follow data successfully' })
 }
 
 async function unfollowUser(req, res) {
@@ -198,7 +167,7 @@ async function unfollowUser(req, res) {
 
   const result = await User.unFollowUser(userId, followId)
   if (result.error) {
-    console.log(result.error)    
+    console.log(result.error)
     res.status(500).send({ error: result.error })
     return
   }
@@ -209,17 +178,17 @@ async function unfollowUser(req, res) {
 async function checkFollowState(req, res) {
   const { userId, followId } = req.query
 
-  const result = await User.checkFollowState(userId, followId) 
-  if(result.length) {
+  const result = await User.checkFollowState(userId, followId)
+  if (result.length) {
     res.status(200).send({ data: result })
-    return 
+    return
   } else {
-    res.status(404).send({ message: 'No followed records'})
+    res.status(404).send({ message: 'No followed records' })
     return
   }
 }
 
-async function editProfile (req, res){
+async function editProfile(req, res) {
   const userData = {}
   const { user_name, user_id } = req.body
 
@@ -242,25 +211,51 @@ async function editProfile (req, res){
   }
 }
 
-async function getFollwingNums(req, res) {
+async function getFollowingNums(req, res) {
   const { userId } = req.query
   const result = await User.getFollwingNums(userId)
 
   if (result.error) {
     res.status(500).send({ error: 'Server Problem' })
   } else {
-    res.status(200).send({ data: { followers:result.following, following:result.followers } })
+    res
+      .status(200)
+      .send({
+        data: { followers: result.following, following: result.followers }
+      })
+  }
+}
+
+async function checkUserExist(req, res) {
+  // For home page login welcom message
+  const inputEmail = req.body.email
+  const searchResult = await User.findUserDataByEmail(inputEmail)
+
+  if (searchResult.length) {
+    res.send({
+      searchResult: true,
+      name: searchResult[0].name,
+      email: searchResult[0].email,
+      provider: searchResult[0].provider,
+      email: searchResult[0].email,
+      picture: searchResult[0].picture,
+      id: searchResult[0].id,
+      access_expired: searchResult[0].access_expired,
+      access_token: searchResult[0].access_token
+    })
+  } else {
+    res.send({ searchResult: false })
   }
 }
 
 module.exports = {
   login,
   signUp,
-  userData,
-  setUserPermisstion,
+  getUserInfo,
   followUser,
   unfollowUser,
   checkFollowState,
   editProfile,
-  getFollwingNums
+  getFollowingNums,
+  checkUserExist
 }

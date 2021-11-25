@@ -27,6 +27,7 @@
     "peer": "^0.6.1",
     "puppeteer": "^10.4.0",
     "puppeteer-core": "^10.4.0",
+    "redis": "^3.1.2",
     "socket.io": "^4.3.1",
     "validator": "^13.6.0"
   }

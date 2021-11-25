@@ -5,17 +5,24 @@ async function createWarRoom(req, res) {
   const result = await WarRoom.createWarRoom(createData)
 
   if (result.error) {
-    return res.status(404).send({ error: '無此代號或名稱' })
+    return res
+      .status(404)
+      .send({ error: 'stock code or company name not found' })
+  } else {
+    res.status(200).send({
+      data: { insertId: result.insertId, stock_code: result.stock_code }
+    })
   }
-
-  res.send({
-    data: { insertId: result.insertId, stock_code: result.stock_code }
-  })
 }
 
-async function showOnlineRooms(req, res) {
-  const onlineRooms = await WarRoom.showOnlineRooms()
-  res.send({ data: onlineRooms })
+async function getOnlineRooms(req, res) {
+  const result = await WarRoom.getOnlineRooms()
+  if (result.error) {
+    console.log(error)
+    return res.status(500).send({ error })
+  } else {
+    res.status(200).send({ data: result })
+  }
 }
 
 async function endWarRoom(req, res) {
@@ -35,8 +42,12 @@ async function endWarRoom(req, res) {
 async function getRoomInfo(req, res) {
   const { roomId } = req.query
   const result = await WarRoom.getRoomInfo(roomId)
-
-  res.status(200).send({ data: result })
+  if (result.error) {
+    console.log(error)
+    return res.status(500).send({ error })
+  } else {
+    res.status(200).send({ data: result })
+  }
 }
 
 async function updateRoomRights(req, res) {
@@ -44,9 +55,7 @@ async function updateRoomRights(req, res) {
 
   const result = await WarRoom.updateRoomRights(roomId, open_draw, open_mic)
   if (result.error) {
-    res.status(500).send({ error: result })
-  } else if (!result.affectedRows) {
-    res.status(200).send({ message: 'nothing changed' })
+    return res.status(500).send({ error: result })
   } else {
     res.status(200).send({ message: 'update successfully' })
   }
@@ -54,7 +63,7 @@ async function updateRoomRights(req, res) {
 
 module.exports = {
   createWarRoom,
-  showOnlineRooms,
+  getOnlineRooms,
   endWarRoom,
   getRoomInfo,
   updateRoomRights

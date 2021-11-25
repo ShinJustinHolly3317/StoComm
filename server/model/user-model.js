@@ -4,7 +4,6 @@ const bcrypt = require('bcrypt')
 const salt = parseInt(process.env.BCRYPT_SALT)
 const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
 const jwt = require('jsonwebtoken')
-const moment = require('moment')
 
 async function findUserDataByEmail(email) {
   const qryString = `SELECT * FROM user WHERE email = ?`
@@ -12,17 +11,16 @@ async function findUserDataByEmail(email) {
   return result
 }
 
-async function getUserDetail(userId) {
+async function getUserInfo(userId) {
   try {
-    const [users] = await db.query('SELECT * FROM user WHERE id = ?', [userId])
-    if(users.length){
-      return users[0]
-    } else {
-      return users
-    }
-  } catch (err) {
-    console.log(err)
-    return null
+    const [userInfo] = await db.query(
+      'SELECT name,picture,role FROM user WHERE id = ?',
+      [userId]
+    )
+    return userInfo
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
 }
 
@@ -35,17 +33,16 @@ async function nativeSignIn(email, password) {
       email
     ])
 
-    if(!result.length){
+    if (!result.length) {
       await conn.query('COMMIT')
-      return { error: '你還沒有註冊過喔!' }
+      return { error: 'no signup', type: 'user error' }
     }
 
     const user = result[0]
 
-
     if (!bcrypt.compareSync(password, user.password)) {
       await conn.query('COMMIT')
-      return { error: '密碼錯誤喔!' }
+      return { error: 'wrong password', type: 'user error' }
     }
 
     const loginAt = new Date()
@@ -66,7 +63,6 @@ async function nativeSignIn(email, password) {
     const updateQry =
       'UPDATE user SET access_token = ?, access_expired = ? WHERE id = ?'
     await conn.query(updateQry, [accessToken, TOKEN_EXPIRE, user.id])
-
     await conn.query('COMMIT')
 
     user.access_token = accessToken
@@ -74,10 +70,10 @@ async function nativeSignIn(email, password) {
     user.access_expired = TOKEN_EXPIRE
 
     return { user }
-  } catch (err) {
+  } catch (error) {
     await conn.query('ROLLBACK')
-    console.log(err)
-    return { err }
+    console.log(error)
+    return { error, type:'internal error' }
   } finally {
     await conn.release()
   }
@@ -94,7 +90,7 @@ async function signUp(name, email, password) {
     )
     if (emails[0].length > 0) {
       await conn.query('COMMIT')
-      return { error: '這個Email已經被註冊啦!' }
+      return { error: 'email exist', type: 'user error' }
     }
 
     const user = {
@@ -104,11 +100,8 @@ async function signUp(name, email, password) {
       name: name,
       picture: '/img/profile-icon.png',
       access_expired: TOKEN_EXPIRE,
-      role: 'visitor',
-      is_drawable: 0,
-      is_mic_on: 0
+      role: 'visitor'
     }
-    
 
     const queryStr = 'INSERT INTO user SET ?'
     const [result] = await conn.query(queryStr, user)
@@ -118,7 +111,8 @@ async function signUp(name, email, password) {
     const updatePicQry = 'UPDATE user SET picture = ? WHERE id = ?'
     const defaultImg = `https://stocomm.s3.ap-northeast-1.amazonaws.com/users/${result.insertId}-profile`
     const [picResult] = await conn.query(updatePicQry, [
-      defaultImg, result.insertId
+      defaultImg,
+      result.insertId
     ])
 
     // add userid in access token
@@ -145,7 +139,7 @@ async function signUp(name, email, password) {
   } catch (error) {
     console.log(error)
     await conn.query('ROLLBACK')
-    return { error }
+    return { error, type: 'internal error' }
   } finally {
     await conn.release()
   }
@@ -159,39 +153,18 @@ async function changeToStreamer(userId) {
   return result
 }
 
-async function allowAllUserDraw(usersId) {
-  try {
-    const [result] = await db.query(
-      'UPDATE user SET is_drawable = 1 WHERE id in ?',
-      [[usersId]]
-    )
-    return result
-  } catch (error) {
-    console.log(error)
-  }
-}
-
-async function denyAllUserDraw(usersId) {
-  try {
-    const [result] = await db.query(
-      'UPDATE user SET is_drawable = 0 WHERE id in ?',
-      [[usersId]]
-    )
-    return result
-  } catch (error) {
-    console.log(error)
-  }
-}
-
 async function followUser(userId, followId) {
   const conn = await db.getConnection()
   try {
     await conn.query('BEGIN')
 
-    const [searchResult] = await conn.query('SELECT * FROM follow_status WHERE user_id = ? AND following_id = ?', [userId, followId])
+    const [searchResult] = await conn.query(
+      'SELECT * FROM follow_status WHERE user_id = ? AND following_id = ?',
+      [userId, followId]
+    )
 
-    if(searchResult.length !== 0) {
-      return { error : 'duplicate'}
+    if (searchResult.length !== 0) {
+      return { error: 'duplicate' }
     }
 
     const [result] = await conn.query(
@@ -201,9 +174,9 @@ async function followUser(userId, followId) {
     await conn.query('COMMIT')
 
     return result.insertId
-  } catch(error) {
+  } catch (error) {
     await conn.query('ROLLBACK')
-    console.error(error);
+    console.error(error)
     return { error }
   } finally {
     await conn.release()
@@ -239,8 +212,8 @@ async function checkFollowState(userId, followId) {
     )
     return result
   } catch (error) {
-    console.log(error);
-    return {error}
+    console.log(error)
+    return { error }
   }
 }
 
@@ -253,20 +226,19 @@ async function getFollwingNums(userId) {
   select count(*) as follower from follow_status 
   where user_id = ?
   `
-  try{
+  try {
     const [followerResult] = await db.query(followerQry, [userId])
     const [followingResult] = await db.query(followingQry, [userId])
     const followers = followerResult.length ? followerResult[0].follower : 0
     const following = followingResult.length ? followingResult[0].following : 0
     return { following, followers }
-  } catch(error) {
+  } catch (error) {
     console.error(error)
     return { error }
   }
 }
 
 async function editProfile(userData) {
-  console.log('userData', userData)
   const qryString = `
     UPDATE user 
     SET  
@@ -283,8 +255,8 @@ async function editProfile(userData) {
       userData.id
     ])
     return result
-  } catch(error) {
-    console.error(error);
+  } catch (error) {
+    console.error(error)
     return { error }
   }
 }
@@ -292,10 +264,8 @@ async function editProfile(userData) {
 module.exports = {
   nativeSignIn,
   signUp,
-  getUserDetail,
+  getUserInfo,
   changeToStreamer,
-  allowAllUserDraw,
-  denyAllUserDraw,
   followUser,
   unFollowUser,
   checkFollowState,

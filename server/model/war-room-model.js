@@ -1,15 +1,11 @@
 // Require mysql connection
 const db = require('./config/mysqlConnection')
-const bcrypt = require('bcrypt')
-const salt = parseInt(process.env.BCRYPT_SALT)
-const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds
-const jwt = require('jsonwebtoken')
 const moment = require('moment')
 const validator = require('validator')
 
 async function createWarRoom(createData) {
-  const qryString = `INSERT INTO war_room SET ?`
-  let stock_code = createData['stock_name_code']
+  const insertQry = `INSERT INTO war_room SET ?`
+  let stockCode = createData['stock_name_code']
   let tempId
   const conn = await db.getConnection()
 
@@ -34,30 +30,25 @@ async function createWarRoom(createData) {
       return { error: 'no match' }
     }
     tempId = result[0].stock_id
-    stock_code = result[0].stock_code
+    stockCode = result[0].stock_code
   }
 
   createData['stock_id'] = tempId
   createData['date_time'] = moment().format('YYYY-MM-DD HH:mm:ss')
   createData['state'] = true
   delete createData['stock_name_code']
-  console.log(createData)
 
-  
   try {
     await conn.query('BEGIN')
-    const [roomResult] = await conn.query(qryString, createData)
-    await conn.query(
-      `UPDATE user SET role = 'streamer' WHERE id = ?`,
-      [createData.user_id]
-    )
-    console.log(roomResult)
-
+    const [roomResult] = await conn.query(insertQry, createData)
+    await conn.query(`UPDATE user SET role = 'streamer' WHERE id = ?`, [
+      createData.user_id
+    ])
     conn.query('COMMIT')
     const { insertId } = roomResult
-    return { insertId, stock_code }
+    return { insertId, stock_code: stockCode }
   } catch (error) {
-    console.error(error)
+    console.log(error)
     conn.query('ROLLBACK')
     return { error }
   } finally {
@@ -65,18 +56,22 @@ async function createWarRoom(createData) {
   }
 }
 
-async function showOnlineRooms() {
-  const qryString = `SELECT war_room.*, user.name as name, stock.company_name as company_name, stock.stock_code as stock_code
+async function getOnlineRooms() {
+  const getQry = `SELECT war_room.*, user.name as name, stock.company_name as company_name, stock.stock_code as stock_code
   FROM war_room 
   INNER JOIN user on war_room.user_id=user.id 
   INNER JOIN stock on war_room.stock_id=stock.stock_id
   WHERE state=1 `
-  const [result] = await db.query(qryString)
-
-  for (let item of result) {
-    item.date_time = moment(item.date_time).format('YYYY-MM-DD')
+  try {
+    const [result] = await db.query(getQry)
+    for (let item of result) {
+      item.date_time = moment(item.date_time).format('YYYY-MM-DD')
+    }
+    return result
+  } catch (error) {
+    console.log(error)
+    return { error }
   }
-  return result
 }
 
 async function endWarRoom(roomId, userId) {
@@ -89,7 +84,7 @@ async function endWarRoom(roomId, userId) {
       [roomId]
     )
     await conn.query(
-      'UPDATE user SET role = "visitor", is_drawable=0, is_mic_on=0 WHERE id = ?',
+      'UPDATE user SET role = "visitor" WHERE id = ?',
       [userId]
     )
     await conn.query('COMMIT')
@@ -104,42 +99,46 @@ async function endWarRoom(roomId, userId) {
 }
 
 async function getRoomInfo(roomId) {
-  const qryString = `
+  const getQry = `
   SELECT * FROM war_room WHERE id = ?
   `
-
-  const [result] = await db.query(qryString, [roomId])
-  return result
+  try {
+    const [result] = await db.query(getQry, [roomId])
+    return result
+  } catch (error) {
+    console.log(error)
+    return { error }
+  }
 }
 
 async function updateRoomRights(roomId, open_draw, open_mic) {
-  let qryString
-
+  let updateQry
   if (open_mic === undefined) {
-    qryString = `
+    updateQry = `
     UPDATE war_room SET open_draw = ?
     WHERE id = ?
     `
   } else if (open_draw === undefined) {
-    qryString = `
+    updateQry = `
     UPDATE war_room SET open_mic = ?
     WHERE id = ?
     `
   }
-  
-  console.log('open_draw',open_draw, 'open_mic', open_mic)
   try {
-    const [result] = await db.query(qryString, [Number(open_draw || open_mic), roomId])
+    const [result] = await db.query(updateQry, [
+      Number(open_mic === undefined ? open_draw : open_mic),
+      roomId
+    ])
     return result.insertId
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }
 
 module.exports = {
   createWarRoom,
-  showOnlineRooms,
+  getOnlineRooms,
   endWarRoom,
   getRoomInfo,
   updateRoomRights

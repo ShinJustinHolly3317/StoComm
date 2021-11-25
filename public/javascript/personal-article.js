@@ -23,40 +23,25 @@ const Controller = {
       View.page = Number(getQueryObject().page) - 1
     }
 
-    // Verify user ID exist or not
-    const userResponse = await fetch(
-      `/api/1.0/user/user_data?userId=${followId}`
-    )
-    if (userResponse.status !== 200) return
-    const userResult = await userResponse.json()
-    const userData = userResult.data
-    if (userData.length === 0) {
-      const result = await Swal.fire({
-        icon: 'error',
-        title: '找不到這個人的資料!如果你是直接打網址，請不要再這樣做了喔',
-        confirmButtonColor: '#315375'
-      })
-      if (result.isConfirmed) {
-        window.location.href = '/hot-rooms'
-      }
-    }
-
-    let ideasUrl = `/api/1.0/ideas/all?userId=${userData.id}&page=${View.page}`
+    let userInfoUrl = `/api/1.0/user/user_info?userId=${followId}`
+    let ideasUrl = `/api/1.0/ideas/all?userId=${followId}&page=${View.page}`
     let followingUrl = `/api/1.0/user/following_num?userId=${followId}`
     const pathname = window.location.pathname
     if (pathname.includes('following')) {
-      ideasUrl = `/api/1.0/ideas/hot_ideas?filter=byFollowing&userId=${userData.id}&page=${View.page}`
+      ideasUrl = `/api/1.0/ideas/hot_ideas?filter=byFollowing&userId=${followId}&page=${View.page}`
     }
 
+    const userInfoResponse = await fetch(userInfoUrl)
+    const userResult = await userInfoResponse.json()
     const ideasResponse = await fetch(ideasUrl)
     const ideasResult = await ideasResponse.json()
     const followingResponse = await fetch(followingUrl)
     const follwingResult = await followingResponse.json()
 
-    View.memberNameEle.innerText = userData.name
+    View.memberNameEle.innerText = userResult.data[0].name
     View.followingInfoEle[0].innerText = follwingResult.data.followers
     View.followingInfoEle[1].innerText = follwingResult.data.following
-    View.profileEle.src = userData.picture
+    View.profileEle.src = userResult.data[0].picture
 
     // check if followed
     if (accessToken) {

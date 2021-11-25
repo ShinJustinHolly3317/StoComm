@@ -42,7 +42,7 @@ document.querySelector('.loading-img-area').classList.remove('hidden')
 const socket = io({
   auth: {
     authentication: localStorage.getItem('access_token'),
-    type:'war_room'
+    type: 'war_room'
   }
 })
 let socketId
@@ -121,8 +121,16 @@ socket.on('return host room', () => {
 })
 
 socket.on('connect_error', async (err) => {
+  console.log(err)
   closeLoading()
   // sweet alert to ask people out
+  Swal.fire({
+    icon: 'error',
+    title: '請重新登入!!',
+    confirmButtonColor: '#315375'
+  }).then(() => {
+    window.location.href = '/hot-rooms'
+  })
   return
 })
 
@@ -166,7 +174,6 @@ WarRoomView.postBtn.addEventListener('click', async (e) => {
 })
 
 WarRoomView.allowBtn.addEventListener('click', async (e) => {
-  const clientsId = []
   const userResult = await userAuth()
 
   if (userResult.data.role !== 'streamer') return
@@ -177,32 +184,11 @@ WarRoomView.allowBtn.addEventListener('click', async (e) => {
     timer: 1500
   })
 
-  const response = await fetch(
-    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&open_draw=1`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: 'Bearer ' + accessToken
-      }
-    }
-  )
-
-  if (response.status !== 200) {
-    Swal.fire({
-      icon: 'error',
-      title: '錯誤的操作',
-      confirmButtonColor: '#315375'
-    })
-    const result = await response.json()
-    console.log(result)
-  } else {
-    WarRoomView.denyBtn.classList.remove('hidden')
-    WarRoomView.allowBtn.classList.add('hidden')
-  }
+  WarRoomView.denyBtn.classList.remove('hidden')
+  WarRoomView.allowBtn.classList.add('hidden')
 })
 
 WarRoomView.denyBtn.addEventListener('click', async (e) => {
-  const clientsId = []
   const userResult = await userAuth()
 
   if (userResult.data.role !== 'streamer') return
@@ -213,28 +199,8 @@ WarRoomView.denyBtn.addEventListener('click', async (e) => {
     timer: 1500
   })
 
-  const response = await fetch(
-    `/api/1.0/war_room/war_room_info?roomId=${ROOM_ID}&open_draw=0`,
-    {
-      method: 'PATCH',
-      headers: {
-        Authorization: 'Bearer ' + accessToken
-      }
-    }
-  )
-
-  if (response.status !== 200) {
-    Swal.fire({
-      icon: 'error',
-      title: '錯誤的操作',
-      confirmButtonColor: '#315375'
-    })
-    const result = await response.json()
-    console.log(result)
-  } else {
-    WarRoomView.denyBtn.classList.add('hidden')
-    WarRoomView.allowBtn.classList.remove('hidden')
-  }
+  WarRoomView.denyBtn.classList.add('hidden')
+  WarRoomView.allowBtn.classList.remove('hidden')
 })
 
 WarRoomView.voiceCtrlBtn.addEventListener('click', (e) => {
@@ -386,7 +352,7 @@ async function roleAuth(roomPermission) {
   if (!accessToken) {
     Swal.fire({
       icon: 'error',
-      title: '你沒有權限進來!!',
+      title: '請重新登入!!',
       confirmButtonColor: '#315375'
     }).then(() => {
       window.location.href = '/hot-rooms'
@@ -399,7 +365,7 @@ async function roleAuth(roomPermission) {
   if (result.error) {
     Swal.fire({
       icon: 'error',
-      title: '你沒有權限進來!!',
+      title: '請重新登入!!',
       confirmButtonColor: '#315375'
     }).then(() => {
       window.location.href = '/hot-rooms'
@@ -463,11 +429,9 @@ async function roleAuth(roomPermission) {
       //   })
     } else if (result.data.role !== 'streamer') {
       document.querySelectorAll('.add-canvas-area').forEach((item) => {
-        console.log(item)
         item.classList.add('hidden')
       })
       document.querySelectorAll('.add-canvas-spacer').forEach((item) => {
-        console.log(item)
         item.classList.remove('hidden')
       })
 
@@ -475,9 +439,6 @@ async function roleAuth(roomPermission) {
       if (openDraw) {
         WarRoomView.drawTool.classList.remove('hidden')
       }
-      // if (result.data.is_drawable) {
-      //   WarRoomView.drawTool.classList.remove('hidden')
-      // }
     }
 
     return result.data.role
@@ -500,7 +461,7 @@ async function roomAuth() {
   if (response.status !== 200 || !result.data.length) {
     Swal.fire({
       icon: 'error',
-      title: '你沒有權限進來!!',
+      title: '此房間不存在!!',
       confirmButtonColor: '#315375'
     }).then(() => {
       window.location.href = '/hot-rooms'

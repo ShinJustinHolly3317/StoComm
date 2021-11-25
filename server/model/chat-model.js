@@ -24,12 +24,12 @@ async function insertChatHistory(chatHistory, roomId) {
 }
 
 async function getChatHistory(roomdId) {
-  const qryString = `SELECT war_room_chat_history.*, user.name as user_name
+  const getQry = `SELECT war_room_chat_history.*, user.name AS user_name
   FROM war_room_chat_history 
   INNER JOIN user ON user.id = war_room_chat_history.user_id
   WHERE war_room_id = ?`
   try {
-    const [result] = await db.query(qryString, [roomdId])
+    const [result] = await db.query(getQry, [roomdId])
     return result
   } catch (error) {
     console.error(error)

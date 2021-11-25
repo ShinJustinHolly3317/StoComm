@@ -2,27 +2,7 @@ const User = require('../server/model/user-model')
 const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
 
-async function checkUserExist(req, res) {
-  // For home page login welcom message
-  const inputEmail = req.body.email
-  const searchResult = await User.findUserDataByEmail(inputEmail)
 
-  if (searchResult.length) {
-    res.send({
-      searchResult: true,
-      name: searchResult[0].name,
-      email: searchResult[0].email,
-      provider: searchResult[0].provider,
-      email: searchResult[0].email,
-      picture: searchResult[0].picture,
-      id: searchResult[0].id,
-      access_expired: searchResult[0].access_expired,
-      access_token: searchResult[0].access_token
-    })
-  } else {
-    res.send({ searchResult: false })
-  }
-}
 
 async function authentication(req, res, next) {
   let accessToken = req.get('Authorization')
@@ -42,16 +22,17 @@ async function authentication(req, res, next) {
 
   try {
     const user = jwt.verify(accessToken, TOKEN_SECRET)
-    let userDetail = await User.getUserDetail(user.id)
+    const userInfo = await User.getUserInfo(user.id)
+    user.role = userInfo[0].role
 
-    if (!userDetail) {
+    if (!user) {
       res.status(403).send({ error: 'Your token is not valid!' })
     } else {
       if (isMiddleware) {
-        req.user = userDetail
+        req.user = user
         next()
       } else {
-        res.status(200).send({ data: userDetail })
+        res.status(200).send({ data: user })
       }
     }
     return
@@ -66,4 +47,4 @@ function textLenCheck(str) {
   return str.replace(/[\u4E00-\u9FFF]/g, 'xx').length
 }
 
-module.exports = { checkUserExist, authentication, textLenCheck }
+module.exports = { authentication, textLenCheck }

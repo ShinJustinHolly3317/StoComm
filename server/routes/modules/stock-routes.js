@@ -2,21 +2,21 @@ const router = require('express').Router()
 
 // stock controller
 const {
-  stockNews,
-  stockRevenue,
-  stockGross,
+  getStockNews,
+  getStockRevenue,
+  getStockGross,
   getDayPrices,
   getYearPrice,
-  stockChip,
+  getStockChip,
   getCompanyName
 } = require('../../controller/stock-info-controller')
 
-router.use('/stock-news/:stockCode', stockNews)
-router.use('/stock-revenue/:stockCode', stockRevenue)
-router.use('/stock-gross/:stockCode', stockGross)
-router.use('/day-prices/:stockCode', getDayPrices)
-router.use('/year-price/:stockCode', getYearPrice)
-router.use('/stock-chip/:stockCode', stockChip)
-router.use('/company-name/:stockCode', getCompanyName)
+router.get('/stock-news/:stockCode', getStockNews)
+router.get('/stock-revenue/:stockCode', getStockRevenue)
+router.get('/stock-gross/:stockCode', getStockGross)
+router.get('/day-prices/:stockCode', getDayPrices)
+router.get('/year-price/:stockCode', getYearPrice)
+router.get('/stock-chip/:stockCode', getStockChip)
+router.get('/company-name/:stockCode', getCompanyName)
 
 module.exports = router
