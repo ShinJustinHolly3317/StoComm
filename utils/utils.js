@@ -2,8 +2,6 @@ const User = require('../server/model/user-model')
 const { TOKEN_SECRET } = process.env
 const jwt = require('jsonwebtoken')
 
-
-
 async function authentication(req, res, next) {
   let accessToken = req.get('Authorization')
   const isMiddleware = !req.originalUrl.includes('user_auth')
