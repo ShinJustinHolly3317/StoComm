@@ -1,6 +1,4 @@
-let clientList
-const ROOM_EXPIRED_CHECK = 60000
-const { TOKEN_SECRET } = process.env
+const { TOKEN_SECRET, ROOM_EXPIRED_CHECK } = process.env
 let multipleHostList = {}
 const drawHistory = {}
 const chatHistory = {}
@@ -87,12 +85,6 @@ async function socketConnection(io) {
           socket.emit('return host room')
         }
       }
-
-      // Get all users id in this room, for debugging msg
-      const sockets = await io.in(roomId).fetchSockets()
-      clientList = sockets.map((item) => {
-        return item.id
-      })
 
       // Drawing event initialization
       SocketEventLoad.drawEventLoad(

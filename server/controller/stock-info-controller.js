@@ -2,7 +2,7 @@ const axios = require('axios')
 const moment = require('moment')
 const Stock = require('../model/stock_info_model')
 
-// functions
+// Functions
 async function getStockNews(req, res) {
   const { stockCode } = req.params
   const titleList = []

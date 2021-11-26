@@ -1,5 +1,6 @@
 const WarRoom = require('../model/war-room-model')
 
+// Functions
 async function createWarRoom(req, res) {
   const createData = req.body
   const result = await WarRoom.createWarRoom(createData)

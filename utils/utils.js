@@ -7,37 +7,35 @@ async function authentication(req, res, next) {
   const isMiddleware = !req.originalUrl.includes('user_auth')
 
   if (!accessToken) {
-    res.status(401).send({ error: 'Unauthorized' })
-    return
+    return res.status(401).send({ error: 'Unauthorized' })
   }
 
   accessToken = accessToken.replace('Bearer ', '')
 
   if (accessToken == 'null') {
-    res.status(401).send({ error: 'Unauthorized' })
-    return
+    return res.status(401).send({ error: 'Unauthorized' })
   }
 
   try {
     const user = jwt.verify(accessToken, TOKEN_SECRET)
     const userInfo = await User.getUserInfo(user.id)
+    user.name = userInfo[0].name
+    user.picture = userInfo[0].picture
     user.role = userInfo[0].role
 
     if (!user) {
-      res.status(403).send({ error: 'Your token is not valid!' })
+      return res.status(403).send({ error: 'Your token is not valid!' })
     } else {
       if (isMiddleware) {
         req.user = user
         next()
       } else {
-        res.status(200).send({ data: user })
+        return res.status(200).send({ data: user })
       }
     }
-    return
   } catch (error) {
     console.log(error)
-    res.status(403).send({ error: 'Forbidden' })
-    return
+    return res.status(403).send({ error: 'Forbidden' })
   }
 }
 

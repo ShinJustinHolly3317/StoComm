@@ -1,16 +1,7 @@
 const validator = require('validator')
 const User = require('../model/user-model')
-const fs = require('fs')
 const { textLenCheck } = require('../../utils/utils')
-
-// AWS S3
-const AWS = require('aws-sdk')
-AWS.config.update({ region: 'ap-northeast-1' })
-const s3 = new AWS.S3({
-  apiVersion: '2006-03-01',
-  accessKeyId: process.env.S3_ACCESS_KEY,
-  secretAccessKey: process.env.S3_SECRET_KEY
-})
+const { uploadDefaultPic } = require('../../utils/aws-s3')
 
 async function login(req, res) {
   const { provider, email, password, access_token } = req.body
@@ -21,6 +12,7 @@ async function login(req, res) {
       result = await User.nativeSignIn(email, password)
       break
     case 'facebook':
+      // work in progress
       result = await User.facebookSignIn(access_token)
       break
     default:
@@ -59,26 +51,22 @@ async function signUp(req, res) {
   const { email, password } = req.body
 
   if (!name || !email || !password) {
-    res.status(400).send({ error: 'empty input', type: 'user error' })
-    return
+    return res.status(400).send({ error: 'empty input', type: 'user error' })
   }
 
   if (!validator.isEmail(email)) {
-    res.status(400).send({ error: 'wrong format', type: 'user error' })
-    return
+    return res.status(400).send({ error: 'wrong format', type: 'user error' })
   }
 
   if (textLenCheck(email) > 32) {
-    res
+    return res
       .status(400)
       .send({ error: 'too long', type: 'user error', target: 'email' })
-    return
   }
   if (textLenCheck(name) > 32) {
-    res
+    return res
       .status(400)
       .send({ error: 'too long', type: 'user error', target: 'name' })
-    return
   }
 
   name = validator.escape(name)
@@ -97,28 +85,7 @@ async function signUp(req, res) {
   const user = result.user
 
   // upload default image
-  const defaultImg = fs.createReadStream(
-    __dirname + '/../../public/img/profile-icon.png'
-  )
-  const uploadParams = {
-    Bucket: process.env.S3_BUCKET_NAME + '/users',
-    Key: user.id + '-profile',
-    Body: defaultImg,
-    ACL: 'public-read',
-    ContentType: 'image/png'
-  }
-
-  // upload to S3
-  s3.upload(uploadParams, function (err, data) {
-    if (err) {
-      console.log('Error', err)
-      res.status(500).send({ error: 'server error' })
-      return
-    }
-    if (data) {
-      console.log('Upload Success', data.Location)
-    }
-  })
+  await uploadDefaultPic(user.id)
 
   res.status(200).send({
     data: {
@@ -152,11 +119,10 @@ async function followUser(req, res) {
   const result = await User.followUser(userId, followId)
   if (result.error) {
     if (result.error === 'duplicate') {
-      res.status(409).send({ error: result.error })
-      return
+      return res.status(409).send({ error: result.error })
+    } else {
+      return res.status(500).send({ error: result.error })
     }
-    res.status(500).send({ error: result.error })
-    return
   }
 
   res.status(200).send({ message: 'update follow data successfully' })
@@ -168,8 +134,7 @@ async function unfollowUser(req, res) {
   const result = await User.unFollowUser(userId, followId)
   if (result.error) {
     console.log(result.error)
-    res.status(500).send({ error: result.error })
-    return
+    return res.status(500).send({ error: result.error })
   }
 
   res.status(200).send({ message: 'update follow data successfully' })
@@ -181,10 +146,8 @@ async function checkFollowState(req, res) {
   const result = await User.checkFollowState(userId, followId)
   if (result.length) {
     res.status(200).send({ data: result })
-    return
   } else {
     res.status(404).send({ message: 'No followed records' })
-    return
   }
 }
 
@@ -198,8 +161,7 @@ async function editProfile(req, res) {
 
   // Prevent over length name
   if (textLenCheck(userData.name) > 32) {
-    res.status(400).send({ error: 'Name is too long!' })
-    return
+    return res.status(400).send({ error: 'Name is too long!' })
   }
 
   const result = await User.editProfile(userData)
@@ -218,11 +180,9 @@ async function getFollowingNums(req, res) {
   if (result.error) {
     res.status(500).send({ error: 'Server Problem' })
   } else {
-    res
-      .status(200)
-      .send({
-        data: { followers: result.following, following: result.followers }
-      })
+    res.status(200).send({
+      data: { followers: result.following, following: result.followers }
+    })
   }
 }
 
