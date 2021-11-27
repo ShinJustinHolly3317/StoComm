@@ -13,7 +13,7 @@ redisClient.on('error', (error) => {
 })
 
 redisClient.on('connect', () => {
-  console.error('Redis connected..!') // this is for dev check
+  console.log('Redis connected..!') // this is for dev check
 })
 
 redisClient['getAsync'] = getAsync

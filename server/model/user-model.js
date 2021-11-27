@@ -45,7 +45,6 @@ async function nativeSignIn(email, password) {
       return { error: 'wrong password', type: 'user error' }
     }
 
-    const loginAt = new Date()
     const accessToken = jwt.sign(
       {
         provider: user.provider,
@@ -66,7 +65,6 @@ async function nativeSignIn(email, password) {
     await conn.query('COMMIT')
 
     user.access_token = accessToken
-    user.login_at = loginAt
     user.access_expired = TOKEN_EXPIRE
 
     return { user }

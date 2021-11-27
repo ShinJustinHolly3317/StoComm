@@ -27,6 +27,7 @@ async function authentication(req, res, next) {
       return res.status(403).send({ error: 'Your token is not valid!' })
     } else {
       if (isMiddleware) {
+        
         req.user = user
         next()
       } else {

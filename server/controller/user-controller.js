@@ -34,7 +34,6 @@ async function login(req, res) {
     data: {
       access_token: user.access_token,
       access_expired: user.access_expired,
-      login_at: user.login_at,
       user: {
         id: user.id,
         provider: user.provider,

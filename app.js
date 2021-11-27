@@ -27,12 +27,14 @@ const { Server } = require('socket.io')
 const io = new Server(server)
 const { ExpressPeerServer } = require('peer')
 
-// start peerjs server
-const peerServer = ExpressPeerServer(server, {
-  proxied: true,
-  debug: true
-})
-app.use('/peerjs', peerServer)
+// start peerjs server except in test mode
+if(process.env.MODE !== 'test'){
+  const peerServer = ExpressPeerServer(server, {
+    proxied: true,
+    debug: true
+  })
+  app.use('/peerjs', peerServer)
+}
 
 // use Routes
 const routes = require('./server/routes')
@@ -50,3 +52,5 @@ app.use(function (req, res, next) {
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
 })
+
+module.exports = { server }

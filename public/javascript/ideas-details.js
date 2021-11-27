@@ -82,6 +82,7 @@ View.dltBtn.addEventListener('click', async (e) => {
 
 // function
 async function likeIdea() {
+  const accessToken = localStorage.getItem('access_token')
   const isLiked = document.querySelector('.liked').classList.contains('hidden')
     ? 0
     : 1
@@ -98,7 +99,10 @@ async function likeIdea() {
   const response = await fetch(
     `/api/1.0/ideas/idea_like?userId=${userId}&ideaId=${ideaId}&isLiked=${isLiked}`,
     {
-      method: 'PATCH'
+      method: 'PATCH',
+      headers: {
+        Authorization: 'Bearer ' + accessToken
+      }
     }
   )
 

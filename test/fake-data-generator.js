@@ -1,0 +1,102 @@
+require('dotenv').config()
+const { MODE } = process.env
+const bcrypt = require('bcrypt')
+const pool = require('../server/model/config/mysqlConnection')
+const salt = parseInt(process.env.BCRYPT_SALT)
+const { users, ideaLikes } = require('./fake-data')
+
+async function createUsers(conn) {
+  const insertQry =
+    'INSERT INTO user (name, email, password, picture, access_token, access_expired, role, provider) VALUES ?'
+  const encryptedUsers = users.map((user) => {
+    user.password = user.password ? bcrypt.hashSync(user.password, salt) : null
+    return [
+      user.name,
+      user.email,
+      user.password,
+      user.picture,
+      user.access_token,
+      user.access_expired,
+      user.role,
+      user.provider
+    ]
+  })
+
+  return await conn.query(insertQry, [encryptedUsers])
+}
+
+async function createIdeaLikes(conn) {
+  const insertQry = 
+    'INSERT INTO idea_likes (user_id, idea_id, likes_num) VALUES ?'
+
+  const fakeIdeaLikes = ideaLikes.map(item => {
+    return [
+      item.user_id,
+      item.idea_id,
+      item.likes_num
+    ]
+  })
+
+  return await conn.query(insertQry, [fakeIdeaLikes])
+}
+
+async function getUsers(conn) {
+  const [result] = await conn.query(
+    'select id, provider,name, picture, email from user'
+  )
+  return result
+}
+
+async function getIdeaLikes(conn) {
+  const getQry =
+    'SELECT idea_id, SUM(likes_num) AS total_likes FROM idea_likes GROUP BY idea_id'
+  const [result] = await conn.query(getQry)
+  return result
+}
+
+async function truncateFakeData() {
+  const conn = await pool.getConnection()
+  await conn.query('BEGIN')
+  await conn.query('SET FOREIGN_KEY_CHECKS = ?', 0)
+  await conn.query('TRUNCATE TABLE user')
+  await conn.query('TRUNCATE TABLE idea_likes')
+  await conn.query('SET FOREIGN_KEY_CHECKS = ?', 1)
+  await conn.query('COMMIT')
+  await conn.release
+}
+
+async function createrFakeData() {
+  const conn = await pool.getConnection()
+  await conn.query('BEGIN')
+  await conn.query('SET FOREIGN_KEY_CHECKS = ?', 0)
+  await createUsers(conn)
+  await createIdeaLikes(conn)
+  await conn.query('SET FOREIGN_KEY_CHECKS = ?', 1)
+  await conn.query('COMMIT')
+  await conn.release
+}
+
+// async function main() {
+//   if (MODE !== 'test') {
+//     console.log('Not in test env')
+//     return
+//   }
+//   // const conn = await pool.getConnection()
+//   try {
+//     await truncateUser(pool)
+//   } catch (err) {
+//     console.log(err)
+//   }
+// }
+
+// execute when called directly.
+// if (require.main === module) {
+//   main()
+// }
+
+module.exports = {
+  createrFakeData,
+  truncateFakeData,
+  getUsers,
+  getIdeaLikes
+}
