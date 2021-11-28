@@ -18,6 +18,7 @@ const signupModal = new bootstrap.Modal(
 )
 const quickWarRoomBtn = document.querySelector('.quick-war-room-btn')
 const navLoginBtn = document.querySelector('#js-nav-login-btn')
+const fbLoginBtn = document.querySelector('#fb-signin-btn')
 const navSignUpBtn = document.querySelector('.nav-signup-btn')
 const signUpBtn = document.querySelector('#js-signup-btn')
 const inputEle = document.querySelectorAll('input')
@@ -303,6 +304,11 @@ navSignUpBtn.addEventListener('click', (e) => {
   signupModal.show()
 })
 
+fbLoginBtn.addEventListener('click', (e) => {
+  e.preventDefault()
+  loginFb()
+})
+
 // Function
 async function displayemeberBtn() {
   document.querySelector('#dropdownMenuLink').setAttribute('data-bs-toggle', '')
@@ -390,6 +396,68 @@ async function initInputValid() {
   }
 }
 
+function loginFb() {
+  FB.login(
+    function (response) {
+      if (response.authResponse) {
+        console.log(
+          'Welcome!  Fetching your information.... ',
+          response.authResponse
+        )
+        checkLoginState()
+      } else {
+        console.log('User cancelled login or did not fully authorize.')
+      }
+    },
+    { scope: 'public_profile,email' }
+  )
+}
+
+function checkLoginState() {
+  FB.getLoginStatus(function (response) {
+    statusChangeCallback(response)
+  })
+}
+
+async function statusChangeCallback(response) {
+  if (response.status === 'connected') {
+    console.log('facebook logged in')
+
+    const { accessToken } = response.authResponse
+    const provider = 'facebook' // when login successfully by facebook
+    await getJwtToken(provider, accessToken)
+  } else {
+    infoEle.innerHTML = ''
+    console.log('Facebook login failed')
+  }
+}
+
+async function fbInit() {
+  // FB initialization
+  window.fbAsyncInit = function () {
+    FB.init({
+      appId: '2102081213280204',
+      xfbml: true,
+      version: 'v12.0'
+    })
+    FB.AppEvents.logPageView()
+  }
+  ;(function (d, s, id) {
+    var js,
+      fjs = d.getElementsByTagName(s)[0]
+    if (d.getElementById(id)) {
+      return
+    }
+    js = d.createElement(s)
+    js.id = id
+    js.src = 'https://connect.facebook.net/en_US/sdk.js'
+    fjs.parentNode.insertBefore(js, fjs)
+  })(document, 'script', 'facebook-jssdk')
+}
+
 // Main
 displayemeberBtn()
 initInputValid()
+fbInit()
+
+

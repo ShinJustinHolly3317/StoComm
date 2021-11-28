@@ -11,7 +11,6 @@ const chatNotification = document.querySelector('.chat-notification')
 form.addEventListener('submit', function (e) {
   e.preventDefault()
   if (input.value) {
-    console.log(USER)
     socket.emit('chat message', input.value, USER.name, USER.id)
     input.value = ''
   }
@@ -40,7 +39,6 @@ socket.on('all messages', (chatHistory) => {
   // add notification mark
   chatNotification.classList.remove('hidden')
 
-  console.log(chatHistory)
   for (let item of chatHistory) {
     if (item[0] === Number(USER.id)) {
       const otherChat = document.createElement('li')

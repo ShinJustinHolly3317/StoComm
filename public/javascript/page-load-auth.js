@@ -12,7 +12,6 @@ async function userAuth() {
   })
 
   if (response.status !== 200){
-    console.log('response')
     await Swal.fire({
       icon: 'error',
       title: '請先登入喔!!',

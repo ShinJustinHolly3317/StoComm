@@ -13,7 +13,7 @@ async function login(req, res) {
       break
     case 'facebook':
       // work in progress
-      result = await User.facebookSignIn(access_token)
+      result = await User.fbSignIn(access_token)
       break
     default:
       result = { error: 'Wrong Request' }

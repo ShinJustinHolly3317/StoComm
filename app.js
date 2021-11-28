@@ -10,7 +10,7 @@ app.use(express.urlencoded({ extended: false, limit: '50mb' }))
 app.use(express.json({ extended: false, limit: '50mb' }))
 
 // CORS allow all
-app.use(cors());
+app.use(cors())
 
 // view engine
 const exphdb = require('express-handlebars')
@@ -28,7 +28,7 @@ const io = new Server(server)
 const { ExpressPeerServer } = require('peer')
 
 // start peerjs server except in test mode
-if(process.env.MODE !== 'test'){
+if (process.env.MODE !== 'test') {
   const peerServer = ExpressPeerServer(server, {
     proxied: true,
     debug: true
@@ -49,8 +49,35 @@ app.use(function (req, res, next) {
   res.status(404).render('404', { style: '404.css' })
 })
 
+// Error handling
+app.use(function (err, req, res, next) {
+  const { status, error } = err
+  console.log('Error Handler:', error)
+  if (status && error) {
+    res.status(status).send({ error })
+  } else {
+    res.status(500).send({ error: 'Server Error' })
+  }
+})
+
 server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
+})
+
+// https
+const https = require('https')
+
+const fs = require('fs')
+const sslServer = https.createServer(
+  {
+    key: fs.readFileSync('./.cert/localhost-key.pem'),
+    cert: fs.readFileSync('./.cert/localhost.pem')
+  },
+  app
+)
+
+sslServer.listen(4000, () => {
+  console.log(`This server is running on https://localhost:4000`)
 })
 
 module.exports = { server }

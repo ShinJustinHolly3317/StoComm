@@ -57,7 +57,6 @@ socket.on('connect', async () => {
 
   if (!roomPermission.state) {
     // hide navbar btns when room is no active anymore
-    console.log('roomPermission.state', roomPermission.state)
     document.querySelector('.draw-tool-area').classList.add('hidden')
     document.querySelector('.permission-area').classList.add('hidden')
     document.querySelector('.invalid-room').classList.remove('hidden')
@@ -121,7 +120,6 @@ socket.on('return host room', () => {
 })
 
 socket.on('connect_error', async (err) => {
-  console.log(err)
   closeLoading()
   // sweet alert to ask people out
   Swal.fire({
@@ -217,7 +215,6 @@ WarRoomView.navBar.addEventListener(
     let visitorLeave = '確定要離開嗎?你的粉絲在等著你'
 
     if (e.target.tagName === 'IMG') {
-      console.log(e.target.parentElement.href)
       const swalResult = await Swal.fire({
         title: '即將關閉房間',
         text: '你按到首頁連結了喔，確定要離開嗎? 離開將會離所有粉絲而去',
@@ -443,7 +440,6 @@ async function userAuth() {
   })
 
   if (response.status !== 200) {
-    console.log(response.status)
     return
   }
 

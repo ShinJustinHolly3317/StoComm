@@ -108,7 +108,6 @@ async function likeIdea() {
 
   if (response.status !== 200) {
     const result = await response.json()
-    console.log(result)
     if (result.overlimit) {
       await Swal.fire({
         imageUrl: 'https://media.giphy.com/media/nbQhrNzt8tSqaKwhRt/giphy.gif',

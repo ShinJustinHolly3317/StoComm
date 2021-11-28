@@ -50,7 +50,6 @@ View.loginForm.addEventListener('submit', async (e) => {
   } else {
     signupModal.show()
     View.welcomeSignUp.innerText = `你還沒有加入會員喔，快點加入吧`
-    console.log(View.signUpEmail)
     View.signUpEmail.value = View.enterEmail.value
   }
 })

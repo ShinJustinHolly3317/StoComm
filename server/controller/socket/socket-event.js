@@ -92,13 +92,14 @@ async function drawEventLoad(
     }
 
     if (cacheDrawHistory) {
-      for (let item of JSON.parse(cacheDrawHistory)) {
-        drawHistory[roomId][item.draw_id] = {
-          userId: item.user_id,
-          drawLayerCounter: item.draw_id,
-          location: item.locations,
-          toolType: item.tool,
-          canvasImg: item.url
+      const formatDrawHistory = JSON.parse(cacheDrawHistory)
+      for (let key in formatDrawHistory) {
+        drawHistory[roomId][formatDrawHistory[key].draw_id] = {
+          userId: formatDrawHistory[key].user_id,
+          drawLayerCounter: formatDrawHistory[key].draw_id,
+          location: formatDrawHistory[key].locations,
+          toolType: formatDrawHistory[key].tool,
+          canvasImg: formatDrawHistory[key].url
         }
       }
     } else {
@@ -262,12 +263,18 @@ async function drawEventLoad(
     socket.to(roomId).emit('update undo', commandLayer)
 
     // Storing data to redis
+    if (!drawHistory[roomId][topLayerId]) {
+      return
+    }
     if (commandLayer.drawObj.toolType === 'image') {
       const undoLocation =
         drawHistory[roomId][topLayerId].moveLocation.slice(-4)
       drawHistory[roomId][topLayerId].location.x = undoLocation[0]
       drawHistory[roomId][topLayerId].location.y = undoLocation[1]
     } else {
+      if (!drawHistory[roomId][topLayerId].moveLocation) {
+        return
+      }
       drawHistory[roomId][topLayerId].moveLocation.splice(
         drawHistory[roomId][topLayerId].moveLocation.length - 2,
         2
@@ -289,12 +296,18 @@ async function drawEventLoad(
     socket.to(roomId).emit('update redo', commandLayer)
 
     // Storing data to redis
+    if (!drawHistory[roomId][topLayerId]) {
+      return
+    }
     if (commandLayer.drawObj.toolType === 'image') {
       const undoLocation =
         drawHistory[roomId][topLayerId].prevMoveLocation.slice(-2)
       drawHistory[roomId][topLayerId].location.x = undoLocation[0]
       drawHistory[roomId][topLayerId].location.y = undoLocation[1]
     } else {
+      if (!drawHistory[roomId][topLayerId].moveLocation) {
+        return
+      }
       drawHistory[roomId][topLayerId].moveLocation = drawHistory[roomId][
         topLayerId
       ].moveLocation.concat(

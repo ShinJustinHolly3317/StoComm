@@ -12,7 +12,6 @@ async function fetchOnlineRooms(onlineClients) {
   if (!onlineRooms.length) {
     View.warRooms.innerHTML = `<h5 class="text-center">目前沒有人開討論室喔!</h5>`
   } else {
-    console.log(onlineRooms)
     let warRoomHtml = ''
     onlineRooms.forEach((item) => {
       let clients
@@ -21,7 +20,6 @@ async function fetchOnlineRooms(onlineClients) {
       } else {
         clients = Object.keys(onlineClients[item.id]).length
       }
-      console.log('clients', clients)
       let hiddenColsingMsg = !clients ? '' : 'hidden'
 
       warRoomHtml += `

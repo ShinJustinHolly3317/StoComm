@@ -66,7 +66,6 @@ const Controller = {
         View.unFollowBtn.classList.remove('hidden')
       } else {
         const result = await response.json()
-        console.log('error', result)
       }
     }
 
@@ -152,7 +151,7 @@ const Controller = {
     })
 
     if (response.status !== 200) {
-      console.log(response.status)
+      return
     }
 
     const result = await response.json()

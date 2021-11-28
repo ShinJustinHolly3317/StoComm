@@ -491,13 +491,12 @@ async function getCompanyName(stockCode) {
 
   if (response.status !== 200) {
     // blocking user typing invalid stock code in URL
-    Swal.fire({
+    await Swal.fire({
       icon: 'error',
       title: '查無此股票資訊!!',
       confirmButtonColor: '#315375'
-    }).then(() => {
-      window.location.href = '/hot-rooms'
     })
+    window.location.href = '/hot-rooms'
     return
   }
 

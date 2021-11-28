@@ -85,6 +85,9 @@ midterm*
 # Mac
 .DS_Store
 
+# local ssl cert
+.cert
+
 # misc
 *.jpg
 *.jpeg
