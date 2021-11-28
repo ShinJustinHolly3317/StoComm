@@ -400,13 +400,7 @@ function loginFb() {
   FB.login(
     function (response) {
       if (response.authResponse) {
-        console.log(
-          'Welcome!  Fetching your information.... ',
-          response.authResponse
-        )
         checkLoginState()
-      } else {
-        console.log('User cancelled login or did not fully authorize.')
       }
     },
     { scope: 'public_profile,email' }
@@ -421,14 +415,9 @@ function checkLoginState() {
 
 async function statusChangeCallback(response) {
   if (response.status === 'connected') {
-    console.log('facebook logged in')
-
     const { accessToken } = response.authResponse
     const provider = 'facebook' // when login successfully by facebook
     await getJwtToken(provider, accessToken)
-  } else {
-    infoEle.innerHTML = ''
-    console.log('Facebook login failed')
   }
 }
 
