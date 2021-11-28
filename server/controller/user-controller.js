@@ -1,5 +1,7 @@
+const { FB_API } = process.env
 const validator = require('validator')
 const User = require('../model/user-model')
+const axios = require('axios')
 const { textLenCheck } = require('../../utils/utils')
 const { uploadDefaultPic } = require('../../utils/aws-s3')
 
@@ -12,8 +14,20 @@ async function login(req, res) {
       result = await User.nativeSignIn(email, password)
       break
     case 'facebook':
-      // work in progress
-      result = await User.fbSignIn(access_token)
+      try {
+        const fbResponse = await axios(FB_API + access_token)
+        const fbUserData = fbResponse.data
+        const userData = {
+          provider,
+          name: fbUserData.name,
+          email: fbUserData.email,
+          password: 'Third-party',
+          picture: fbUserData.picture.data.url
+        }
+        result = await User.fbSignIn(userData, access_token)
+      } catch (error) {
+        return res.status(500).send({ error })
+      }
       break
     default:
       result = { error: 'Wrong Request' }

@@ -64,20 +64,4 @@ server.listen(port, () => {
   console.log(`This server is running on http://localhost:${port}`)
 })
 
-// https
-const https = require('https')
-
-const fs = require('fs')
-const sslServer = https.createServer(
-  {
-    key: fs.readFileSync('./.cert/localhost-key.pem'),
-    cert: fs.readFileSync('./.cert/localhost.pem')
-  },
-  app
-)
-
-sslServer.listen(4000, () => {
-  console.log(`This server is running on https://localhost:4000`)
-})
-
 module.exports = { server }

@@ -71,7 +71,53 @@ async function nativeSignIn(email, password) {
   } catch (error) {
     await conn.query('ROLLBACK')
     console.log(error)
-    return { error, type:'internal error' }
+    return { error, type: 'internal error' }
+  } finally {
+    await conn.release()
+  }
+}
+
+async function fbSignIn(user, accesstoken) {
+  const conn = await db.getConnection()
+  try {
+    await conn.query('BEGIN')
+    // Check if this email exists
+    const emailResult = await findUserDataByEmail(user.email)
+
+    if (!emailResult.length) {
+      user.role = 'visitor'
+      user.access_expired = TOKEN_EXPIRE
+
+      // Insert data into db
+      const isnertQry = 'INSERT INTO user SET ?'
+      const [insertResult] = await conn.query(isnertQry, user)
+      user.id = insertResult.insertId
+    } else {
+      // add userid in access token
+      user.id = emailResult[0].id
+    }
+
+    const accessToken = jwt.sign(
+      {
+        provider: user.provider,
+        name: user.name,
+        email: user.email,
+        picture: user.picture,
+        id: user.id
+      },
+      TOKEN_SECRET,
+      {
+        expiresIn: TOKEN_EXPIRE
+      }
+    )
+    await conn.query('COMMIT')
+
+    user.access_token = accessToken
+    return { user }
+  } catch (error) {
+    console.log(error)
+    await conn.query('ROLLBACK')
+    return { error, type: 'internal error' }
   } finally {
     await conn.release()
   }
@@ -80,7 +126,7 @@ async function nativeSignIn(email, password) {
 async function signUp(name, email, password) {
   const conn = await db.getConnection()
   try {
-    await conn.query('START TRANSACTION')
+    await conn.query('BEGIN')
 
     const emails = await conn.query(
       'SELECT email FROM user WHERE email = ? FOR UPDATE',
@@ -261,6 +307,7 @@ async function editProfile(userData) {
 
 module.exports = {
   nativeSignIn,
+  fbSignIn,
   signUp,
   getUserInfo,
   changeToStreamer,

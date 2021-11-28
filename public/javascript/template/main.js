@@ -99,7 +99,7 @@ document
       })
       return
     }
-    
+
     const roomId = roomresult.data.insertId
     const stockCode = roomresult.data.stock_code
     window.location.href = `/war-room?roomId=${roomId}&stockCode=${stockCode}`
@@ -237,7 +237,7 @@ signUpBtn.addEventListener('click', async (e) => {
       return
     case 400:
       const errorCat = result.error
-      switch(errorCat){
+      switch (errorCat) {
         case 'too long':
           const errorTarget = result.target
           await Swal.fire({
@@ -432,6 +432,68 @@ async function statusChangeCallback(response) {
   }
 }
 
+async function getJwtToken(provider, accessToken) {
+  const loginData = {
+    provider,
+    access_token: accessToken
+  }
+
+  const response = await fetch('/api/1.0/user/log_in', {
+    method: 'POST',
+    body: JSON.stringify(loginData),
+    headers: {
+      'Content-type': 'application/json'
+    }
+  })
+  const result = await response.json()
+
+  switch (response.status) {
+    case 500:
+      await Swal.fire({
+        icon: 'error',
+        title: '伺服器忙碌中，請重新再試!',
+        confirmButtonColor: '#315375'
+      })
+      break
+    case 403:
+      let errorMsg
+      switch (result.error) {
+        case 'no signup':
+          errorMsg = '查無此帳號!'
+          break
+        case 'wrong password':
+          errorMsg = '密碼錯誤!'
+          break
+      }
+      await Swal.fire({
+        icon: 'error',
+        title: errorMsg,
+        confirmButtonColor: '#315375'
+      })
+      break
+    case 200:
+      localStorage.setItem('access_token', result.data.access_token)
+
+      const user = {
+        id: result.data.user.id,
+        name: result.data.user.name,
+        email: result.data.user.email,
+        piture: result.data.user.picture
+      }
+      localStorage.setItem('user', JSON.stringify(user))
+
+      await Swal.fire({
+        position: 'center',
+        icon: 'success',
+        title: '登入成功!',
+        confirmButtonColor: '#315375',
+        showConfirmButton: false,
+        timer: 1000
+      })
+      window.location.reload()
+  }
+}
+
 async function fbInit() {
   // FB initialization
   window.fbAsyncInit = function () {
@@ -459,5 +521,3 @@ async function fbInit() {
 displayemeberBtn()
 initInputValid()
 fbInit()
-
-
