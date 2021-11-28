@@ -84,10 +84,7 @@ async function endWarRoom(roomId, userId) {
       'UPDATE war_room SET state = 0 WHERE id = ?',
       [roomId]
     )
-    await conn.query(
-      'UPDATE user SET role = "visitor" WHERE id = ?',
-      [userId]
-    )
+    await conn.query('UPDATE user SET role = "visitor" WHERE id = ?', [userId])
     await conn.query('COMMIT')
     return result
   } catch (error) {

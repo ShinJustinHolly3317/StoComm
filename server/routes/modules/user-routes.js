@@ -3,9 +3,7 @@ const multer = require('multer')
 const upload = multer()
 const uploadS3 = require('../../../utils/aws-s3')
 
-const {
-  authentication
-} = require('../../../utils/utils')
+const { authentication } = require('../../../utils/utils')
 const {
   login,
   signUp,

@@ -14,7 +14,7 @@ async function createIdeas(ideasData) {
     delete ideasData['stock_code']
 
     await db.query('INSERT INTO ideas SET ?', [ideasData])
-    
+
     return { message: 'success' }
   } catch (error) {
     console.log(error)

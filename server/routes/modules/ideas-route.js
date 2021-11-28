@@ -1,8 +1,6 @@
 const router = require('express').Router()
 
-const {
-  authentication
-} = require('../../../utils/utils')
+const { authentication } = require('../../../utils/utils')
 const {
   createIdeas,
   getIdeas,

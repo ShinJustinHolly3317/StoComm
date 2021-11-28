@@ -34,7 +34,7 @@ const userPictureUpload = multer({
 // Handle product created data: images/ text
 const userPictureUploadS3 = userPictureUpload.single('user-picture')
 
-async function uploadBase64Pic(image){
+async function uploadBase64Pic(image) {
   // upload to S3
   const image64 = image.replace('data:image/jpeg;base64,', '')
   const buffdata = new Buffer.from(image64, 'base64')
@@ -62,7 +62,7 @@ async function uploadBase64Pic(image){
   return imageUrl
 }
 
-async function uploadDefaultPic(id){
+async function uploadDefaultPic(id) {
   // upload default image
   const defaultImg = fs.createReadStream(
     __dirname + '/../public/img/profile-icon.png'

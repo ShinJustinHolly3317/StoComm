@@ -6,8 +6,8 @@ const app = express()
 const cors = require('cors')
 
 // body parser
-app.use(express.urlencoded({ extended: false, limit: '50mb' }))
-app.use(express.json({ extended: false, limit: '50mb' }))
+app.use(express.urlencoded({ extended: false, limit: '5mb' }))
+app.use(express.json({ extended: false, limit: '5mb' }))
 
 // CORS allow all
 app.use(cors())

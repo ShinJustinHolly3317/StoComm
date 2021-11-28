@@ -2,9 +2,7 @@ const router = require('express').Router()
 const multer = require('multer')
 const upload = multer()
 
-const {
-  authentication
-} = require('../../../utils/utils')
+const { authentication } = require('../../../utils/utils')
 
 const {
   createWarRoom,
