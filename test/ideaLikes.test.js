@@ -28,20 +28,34 @@ describe('PATCH /api/1.0/user/', () => {
         .set({ Authorization: 'Bearer ' + accessToken })
 
       let totalLikes = 0
-      ideaLikes.forEach(item => {
+      ideaLikes.forEach((item) => {
         totalLikes += item.likes_num
       })
 
-      const conn = await db.getConnection()
-      try {
-        const [ideaLikes] = await getIdeaLikes(conn) 
-        expect(Number(ideaLikes.total_likes)).toEqual(totalLikes + 1)
-      } catch (error) {
-        console.log(error)
-      } finally {
-        await conn.release()
+      const [addedIdeaLikes] = await getIdeaLikes(db)
+      expect(Number(addedIdeaLikes.total_likes)).toEqual(totalLikes + 1)
+    })
+
+    test('Should get 403 without access token', async () => {
+      const fakerUser = {
+        provider: 'native',
+        email: 'test1@gmail.com',
+        password: 'test1password',
+        access_token: null
       }
-      
+      const fakeIdea = {
+        userId: 1,
+        ideaId: 1
+      }
+
+      const userResponse = await request(server)
+        .post('/api/1.0/user/log_in')
+        .send(fakerUser)
+      const likeResponse = await request(server).patch(
+        `/api/1.0/ideas/idea_like?userId=${fakeIdea.userId}&ideaId=${fakeIdea.ideaId}`
+      )
+
+      expect(likeResponse.statusCode).toBe(401)
     })
   })
 })

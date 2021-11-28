@@ -40,13 +40,6 @@ async function createIdeaLikes(conn) {
   return await conn.query(insertQry, [fakeIdeaLikes])
 }
 
-async function getUsers(conn) {
-  const [result] = await conn.query(
-    'select id, provider,name, picture, email from user'
-  )
-  return result
-}
-
 async function getIdeaLikes(conn) {
   const getQry =
     'SELECT idea_id, SUM(likes_num) AS total_likes FROM idea_likes GROUP BY idea_id'
@@ -76,27 +69,8 @@ async function createrFakeData() {
   await conn.release
 }
 
-// async function main() {
-//   if (MODE !== 'test') {
-//     console.log('Not in test env')
-//     return
-//   }
-//   // const conn = await pool.getConnection()
-//   try {
-//     await truncateUser(pool)
-//   } catch (err) {
-//     console.log(err)
-//   }
-// }
-
-// execute when called directly.
-// if (require.main === module) {
-//   main()
-// }
-
 module.exports = {
   createrFakeData,
   truncateFakeData,
-  getUsers,
   getIdeaLikes
 }
