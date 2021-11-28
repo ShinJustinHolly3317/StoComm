@@ -78,6 +78,7 @@ async function drawEventLoad(
   roomId,
   roomPermission,
   hostId,
+  roomClients,
   io
 ) {
   if (!drawHistory[roomId]) {
@@ -154,6 +155,10 @@ async function drawEventLoad(
   })
 
   socket.on('turn on draw', async () => {
+    if (roomClients[socket.id].userId !== hostId) {
+      return
+    }
+
     try {
       await WarRoom.updateRoomRights(roomId, true, undefined)
       roomPermission[roomId].drawToolTurnOn = true
@@ -164,6 +169,10 @@ async function drawEventLoad(
   })
 
   socket.on('turn off draw', async () => {
+    if (roomClients[socket.id].userId !== hostId) {
+      return
+    }
+
     try {
       await WarRoom.updateRoomRights(roomId, false, undefined)
       roomPermission[roomId].drawToolTurnOn = false
@@ -299,13 +308,17 @@ async function drawEventLoad(
 /**
  * Initialization of voice chat event
  */
-async function peerjsLoad(socket, roomId) {
+async function peerjsLoad(socket, roomId, hostId, roomClients) {
   socket.on('start calling', (userId) => {
     socket.on('ready', () => {
       socket.to(roomId).emit('user-connected', userId)
     })
 
     socket.on('mute all', async () => {
+      if (roomClients[socket.id].userId !== hostId) {
+        return
+      }
+
       try {
         await WarRoom.updateRoomRights(roomId, undefined, false)
         socket.emit('update mute all')
@@ -316,6 +329,10 @@ async function peerjsLoad(socket, roomId) {
     })
 
     socket.on('unmute all', async () => {
+      if (roomClients[socket.id].userId !== hostId) {
+        return
+      }
+
       try {
         await WarRoom.updateRoomRights(roomId, undefined, true)
         socket.emit('update unmute all')

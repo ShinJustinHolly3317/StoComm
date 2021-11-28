@@ -36,6 +36,7 @@ async function createWarRoom(createData) {
   createData['stock_id'] = tempId
   createData['date_time'] = moment().format('YYYY-MM-DD HH:mm:ss')
   createData['state'] = true
+  createData['open_draw'] = true
   delete createData['stock_name_code']
 
   try {

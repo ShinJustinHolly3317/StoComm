@@ -387,46 +387,6 @@ async function roleAuth(roomPermission) {
         WarRoomView.groupMicBtn.classList.remove('hidden')
       }
 
-      // closing room btn
-      // document
-      //   .querySelector(`[streamer="true"]`)
-      //   .addEventListener('click', async () => {
-      //     const response = await fetch(
-      //       `/api/1.0/war_room/end_war_room/${ROOM_ID}`,
-      //       {
-      //         method: 'PATCH',
-      //         headers: {
-      //           Authorization: 'Bearer ' + accessToken
-      //         }
-      //       }
-      //     )
-
-      //     if (response.status === 200) {
-      //       socket.emit('host leaving')
-      //       let timerInterval
-      //       Swal.fire({
-      //         title: '您即將要離開了!',
-      //         html: '即將在 <b></b> 秒關閉研究室',
-      //         timer: 3000,
-      //         timerProgressBar: true,
-      //         didOpen: () => {
-      //           Swal.showLoading()
-      //           const b = Swal.getHtmlContainer().querySelector('b')
-      //           timerInterval = setInterval(() => {
-      //             b.textContent = Swal.getTimerLeft() / 1000
-      //           }, 100)
-      //         },
-      //         willClose: () => {
-      //           clearInterval(timerInterval)
-      //         }
-      //       }).then((result) => {
-      //         /* Read more about handling dismissals below */
-      //         if (result.dismiss === Swal.DismissReason.timer) {
-      //           window.location.href = '/hot-rooms'
-      //         }
-      //       })
-      //     }
-      //   })
     } else if (result.data.role !== 'streamer') {
       document.querySelectorAll('.add-canvas-area').forEach((item) => {
         item.classList.add('hidden')

@@ -93,6 +93,7 @@ async function socketConnection(io) {
         roomId,
         roomPermission,
         onlineClients[roomId].hostId,
+        onlineClients[roomId],
         io
       )
 
@@ -100,7 +101,12 @@ async function socketConnection(io) {
       SocketEventLoad.chatEventLoad(socket, chatHistory, roomId, userName)
 
       // Voice chat initialization
-      SocketEventLoad.peerjsLoad(socket, roomId)
+      SocketEventLoad.peerjsLoad(
+        socket,
+        roomId,
+        onlineClients[roomId].hostId,
+        onlineClients[roomId]
+      )
 
       // host left
       socket.on('host leaving', () => {
