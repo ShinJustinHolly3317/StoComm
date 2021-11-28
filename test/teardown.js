@@ -1,4 +1,4 @@
-const { server, redisClient,db } = require('./setup')
+const { server, redisClient, db } = require('./setup')
 
 module.exports = async () => {
   afterAll(async () => {

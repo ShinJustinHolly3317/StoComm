@@ -3,7 +3,7 @@ const { MODE } = process.env
 const bcrypt = require('bcrypt')
 const pool = require('../server/model/config/mysqlConnection')
 const salt = parseInt(process.env.BCRYPT_SALT)
-const { users, ideaLikes } = require('./fake-data')
+const { users, ideaLikes, warRoom } = require('./fake-data')
 
 async function createUsers(conn) {
   const insertQry =
@@ -23,6 +23,12 @@ async function createUsers(conn) {
   })
 
   return await conn.query(insertQry, [encryptedUsers])
+}
+
+async function createWarRoom(conn) {
+  const insertQry = 'INSERT INTO war_room SET ?'
+
+  return await conn.query(insertQry, warRoom)
 }
 
 async function createIdeaLikes(conn) {
@@ -53,6 +59,7 @@ async function truncateFakeData() {
   await conn.query('SET FOREIGN_KEY_CHECKS = ?', 0)
   await conn.query('TRUNCATE TABLE user')
   await conn.query('TRUNCATE TABLE idea_likes')
+  await conn.query('TRUNCATE TABLE war_room')
   await conn.query('SET FOREIGN_KEY_CHECKS = ?', 1)
   await conn.query('COMMIT')
   await conn.release
@@ -64,6 +71,7 @@ async function createrFakeData() {
   await conn.query('SET FOREIGN_KEY_CHECKS = ?', 0)
   await createUsers(conn)
   await createIdeaLikes(conn)
+  await createWarRoom(conn)
   await conn.query('SET FOREIGN_KEY_CHECKS = ?', 1)
   await conn.query('COMMIT')
   await conn.release
