@@ -14,7 +14,7 @@ const USER_AGNET = [
 const {
   insertYearPrice,
   getStockList,
-} = require('../../server/model/stock_info_model')
+} = require('../server/model/stock_info_model')
 
 // Require mysql connection
 require('dotenv').config()

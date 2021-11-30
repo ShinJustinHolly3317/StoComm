@@ -2,8 +2,6 @@ require('dotenv').config()
 const cheerio = require('cheerio')
 const axios = require('axios')
 const moment = require('moment')
-// MySQL
-const mysqlConn = require('../../server/model/config/mysqlConnection')
 
 // User agent list
 const USER_AGNET = [
@@ -19,7 +17,7 @@ const {
   insertRevenue,
   getStockList,
   insertGross
-} = require('../../server/model/stock_info_model')
+} = require('../server/model/stock_info_model')
 
 // Quarter
 const quarters = ['Q4', 'Q3', 'Q2', 'Q1']
@@ -31,7 +29,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 1623; i < stockList.length; i++) {
+  for (let i = 0; i < stockList.length; i++) {
     let company = stockList[i][2].split('-')[0] // company name
     console.log(`stock_id:${i}, ${stockList[i][1]}, ${company}`)
 

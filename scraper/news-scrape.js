@@ -15,7 +15,7 @@ const USER_AGNET = [
 const {
   insertNews,
   getStockList
-} = require('../../server/model/stock_info_model')
+} = require('../server/model/stock_info_model')
 
 // Require mysql connection
 require('dotenv').config()
@@ -27,7 +27,7 @@ const missingStock = []
 async function main() {
   const stockList = await getStockList()
 
-  for (let i = 10; i < stockList.length; i++) {
+  for (let i = 0; i < stockList.length; i++) {
     console.log('This round ID', i)
 
     let company = stockList[i][2].split('-')[0] // company name
