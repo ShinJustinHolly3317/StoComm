@@ -2,7 +2,7 @@ const Chat = require('../../model/chat-model')
 const Canvas = require('../../model/canvas-model')
 const WarRoom = require('../../model/war-room-model')
 const redisClient = require('../../../utils/cache')
-const { CACHE_EXPIRATION } = process.env
+const { CACHE_EXPIRATION, MODE } = process.env
 const moment = require('moment')
 
 /**
@@ -30,6 +30,7 @@ async function chatEventLoad(socket, chatHistory, roomId, userName) {
         ])
       }
     } else {
+      if(MODE === 'test') return
       // If Redis has been cleared, read data in Database
       const chatResult = await Chat.getChatHistory(roomId)
       if (chatResult.length) {
@@ -103,6 +104,7 @@ async function drawEventLoad(
         }
       }
     } else {
+      if(MODE === 'test') return
       // If Redis has been cleared, read data in Database
       const drawResult = await Canvas.getDrawHistory(roomId)
       if (drawResult.length) {

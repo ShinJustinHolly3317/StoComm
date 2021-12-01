@@ -33,7 +33,6 @@ async function socketConnection(io) {
           console.log(error)
           next(error)
         }
-
         break
     }
   })

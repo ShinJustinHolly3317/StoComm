@@ -60,8 +60,10 @@ app.use(function (err, req, res, next) {
   }
 })
 
-server.listen(port, () => {
-  console.log(`This server is running on http://localhost:${port}`)
-})
+if(require.main === module){
+  server.listen(port, () => {
+    console.log(`This server is running on http://localhost:${port}`)
+  })
+}
 
 module.exports = { server }

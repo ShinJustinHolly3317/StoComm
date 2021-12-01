@@ -14,7 +14,7 @@ async function findUserDataByEmail(email) {
 async function getUserInfo(userId) {
   try {
     const [userInfo] = await db.query(
-      'SELECT name,picture,role FROM user WHERE id = ?',
+      'SELECT name, picture, role, access_token FROM user WHERE id = ?',
       [userId]
     )
     return userInfo
@@ -220,7 +220,7 @@ async function followUser(userId, followId) {
     return result.insertId
   } catch (error) {
     await conn.query('ROLLBACK')
-    console.error(error)
+    console.log(error)
     return { error }
   } finally {
     await conn.release()
@@ -241,7 +241,7 @@ async function unFollowUser(userId, followId) {
     return result.insertId
   } catch (error) {
     await conn.query('ROLLBACK')
-    console.error(error)
+    console.log(error)
     return { error }
   } finally {
     await conn.release()
@@ -277,7 +277,7 @@ async function getFollwingNums(userId) {
     const following = followingResult.length ? followingResult[0].following : 0
     return { following, followers }
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }
@@ -300,7 +300,7 @@ async function editProfile(userData) {
     ])
     return result
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }

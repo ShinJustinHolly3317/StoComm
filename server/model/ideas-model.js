@@ -150,7 +150,7 @@ async function getHotIdeas(filter, page, condition = {}) {
 
     return { result, totalCount }
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }
@@ -195,7 +195,7 @@ async function addLikes(userId, ideaId) {
     }
   } catch (error) {
     await conn.query('ROLLBACK')
-    console.error(error)
+    console.log(error)
     return { error }
   } finally {
     await conn.release()
@@ -212,7 +212,7 @@ async function getIdeaLikes(ideaId) {
     const [result] = await db.query(ideaQry, [ideaId])
     return result
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }
@@ -243,7 +243,7 @@ async function deleteIdea(ideaId, userId) {
     return { message: 'success' }
   } catch (error) {
     await conn.query('ROLLBACK')
-    console.error(error)
+    console.log(error)
     return { error }
   } finally {
     await conn.release()

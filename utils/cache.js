@@ -8,7 +8,7 @@ const setAsync = promisify(redisClient.setex).bind(redisClient)
 const delAsync = promisify(redisClient.del).bind(redisClient)
 
 redisClient.on('error', (error) => {
-  console.error(error) // this is for dev check
+  console.log(error) // this is for dev check
   console.log('Redis is not connected....')
 })
 

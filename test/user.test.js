@@ -1,8 +1,14 @@
-const { server, request, db } = require('./setup')
+const { server, request, db, redisClient } = require('./setup')
 const { users } = require('./fake-data')
 require('./teardown')()
 
 describe('POST /api/1.0/user/log_in', () => {
+  afterAll((done) => {
+    redisClient.quit()
+    server.close()
+    done()
+  })
+
   describe('Native signin by email and password', () => {
     test('should response with a 200 status code', async () => {
       const fakerUser = {

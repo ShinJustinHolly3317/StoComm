@@ -15,7 +15,7 @@ async function insertDrawHistory(drawHistoryData, roomId) {
     await conn.query('COMMIT')
     return result.insertId
   } catch (error) {
-    console.error(error)
+    console.log(error)
     await conn.query('ROLLBACK')
     return { error }
   } finally {
@@ -30,7 +30,7 @@ async function getDrawHistory(roomId) {
     const [result] = await db.query(getQry, [roomId])
     return result
   } catch (error) {
-    console.error(error)
+    console.log(error)
     return { error }
   }
 }

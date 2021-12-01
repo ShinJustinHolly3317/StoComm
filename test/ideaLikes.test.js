@@ -1,9 +1,15 @@
-const { server, request, db } = require('./setup')
-const { users, ideaLikes } = require('./fake-data')
+const { server, request, db, redisClient } = require('./setup')
+const { ideaLikes } = require('./fake-data')
 const { getIdeaLikes } = require('./fake-data-generator')
 require('./teardown')()
 
 describe('PATCH /api/1.0/user/', () => {
+  afterAll((done) => {
+    redisClient.quit()
+    server.close()
+    done()
+  })
+
   describe('Total likes should plus one more', () => {
     test('Total likes should plus one more', async () => {
       const fakerUser = {
