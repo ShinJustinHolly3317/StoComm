@@ -30,7 +30,7 @@ async function chatEventLoad(socket, chatHistory, roomId, userName) {
         ])
       }
     } else {
-      if(MODE === 'test') return
+      if (MODE === 'test') return
       // If Redis has been cleared, read data in Database
       const chatResult = await Chat.getChatHistory(roomId)
       if (chatResult.length) {
@@ -104,7 +104,7 @@ async function drawEventLoad(
         }
       }
     } else {
-      if(MODE === 'test') return
+      if (MODE === 'test') return
       // If Redis has been cleared, read data in Database
       const drawResult = await Canvas.getDrawHistory(roomId)
       if (drawResult.length) {

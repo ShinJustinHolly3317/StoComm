@@ -39,20 +39,18 @@ describe('test drawing permission socket event', () => {
 
     clientSocket1.on('connect', () => {
       client1Connected = true
-      if(client2Connected){
-        console.log('im client 1');
+      if (client2Connected) {
         done()
       }
     })
     clientSocket2.on('connect', () => {
       client2Connected = true
       if (client1Connected) {
-        console.log('im client2');
         done()
       }
     })
   })
-  
+
   afterAll(async () => {
     clientSocket1.close()
     clientSocket2.close()
@@ -65,7 +63,7 @@ describe('test drawing permission socket event', () => {
     clientSocket2.on('update turn on draw', async () => {
       const [result] = await db.query('SELECT * FROM war_room')
       const openDrawResult = result[0].open_draw
-      
+
       // check if turn on draw permission or not
       expect(openDrawResult).toBe(1)
       done()
@@ -75,6 +73,6 @@ describe('test drawing permission socket event', () => {
     setTimeout(() => {
       clientSocket2.emit('turn on draw')
       clientSocket1.emit('turn on draw')
-    }, 1000);
+    }, 1000)
   })
 })
