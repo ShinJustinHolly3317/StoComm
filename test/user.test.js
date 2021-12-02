@@ -3,6 +3,11 @@ const { users } = require('./fake-data')
 require('./teardown')()
 
 describe('POST /api/1.0/user/log_in', () => {
+  beforeAll(() => {
+    server.listen(3000, function () {
+      console.log(`start test server at port 3000`)
+    })
+  })
   afterAll((done) => {
     redisClient.quit()
     server.close()

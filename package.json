@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "set MODE=test&&jest --coverage --detectOpenHandles"
+    "test": "set MODE=test&&jest --coverage --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "",
