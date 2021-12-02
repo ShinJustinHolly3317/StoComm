@@ -54,12 +54,14 @@ describe('test drawing permission socket event', () => {
   afterAll(async () => {
     clientSocket1.close()
     clientSocket2.close()
-    socketServer.close()
     redisClient.quit()
     await db.end()
   })
 
   test('DB should change draw permission', (done) => {
+    let client1join = false
+    let client2join = false
+
     clientSocket2.on('update turn on draw', async () => {
       const [result] = await db.query('SELECT * FROM war_room')
       const openDrawResult = result[0].open_draw
@@ -70,9 +72,18 @@ describe('test drawing permission socket event', () => {
     })
     clientSocket1.emit('join room', 1, 1, 'client1', 'streamer')
     clientSocket2.emit('join room', 1, 2, 'client2', 'visitor')
-    setTimeout(() => {
-      clientSocket2.emit('turn on draw')
-      clientSocket1.emit('turn on draw')
-    }, 1000)
+
+    clientSocket1.on('join success', () => {
+      client1join = true
+      if (client2join) {
+        clientSocket1.emit('turn on draw')
+      }
+    })
+    clientSocket2.on('join success', () => {
+      client2join = true
+      if (client1join) {
+        clientSocket1.emit('turn on draw')
+      }
+    })
   })
 })

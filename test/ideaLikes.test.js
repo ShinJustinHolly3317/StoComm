@@ -4,14 +4,8 @@ const { getIdeaLikes } = require('./fake-data-generator')
 require('./teardown')()
 
 describe('PATCH /api/1.0/user/', () => {
-  beforeAll(() => {
-    server.listen(3000, function () {
-      console.log(`start test server at port 3000`)
-    })
-  })
   afterAll((done) => {
     redisClient.quit()
-    server.close()
     done()
   })
 

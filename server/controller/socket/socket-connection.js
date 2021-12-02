@@ -150,6 +150,10 @@ async function socketConnection(io) {
           await Chat.insertChatHistory(cleanChatHistory(roomId), roomId)
         }
       })
+
+      // For Jest test
+      socket.emit('join success')
+      socket.to(roomId).emit('join success')
     })
   })
 }
