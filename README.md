@@ -11,7 +11,7 @@ Inspired by Tradingview and Stocktwits.
  * Email: test@mail.com
  * Password: test
 
-*Vistors are only for ideas post reviewing, please log in to experience complete collaborative features!*
+*Vistors are only for ideas posts reviewing, please log in to experience complete collaborative features!*ㄔㄛˉ
 
 ### One-Click Login
 Type email and password automatically when sign in
