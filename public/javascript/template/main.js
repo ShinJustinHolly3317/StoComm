@@ -506,7 +506,19 @@ async function fbInit() {
   })(document, 'script', 'facebook-jssdk')
 }
 
+async function demoMode(){
+  if (!Number(getQueryObject().is_demo)) return
+
+  const userEmailEle = document.querySelector('#nav-user-email')
+  const userpasswordEle = document.querySelector('#nav-user-password')
+
+  userEmailEle.value = 'test@mail.com'
+  userpasswordEle.value = 'test'
+  loginModal.show()
+}
+
 // Main
 displayemeberBtn()
 initInputValid()
 fbInit()
+demoMode()

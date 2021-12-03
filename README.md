@@ -11,14 +11,16 @@ Inspired by Tradingview and Stocktwits.
  * Email: test@mail.com
  * Password: test
 
-*Vistors are only for ideas posts reviewing, please log in to experience complete collaborative features!*ㄔㄛˉ
+*Vistors are only for ideas posts reviewing, please log in to experience complete collaborative features!*
 
-### One-Click Login
-Type email and password automatically when sign in
- * [Fast-Login](https://stocomm.site/?testlogin)
+## One-Click Login
+Quick fill out login form with demo email and password 
+
+ * [Fast-Login](https://stocomm.site?is_demo=1)
 
  ---
 
+## Home Page
 <img src="./public/img/readme/stocomm-homepage.gif">
 
 ## Table of Contents
@@ -43,16 +45,20 @@ Type email and password automatically when sign in
 
  <img src="./public/img/readme/start.gif">
 
- * ### Host can control drawing & voice permission 
+ * ### Drawing & Voice permission Control
    * ### Host View
+     * ### Hosts can turn on or turn off client's drawing permission
+     * ### Hosts can turn on or turn off client's voice permission
 
    <img src="./public/img/readme/host-pert.gif">
 
    * ### Client View
+     * ### The drawing tool is hidden when Host turn off drawing permission
+     * ### The voice connection is closed when Host mutes all clients
 
    <img src="./public/img/readme/client-pert.gif">
 
- * ### Discuss topics with drawing tool
+ * ### Discuss topics with real-time collaborative drawing tool
 
  <img src="./public/img/readme/draw.gif">
 

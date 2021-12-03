@@ -158,7 +158,10 @@ async function drawEventLoad(
   })
 
   socket.on('turn on draw', async () => {
-    if (roomClients[socket.id].userId !== hostId) {
+    // Authorize user role 
+    const roomInfo = await WarRoom.getRoomInfo(roomId)
+    const roomHostId = roomInfo[0].user_id
+    if (roomHostId !== hostId) {
       return
     }
 
@@ -172,7 +175,10 @@ async function drawEventLoad(
   })
 
   socket.on('turn off draw', async () => {
-    if (roomClients[socket.id].userId !== hostId) {
+    // Authorize user role
+    const roomInfo = await WarRoom.getRoomInfo(roomId)
+    const roomHostId = roomInfo[0].user_id
+    if (roomHostId !== hostId) {
       return
     }
 
