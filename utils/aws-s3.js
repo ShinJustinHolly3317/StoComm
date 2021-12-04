@@ -31,7 +31,7 @@ const userPictureUpload = multer({
   limits: { fileSize: MAX_FILE_SIZE }
 })
 
-// Handle product created data: images/ text
+// Handle user uploaded image
 const userPictureUploadS3 = userPictureUpload.single('user-picture')
 
 async function uploadBase64Pic(image) {

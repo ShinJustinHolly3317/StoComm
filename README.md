@@ -21,7 +21,7 @@ Quick fill out login form with demo email and password
  ---
 
 ## Home Page
-<img src="./public/img/readme/stocomm-homepage.gif">
+<img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/stocomm-homepage.gif">
 
 ## Table of Contents
  * [Technologies](#Technologies)
@@ -33,38 +33,40 @@ Quick fill out login form with demo email and password
 
 ## Architecture
 
-<img src="./public/img/readme/architecture.png">
+<img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/architecture.png">
 
 ## Database Schema
 
-<img src="./public/img/readme/db-schema.png">
+<img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/db-schema.png">
 
 ## Features
 
  * ### Start a room to discuss or share insights
+   * #### Choose a stock by entering the company name or stock code
+   * #### Clients can join this room to share or to discuss this topic
 
- <img src="./public/img/readme/start.gif">
+ <img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/start.gif">
 
  * ### Drawing & Voice permission Control
    * ### Host View
      * ### Hosts can turn on or turn off client's drawing permission
      * ### Hosts can turn on or turn off client's voice permission
 
-   <img src="./public/img/readme/host-pert.gif">
+   <img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/host-pert.gif">
 
    * ### Client View
      * ### The drawing tool is hidden when Host turn off drawing permission
      * ### The voice connection is closed when Host mutes all clients
 
-   <img src="./public/img/readme/client-pert.gif">
+   <img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/client-pert.gif">
 
  * ### Discuss topics with real-time collaborative drawing tool
 
- <img src="./public/img/readme/draw.gif">
+ <img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/draw.gif">
 
  * ### Post your idea to community
 
- <img src="./public/img/readme/post.gif">
+ <img src="https://d2jpvpf7zh5xyj.cloudfront.net/readme/post.gif">
 
 ## Technologies
 ### Back-End

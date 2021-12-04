@@ -1,4 +1,4 @@
-const { FB_API } = process.env
+const { FB_API, CLOUDFRONT_PATH } = process.env
 const validator = require('validator')
 const User = require('../model/user-model')
 const axios = require('axios')
@@ -168,9 +168,13 @@ async function editProfile(req, res) {
   const userData = {}
   const { user_name, user_id } = req.body
 
+  // Handle cloudFront image url
+  let s3Url = req.file.location
+  let cdnUrl = CLOUDFRONT_PATH + 'users/' + s3Url.split('/users/')[1]
+
   userData.name = user_name || ''
   userData.id = Number(user_id)
-  userData.picture = req.file ? req.file.location : ''
+  userData.picture = req.file ? cdnUrl : ''
 
   // Prevent over length name
   if (textLenCheck(userData.name) > 32) {
