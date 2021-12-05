@@ -44,19 +44,21 @@ Quick fill out login form with demo email and password
  * ### Start a room to discuss or share insights
    * #### Choose a stock by entering the company name or stock code
    * #### Clients can join this room to share or to discuss this topic
+   * #### Host can add multiple analytic charts to the whiteboard
 
  <img src="./public/img/readme/start.gif">
 
  * ### Drawing & Voice permission Control
    * ### Host View
-     * ### Hosts can turn on or turn off client's drawing permission
-     * ### Hosts can turn on or turn off client's voice permission
+     * #### Hosts can turn on or turn off client's drawing permission
+     * #### Hosts can turn on or turn off client's voice permission
+     * #### Host can present ideas without clients interrupting
 
    <img src="./public/img/readme/host-pert.gif">
 
    * ### Client View
-     * ### The drawing tool is hidden when Host turn off drawing permission
-     * ### The voice connection is closed when Host mutes all clients
+     * #### The drawing tool is hidden when Host turn off drawing permission
+     * #### The voice connection is closed when Host mutes all clients, which remains only one-way broadcast
 
    <img src="./public/img/readme/client-pert.gif">
 
