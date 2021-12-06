@@ -1,6 +1,6 @@
 # StoComm
 
-A platform where investors can share their insights to community via real-time voice chat and collaborative whiteboard tool.
+A platform where investors can share their insights to community via real-time voice chat and collaborative whiteboard tool. <br/>
 Inspired by Tradingview and Stocktwits.
 
  * [Home page](https://stocomm.site/)
@@ -11,7 +11,8 @@ Inspired by Tradingview and Stocktwits.
  * Email: test@mail.com
  * Password: test
 
-*Vistors are only for ideas posts reviewing, please log in to experience complete collaborative features!*
+*Vistors are only for ideas posts reviewing. <br/>
+Please log in to experience complete collaborative features!*
 
 ## One-Click Login
 Quick fill out login form with demo email and password 
@@ -24,6 +25,7 @@ Quick fill out login form with demo email and password
 <img src="./public/img/readme/stocomm-homepage.gif">
 
 ## Table of Contents
+ * [Features](#Features)
  * [Technologies](#Technologies)
  * [Architecture](#Architecture)
  * [Socket Flowchart](#Socket-Flowchart)
@@ -31,28 +33,21 @@ Quick fill out login form with demo email and password
  * [Main Features](#Main-Features)
  * [Contact](#Contact)
 
-## Architecture
-
-<img src="./public/img/readme/architecture.png">
-
-## Database Schema
-
-<img src="./public/img/readme/db-schema.png">
-
 ## Features
 
  * ### Start a room to discuss or share insights
-   * #### Choose a stock by entering the company name or stock code
-   * #### Clients can join this room to share or to discuss this topic
+   * #### Host can choose a stock as a topic by entering a company name or stock code
    * #### Host can add multiple analytic charts to the whiteboard
+   * #### Clients can share or discuss ideas with room member related to the topic after joining a room
 
  <img src="./public/img/readme/start.gif">
 
  * ### Drawing & Voice permission Control
    * ### Host View
-     * #### Hosts can turn on or turn off client's drawing permission
-     * #### Hosts can turn on or turn off client's voice permission
-     * #### Host can present ideas without clients interrupting
+     * #### Hosts can control below permissions when a focused environment is needed
+       * #### Client's drawing permission
+       * #### Client's voice permission
+
 
    <img src="./public/img/readme/host-pert.gif">
 
@@ -70,9 +65,23 @@ Quick fill out login form with demo email and password
 
  <img src="./public/img/readme/post.gif">
 
+---
+
+## Architecture
+
+<img src="./public/img/readme/architecture.png">
+
+---
+
+## Database Schema 
+
+<img src="./public/img/readme/db-schema.png">
+
+---
+
 ## Technologies
 ### Back-End
- * **Runtime:** Node,js
+ * **Runtime:** Node.js
  * **Framework:** Express
  * **Server OS:** Linux
  * **Server-side Render:** Handlebars
@@ -103,6 +112,10 @@ Quick fill out login form with demo email and password
 ### Test
  * Jest
  * Supertest
+
+### Others 
+ * Design Pattern: MVC
+ * Linter: Prettier
 
 ## Contact
 
