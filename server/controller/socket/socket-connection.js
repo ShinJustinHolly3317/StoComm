@@ -122,10 +122,12 @@ async function socketConnection(io) {
         socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
 
         // If host leave, delete host id
+        let leaveHostId
         if (
           onlineClients[roomId][socket.id].userId ===
           onlineClients[roomId].hostId
         ) {
+          leaveHostId = onlineClients[roomId].hostId
           multipleHostList[roomId] -= 1
         }
 
@@ -135,7 +137,7 @@ async function socketConnection(io) {
           //If it's still on people in this room after 1 mins, clear this rooms
           setTimeout(() => {
             if (Object.keys(onlineClients[roomId]).length - 1 === 0) {
-              WarRoom.endWarRoom(roomId, 1)
+              WarRoom.endWarRoom(roomId, leaveHostId)
             }
           }, ROOM_EXPIRED_CHECK)
         }
