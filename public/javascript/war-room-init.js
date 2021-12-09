@@ -217,7 +217,7 @@ WarRoomView.navBar.addEventListener(
     if (e.target.tagName === 'IMG') {
       const swalResult = await Swal.fire({
         title: '即將關閉房間',
-        text: '你按到首頁連結了喔，確定要離開嗎? 離開將會離所有粉絲而去',
+        text: '你按到首頁連結了喔，確定要離開嗎?',
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#e6e6e6',
@@ -282,7 +282,7 @@ WarRoomView.visitorLeaveBtn.addEventListener('click', async (e) => {
   const result = await userAuth()
   const role = result.data.role
   let streamerLeave = '確定要離開嗎?你的粉絲在等著你'
-  let visitorLeave = '確定要離開嗎?你的粉絲在等著你'
+  let visitorLeave = '確定要離開嗎?主持人正在分享人生精華'
 
   const swalResult = await Swal.fire({
     title: '即將關閉房間',
