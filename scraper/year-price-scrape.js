@@ -1,5 +1,6 @@
 require('dotenv').config()
 const axios = require('axios')
+const SLEEP_TIME = Math.floor(Math.random() * 4000) + 8000
 
 // User agent list
 const USER_AGNET = [
@@ -32,7 +33,7 @@ async function main() {
     )
 
     await yearPrice(stockList[i][0], stockList[i][1])
-    await sleep(Math.floor(Math.random() * 4000) + 8000)
+    await sleep(SLEEP_TIME)
     console.log('missingStock', missingStock)
   }
   console.log(stockList)

@@ -1,6 +1,7 @@
 require('dotenv').config()
 const axios = require('axios')
 const moment = require('moment')
+const SLEEP_TIME = Math.floor(Math.random() * 4000) + 8000
 
 // user agent list
 const USER_AGNET = [
@@ -32,7 +33,7 @@ async function main() {
 
     console.log('Company:', stockList[i])
     await chipScrape(stockList[i][0],stockList[i][1])
-    await sleep(Math.floor(Math.random() * 4000) + 8000)
+    await sleep(SLEEP_TIME)
     console.log('missingStock', missingStock)
   }
   console.log(stockList)

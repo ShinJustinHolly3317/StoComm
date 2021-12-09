@@ -1,6 +1,7 @@
 require('dotenv').config()
 const axios = require('axios')
 const moment = require('moment')
+const SLEEP_TIME = Math.floor(Math.random() * 4000) + 8000
 
 // User agent list
 const USER_AGNET = [
@@ -42,7 +43,7 @@ async function main() {
       stockList[i][1],
       chineseChar || '' + companySufix
     )
-    await sleep(Math.floor(Math.random() * 4000) + 8000)
+    await sleep(SLEEP_TIME)
     console.log('missingStock', missingStock)
   }
   console.log(stockList)

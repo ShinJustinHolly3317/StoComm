@@ -2,6 +2,7 @@ require('dotenv').config()
 const cheerio = require('cheerio')
 const axios = require('axios')
 const moment = require('moment')
+const SLEEP_TIME = Math.floor(Math.random() * 4000) + 8000
 
 // User agent list
 const USER_AGNET = [
@@ -34,7 +35,7 @@ async function main() {
     console.log(`stock_id:${i}, ${stockList[i][1]}, ${company}`)
 
     await stockInsertRevenue(stockList[i][0], stockList[i][1], company)
-    await sleep(Math.floor(Math.random() * 4000) + 8000)
+    await sleep(SLEEP_TIME)
     console.log('missingStock', missingStock)
   }
   console.log(stockList)
