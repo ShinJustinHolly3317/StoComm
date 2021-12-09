@@ -89,7 +89,7 @@ async function renderRealPriceChart(stockCode, id) {
 }
 
 async function fetchDayPrices(id) {
-  const response = await fetch(`/api/1.0/stock/day-prices/${id}`)
+  const response = await fetch(`/api/1.0/stock/day_prices/${id}`)
   const result = await response.json()
 
   // price info

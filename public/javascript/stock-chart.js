@@ -151,7 +151,7 @@ function tradingDuration() {
 }
 
 async function fetchDayPrices(id) {
-  const response = await fetch(`/api/1.0/stock/day-prices/${id}`)
+  const response = await fetch(`/api/1.0/stock/day_prices/${id}`)
 
   if(response.status !== 200){
     document.querySelector('#stock-real-price').classList.add('hidden')
@@ -194,7 +194,7 @@ async function fetchDayPrices(id) {
 }
 
 async function renderRevenueChart(id) {
-  const response = await fetch(`/api/1.0/stock/stock-revenue/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock_revenue/${id}`)
   const result = await response.json()
   const revenueData = result.data
   if (response.status !== 200) {
@@ -247,7 +247,7 @@ async function renderRevenueChart(id) {
 }
 
 async function renderGrossChart(id) {
-  const response = await fetch(`/api/1.0/stock/stock-gross/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock_gross/${id}`)
   const result = await response.json()
   const grossData = result.data
 
@@ -301,7 +301,7 @@ async function renderGrossChart(id) {
 }
 
 async function renderChips(stockCode) {
-  const response = await fetch(`/api/1.0/stock/stock-chip/${stockCode}`)
+  const response = await fetch(`/api/1.0/stock/stock_chip/${stockCode}`)
   const chipData = await response.json()
   const foreign = []
   const investmentTrust = []
@@ -379,7 +379,7 @@ async function renderChips(stockCode) {
 }
 
 async function renderNews(id) {
-  const response = await fetch(`/api/1.0/stock/stock-news/${id}`)
+  const response = await fetch(`/api/1.0/stock/stock_news/${id}`)
   if (response.status !== 200) {
     document.querySelector('.news-card').innerHTML = `
       <div class="d-flex justify-content-center align-items-center h-100">
@@ -412,7 +412,7 @@ async function renderNews(id) {
 
 async function yearPriceHistory() {
   let table, mapping, chart
-  const url = `/api/1.0/stock/year-price/${STOCK_CODE}`
+  const url = `/api/1.0/stock/year_price/${STOCK_CODE}`
   const response = await fetch(url)
 
   if (response.status !== 200) {
@@ -487,7 +487,7 @@ async function yearPriceHistory() {
 }
 
 async function getCompanyName(stockCode) {
-  const response = await fetch(`/api/1.0/stock/company-name/${stockCode}`)
+  const response = await fetch(`/api/1.0/stock/company_name/${stockCode}`)
 
   if (response.status !== 200) {
     // blocking user typing invalid stock code in URL

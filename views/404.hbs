@@ -24,7 +24,7 @@
 <script>
   async function yearPriceHistory() {
     let table, mapping, chart
-    const url = `/api/1.0/stock/year-price/${2404}`
+    const url = `/api/1.0/stock/year_price/${2404}`
     const resposne = await fetch(url)
     const result = await resposne.json()
     table = anychart.data.table()

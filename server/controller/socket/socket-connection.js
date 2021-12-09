@@ -122,12 +122,11 @@ async function socketConnection(io) {
         socket.to(roomId).emit('user left msg', `${userName} 離開房間拉`)
 
         // If host leave, delete host id
-        let leaveHostId
+        let leaveHostId = onlineClients[roomId].hostId
         if (
           onlineClients[roomId][socket.id].userId ===
           onlineClients[roomId].hostId
         ) {
-          leaveHostId = onlineClients[roomId].hostId
           multipleHostList[roomId] -= 1
         }
 
