@@ -7,7 +7,7 @@ async function insertDrawHistory(drawHistoryData, roomId) {
 
   const conn = await db.getConnection()
   try {
-    await conn.query('START TRANSACTION')
+    await conn.query('BEGIN')
 
     await conn.query(deleteQry, [roomId])
     const [result] = await conn.query(insertQry, [drawHistoryData])

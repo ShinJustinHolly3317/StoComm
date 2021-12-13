@@ -200,8 +200,6 @@ async function changeToStreamer(userId) {
 async function followUser(userId, followId) {
   const conn = await db.getConnection()
   try {
-    await conn.query('BEGIN')
-
     const [searchResult] = await conn.query(
       'SELECT * FROM follow_status WHERE user_id = ? AND following_id = ?',
       [userId, followId]
@@ -215,11 +213,9 @@ async function followUser(userId, followId) {
       'INSERT INTO follow_status (user_id, following_id) VALUES ?',
       [[[userId, followId]]]
     )
-    await conn.query('COMMIT')
 
     return result.insertId
   } catch (error) {
-    await conn.query('ROLLBACK')
     console.log(error)
     return { error }
   } finally {
@@ -228,23 +224,15 @@ async function followUser(userId, followId) {
 }
 
 async function unFollowUser(userId, followId) {
-  const conn = await db.getConnection()
   try {
-    await conn.query('BEGIN')
-
-    const [result] = await conn.query(
+    const [result] = await db.query(
       'DELETE FROM follow_status WHERE user_id = ? AND following_id = ?',
       [[userId], [followId]]
     )
-    await conn.query('COMMIT')
-
     return result.insertId
   } catch (error) {
-    await conn.query('ROLLBACK')
     console.log(error)
     return { error }
-  } finally {
-    await conn.release()
   }
 }
 

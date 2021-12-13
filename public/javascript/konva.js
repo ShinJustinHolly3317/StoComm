@@ -75,6 +75,13 @@ stage.on('mousedown touchstart', async (e) => {
     return
   }
 
+  // clear 
+  if (tr.nodes()[0]) {
+    tr.nodes()[0].draggable(false)
+    tr.nodes([])
+    curSelectShape = null
+  }
+  
   let latestLayerId
   const pos = stage.getPointerPosition()
 
@@ -502,7 +509,8 @@ addCanvasBtnArea.addEventListener('click', async (e) => {
   }
 
   const canvas = await html2canvas(curStockInfo, {
-    y: isYearHistory ? -120 : -60
+    y: isYearHistory ? -120 : -60,
+    logging: false
   })
   let canvasImg = canvas.toDataURL('image/jpeg')
   const cavasInfo = {
