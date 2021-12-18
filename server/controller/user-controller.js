@@ -169,12 +169,14 @@ async function editProfile(req, res) {
   const { user_name, user_id } = req.body
 
   // Handle cloudFront image url
-  let s3Url = req.file.location
-  let cdnUrl = CLOUDFRONT_PATH + 'users/' + s3Url.split('/users/')[1]
+  if (req.file) {
+    let s3Url = req.file.location
+    let cdnUrl = CLOUDFRONT_PATH + 'users/' + s3Url.split('/users/')[1]
+    userData.picture = req.file ? cdnUrl : ''
+  }
 
   userData.name = user_name || ''
   userData.id = Number(user_id)
-  userData.picture = req.file ? cdnUrl : ''
 
   // Prevent over length name
   if (textLenCheck(userData.name) > 32) {
