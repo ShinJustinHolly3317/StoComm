@@ -282,7 +282,7 @@ async function editProfile(userData) {
     const [result] = await db.query(qryString, [
       userData.name.length,
       userData.name,
-      userData.picture.length,
+      userData.picture ? userData.picture.length : 0,
       userData.picture,
       userData.id
     ])
