@@ -35,7 +35,6 @@ const userPictureUpload = multer({
 const userPictureUploadS3 = userPictureUpload.single('user-picture')
 
 async function uploadBase64Pic(image) {
-  // upload to S3
   const image64 = image.replace('data:image/jpeg;base64,', '')
   const buffdata = new Buffer.from(image64, 'base64')
   const imgName = moment().unix()

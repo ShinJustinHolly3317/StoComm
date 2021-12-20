@@ -32,6 +32,7 @@
     "socket.io": "^4.3.1",
     "socket.io-client": "^4.4.0",
     "supertest": "^6.1.6",
+    "sweetalert2": "^11.3.0",
     "validator": "^13.6.0"
   }
 }
