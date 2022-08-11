@@ -8,3 +8,18 @@ services:
     build: .
     ports:
       - "3000:3000"
+  redis:
+    image: redis:7.0.4-alpine
+    port: 
+     - '6379:6379'
+  mysql:
+    image: mysql:8
+    ports:
+      - 3306:3306
+    volumes:
+      - ~/apps/mysql:/var/lib/mysql
+    environment:
+      - MYSQL_ROOT_PASSWORD=test
+      - MYSQL_PASSWORD=test
+      - MYSQL_USER=localUser
+      - MYSQL_DATABASE=stocomm
