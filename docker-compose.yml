@@ -2,24 +2,32 @@ version: '3'
 services:
   app: 
     container_name: stocomm
-    env_file:
-      - docker.env
-    restart: always
     build: .
     ports:
-      - "3000:3000"
+      - 3000:3000
+    environment:
+      - SQL_PASSWORD=kker
+      - SQL_ACCOUNT=root
+      - SQL_DATABASE=stocomm
+      - SQL_HOST=mysql
+      - SQL_PORT=3306
+      - CACHE_HOST=redis
+      - CACHE_PORT=6379
+      - PORT=3000
+    depends_on:
+      - redis
+      - mysql
   redis:
     image: redis:7.0.4-alpine
-    port: 
-     - '6379:6379'
+    ports:
+      - 6379:6379
   mysql:
     image: mysql:8
     ports:
       - 3306:3306
-    volumes:
-      - ~/apps/mysql:/var/lib/mysql
     environment:
-      - MYSQL_ROOT_PASSWORD=test
-      - MYSQL_PASSWORD=test
-      - MYSQL_USER=localUser
+      - MYSQL_ROOT_PASSWORD=kker
+      - MYSQL_PASSWORD=kker
+      - MYSQL_USER=king
       - MYSQL_DATABASE=stocomm
+    

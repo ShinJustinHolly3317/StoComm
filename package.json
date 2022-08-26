@@ -4,8 +4,8 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "test": "set MODE=test&&jest --coverage --detectOpenHandles --forceExit",
-    "dev": "nodemon app.js"
+    "test": "MODE=test && jest --coverage --detectOpenHandles --forceExit",
+    "dev": "NODE_ENV=development && nodemon app.js"
   },
   "keywords": [],
   "author": "",
