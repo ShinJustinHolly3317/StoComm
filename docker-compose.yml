@@ -31,4 +31,6 @@ services:
       - MYSQL_PASSWORD=kker
       - MYSQL_USER=king
       - MYSQL_DATABASE=stocomm
+    volumes:
+      - /mnt/c/Users/kao/mnt-mysql/stocomm.sql:/docker-entrypoint-initdb.d/stocomm.sql:ro
     
