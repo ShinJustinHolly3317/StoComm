@@ -1,5 +1,5 @@
 // Require mysql connection
-const db = require('./config/mysqlConnection')
+const db = require('./config/mysql-connection')
 
 async function insertDrawHistory(drawHistoryData, roomId) {
   const insertQry = `INSERT INTO drawing_history (user_id, draw_id, war_room_id, tool, thick, color, url, locations) VALUES ?`

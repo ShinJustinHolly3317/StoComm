@@ -16,7 +16,7 @@ const USER_AGNET = [
 const {
   insertNews,
   getStockList
-} = require('../server/model/stock_info_model')
+} = require('../server/model/stock-info-model')
 
 // Require mysql connection
 require('dotenv').config()

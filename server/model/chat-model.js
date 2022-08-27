@@ -1,5 +1,5 @@
 // Require mysql connection
-const db = require('./config/mysqlConnection')
+const db = require('./config/mysql-connection')
 
 async function insertChatHistory(chatHistory, roomId) {
   const deleteQry = `DELETE FROM war_room_chat_history WHERE war_room_id = ?`

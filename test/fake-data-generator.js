@@ -1,7 +1,7 @@
 require('dotenv').config()
 const { MODE } = process.env
 const bcrypt = require('bcrypt')
-const pool = require('../server/model/config/mysqlConnection')
+const pool = require('../server/model/config/mysql-connection')
 const salt = parseInt(process.env.BCRYPT_SALT)
 const { users, ideaLikes, warRoom } = require('./fake-data')
 

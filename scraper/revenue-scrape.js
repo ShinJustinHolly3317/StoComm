@@ -18,7 +18,7 @@ const {
   insertRevenue,
   getStockList,
   insertGross
-} = require('../server/model/stock_info_model')
+} = require('../server/model/stock-info-model')
 
 // Quarter
 const quarters = ['Q4', 'Q3', 'Q2', 'Q1']

@@ -14,6 +14,7 @@ services:
       - CACHE_HOST=redis
       - CACHE_PORT=6379
       - PORT=3000
+      - MODE=dev
     depends_on:
       - redis
       - mysql

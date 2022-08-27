@@ -1,6 +1,6 @@
 const axios = require('axios')
 const moment = require('moment')
-const Stock = require('../model/stock_info_model')
+const Stock = require('../model/stock-info-model')
 
 // Functions
 async function getStockNews(req, res) {

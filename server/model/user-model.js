@@ -1,5 +1,5 @@
 // Require mysql connection
-const db = require('./config/mysqlConnection')
+const db = require('./config/mysql-connection')
 const bcrypt = require('bcrypt')
 const salt = parseInt(process.env.BCRYPT_SALT)
 const { TOKEN_EXPIRE, TOKEN_SECRET } = process.env // 30 days by seconds

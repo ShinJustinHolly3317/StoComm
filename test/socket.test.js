@@ -2,7 +2,7 @@ require('dotenv').config()
 const redisClient = require('../utils/cache')
 const socketServer = require('../app').server
 const Client = require('socket.io-client')
-const db = require('../server/model/config/mysqlConnection')
+const db = require('../server/model/config/mysql-connection')
 const port = 3001
 const socketURL = `http://localhost:${port}`
 

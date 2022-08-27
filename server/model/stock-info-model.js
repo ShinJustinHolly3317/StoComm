@@ -1,5 +1,5 @@
 // Require mysql connection
-const db = require('./config/mysqlConnection')
+const db = require('./config/mysql-connection')
 
 async function insertRevenue(revenueData) {
   const insertQry = `INSERT INTO revenue(stock_id, revenue, quarter, year) VALUES ?`

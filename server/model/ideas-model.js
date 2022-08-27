@@ -1,5 +1,5 @@
 // Require mysql connection
-const db = require('./config/mysqlConnection')
+const db = require('./config/mysql-connection')
 const moment = require('moment')
 
 async function createIdeas(ideasData) {
