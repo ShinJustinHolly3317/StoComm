@@ -7,20 +7,33 @@ const dbNameConfig = {
   test: process.env.SQL_DATABASE_TEST // for integration test
 }
 
-const db = mysql.createPool({
-  connectionLimit: 10,
-  host: process.env.SQL_HOST,
-  port: process.env.SQL_PORT,
-  user: process.env.SQL_ACCOUNT,
-  password: process.env.SQL_PASSWORD,
-  database: dbNameConfig[process.env.MODE],
-  multipleStatements: true
-})
+function createConnection() {
+  return mysql.createPool({
+    connectionLimit: 10,
+    host: process.env.SQL_HOST,
+    port: process.env.SQL_PORT,
+    user: process.env.SQL_ACCOUNT,
+    password: process.env.SQL_PASSWORD,
+    database: dbNameConfig[process.env.MODE],
+    multipleStatements: true
+  })
+}
 
-db.getConnection(function (err, connection) {
-  if (err) throw err // not connected!
-  console.log('Mysql connected..!!')
-})
-const dbPromise = db.promise()
+function getDbConnectionPool() {
+  const db = createConnection()
+
+  db.getConnection((err, connection) => {
+    if (err) {
+      console.log(err)
+      console.log(connection)
+      setTimeout(createConnection, 1000)
+    } // not connected!
+    console.log('Mysql connected..!!')
+  })
+
+  return db
+}
+
+const dbPromise = getDbConnectionPool().promise()
 
 module.exports = dbPromise

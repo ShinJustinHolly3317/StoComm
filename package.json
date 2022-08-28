@@ -5,7 +5,8 @@
   "main": "app.js",
   "scripts": {
     "test": "MODE=test && jest --coverage --detectOpenHandles --forceExit",
-    "dev": "NODE_ENV=development && nodemon app.js"
+    "dev": "NODE_ENV=development && nodemon app.js",
+    "dockerbuild": "docker compose down && docker compose build"
   },
   "keywords": [],
   "author": "",
