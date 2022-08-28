@@ -225,8 +225,6 @@ async function checkUserExist(req, res) {
   } else {
     res.send({ searchResult: false })
   }
-
-  res.send('ddd')
 }
 
 module.exports = {

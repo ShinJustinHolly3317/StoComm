@@ -22,13 +22,16 @@ function createConnection() {
 function getDbConnectionPool() {
   const db = createConnection()
 
-  db.getConnection((err, connection) => {
+  db.getConnection(async (err, connection) => {
+    // this is for checking connection status
     if (err) {
-      console.log(err)
-      console.log(connection)
-      setTimeout(createConnection, 1000)
-    } // not connected!
+      // console.log(err)
+      console.log('Mysql Connection retried...')
+      return setTimeout(getDbConnectionPool, 5000)
+    }
+
     console.log('Mysql connected..!!')
+    connection.release()
   })
 
   return db
