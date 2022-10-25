@@ -6,6 +6,10 @@ Inspired by Tradingview and Stocktwits.
  * [Home page](https://stocomm.site/)
  * [Ideas Explore page](https://stocomm.site/explore)
 
+## How to Start App
+1. install docker
+2. go with `docker compose up`
+
 ## Test Account
 
  * Email: test@mail.com
