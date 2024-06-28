@@ -1,7 +1,8 @@
-FROM node:16-alpine
+FROM --platform=amd64 node:20-alpine
 
 WORKDIR /usr/src/app
 COPY package.json ./
+# RUN sudo apt install chromium & sudo apt install chromium-browser
 RUN npm install
 COPY  . .
 EXPOSE 3000
